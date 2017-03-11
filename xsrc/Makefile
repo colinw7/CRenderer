@@ -12,6 +12,7 @@ LIB_DIR = ../lib
 all: $(LIB_DIR)/libCXRenderer.a
 
 SRC = \
+CXLibRenderer2D.cpp \
 CXLibPixelRenderer.cpp \
 
 OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SRC))
