@@ -12,8 +12,9 @@ LIB_DIR = ../lib
 all: $(LIB_DIR)/libCGLRenderer.a
 
 SRC = \
-CGLPixelRenderer.cpp \
 CGLRenderer3D.cpp \
+CGLRenderer2D.cpp \
+CGLPixelRenderer.cpp \
 
 OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SRC))
 
