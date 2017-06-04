@@ -46,7 +46,7 @@ class CFreeTypePath2D : public CFreeTypePathRenderer {
   CPath2D *getPath() const { return path_; }
 
  private:
-  CPath2D *path_;
+  CPath2D *path_ { nullptr };
 };
 
 #endif

@@ -16,8 +16,8 @@
 #include <CFillType.h>
 #include <CTransform2D.h>
 #include <CPath2D.h>
-#include <CAutoPtr.h>
 #include <CRenderer2DFunc.h>
+#include <memory>
 
 class CGenGradient;
 
@@ -115,7 +115,7 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
 
   //------
 
-  virtual void updateSize(int width, int heigh);
+  virtual void updateSize(int width, int height);
 
   virtual void beginDraw();
   virtual void endDraw  ();
@@ -162,7 +162,7 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
 
   CFillType getFillType() const;
 
-  CPath2D *getPath() const { return path_; }
+  CPath2D *getPath() const { return path_.get(); }
 
   //------
 
@@ -606,20 +606,23 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
   void drawFunction(const CRenderer2DFunc &func);
 
  protected:
-  bool                         enabled_ { false };
-  CPixelRenderer              *pixel_renderer_ { 0 };
-  CDisplayRange2D              display_range_;
-  CMatrix2D                    view_matrix_;
-  CMatrix2D                    view_imatrix_;
-  bool                         transform_flag_ { false };
-  bool                         anti_alias_ { false };
-  CPen                         pen_;
-  CBrush                       brush_;
-  CAutoPtr<CPath2D>            path_;
-  PathStack                    path_stack_;
-  CAutoPtr<CRendererRegion2D>  region_;
-  CSymbolType                  symbol_ { CSYMBOL_NONE };
-  CPixelRendererPath           ppath_;
+  typedef std::unique_ptr<CPath2D>           PathP;
+  typedef std::unique_ptr<CRendererRegion2D> RendererRegion2DP;
+
+  bool               enabled_ { false };
+  CPixelRenderer*    pixel_renderer_ { 0 };
+  CDisplayRange2D    display_range_;
+  CMatrix2D          view_matrix_;
+  CMatrix2D          view_imatrix_;
+  bool               transform_flag_ { false };
+  bool               anti_alias_ { false };
+  CPen               pen_;
+  CBrush             brush_;
+  PathP              path_;
+  PathStack          path_stack_;
+  RendererRegion2DP  region_;
+  CSymbolType        symbol_ { CSYMBOL_NONE };
+  CPixelRendererPath ppath_;
 };
 
 #endif

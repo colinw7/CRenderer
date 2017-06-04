@@ -7,49 +7,58 @@ class QPainter;
 class QPainterPath;
 
 class CQPath2D : public CPath2D {
- private:
-  QPainterPath *path_;
-  bool          current_point_;
-
  public:
   CQPath2D();
+
+  CQPath2D(const CQPath2D &path);
+
+  CQPath2D &operator=(const CQPath2D &path);
+
  ~CQPath2D();
 
-  void init();
+  CQPath2D *dup() const override;
 
-  void ellipse(const CPoint2D &center, double xr, double yr);
+  void init() override;
 
-  void text(const std::string &text, CFontPtr font);
+  void ellipse(const CPoint2D &center, double xr, double yr) override;
 
-  void roundedRectangle(const CPoint2D &point1, const CPoint2D &point2, double rx, double ry);
+  void text(const std::string &text, CFontPtr font) override;
 
-  bool moveTo (const CPoint2D &point);
-  bool rmoveTo(const CPoint2D &point);
+  void roundedRectangle(const CPoint2D &point1, const CPoint2D &point2, double rx, double ry) override;
 
-  bool lineTo (const CPoint2D &point);
-  bool rlineTo(const CPoint2D &point);
+  bool moveTo (const CPoint2D &point) override;
+  bool rmoveTo(const CPoint2D &point) override;
 
-  void arc (const CPoint2D &point, double xr, double yr, double angle1, double angle2);
-  void arcN(const CPoint2D &point, double xr, double yr, double angle1, double angle2);
+  bool lineTo (const CPoint2D &point) override;
+  bool rlineTo(const CPoint2D &point) override;
 
-  bool arcTo(const CPoint2D &point1, const CPoint2D &point2, double xr, double yr);
+  void arc (const CPoint2D &point, double xr, double yr, double angle1, double angle2) override;
+  void arcN(const CPoint2D &point, double xr, double yr, double angle1, double angle2) override;
 
-  bool bezier2To(const CPoint2D &point1, const CPoint2D &point2);
-  bool bezier3To(const CPoint2D &point1, const CPoint2D &point2, const CPoint2D &point3);
+  bool arcTo(const CPoint2D &point1, const CPoint2D &point2, double xr, double yr) override;
 
-  void close();
+  bool bezier2To(const CPoint2D &point1, const CPoint2D &point2) override;
+  bool bezier3To(const CPoint2D &point1, const CPoint2D &point2, const CPoint2D &point3) override;
+
+  void close() override;
 
   void stroke(QPainter *painter);
 
-  void setFillType(CFillType fill_type);
+  void setFillType(CFillType fill_type) override;
 
   void fill(QPainter *painter);
   void fillImage(QPainter *painter, CImagePtr image);
   void fillGradient(QPainter *painter, CRefPtr<CGenGradient> gradient);
 
-  bool getCurrentPoint(CPoint2D &point);
+  bool getCurrentPoint(CPoint2D &point) override;
 
-  void bbox(CBBox2D &bbox);
+  void bbox(CBBox2D &bbox) const override;
+
+  void transform(const CMatrix2D &m) override;
+
+ private:
+  QPainterPath *path_         { nullptr };
+  bool          currentPoint_ { false };
 };
 
 #endif

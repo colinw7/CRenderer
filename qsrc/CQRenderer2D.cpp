@@ -9,16 +9,24 @@
 
 #include <QPainter>
 
-CQRenderer2D::
-CQRenderer2D() :
- CRenderer2D(0), drawing_(false), has_transform_(false)
+// note: this implementation does not disable this overload for array types
+template<typename T, typename... Args>
+std::unique_ptr<T> make_unique(Args&&... args)
 {
-  painter_ = new QPainter;
-  pen_     = new QPen;
-  brush_   = new QBrush;
+  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
 
-  pixmap_width_  = 0;
-  pixmap_height_ = 0;
+CQRenderer2D::
+CQRenderer2D(QPainter *painter) :
+ CRenderer2D(0), painter_(painter)
+{
+  if (! painter_) {
+    painterP_ = make_unique<QPainter>();
+    painter_  = painterP_.get();
+  }
+
+  pen_   = make_unique<QPen  >();
+  brush_ = make_unique<QBrush>();
 
   brush_->setStyle(Qt::SolidPattern);
 
@@ -55,16 +63,18 @@ startDoubleBuffer(bool do_clear)
   int width  = getWidth ();
   int height = getHeight();
 
-  if (width != pixmap_width_ || height != pixmap_height_) {
-    pixmap_width_  = width;
-    pixmap_height_ = height;
+  if (width != pixmapWidth_ || height != pixmapHeight_) {
+    pixmapWidth_  = width;
+    pixmapHeight_ = height;
 
-    pixmap_ = new QPixmap(pixmap_width_, pixmap_height_);
+    pixmap_ = make_unique<QPixmap>(pixmapWidth_, pixmapHeight_);
 
     pixmap_->fill(Qt::black);
   }
 
-  getQPainter()->begin(pixmap_);
+  getQPainter()->begin(pixmap_.get());
+
+  getQPainter()->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 
   if (do_clear)
     clear();
@@ -87,7 +97,7 @@ copyDoubleBuffer()
   if (pixmap_) {
     beginDraw();
 
-    getQPainter()->drawPixmap(0, 0, *pixmap_);
+    getQPainter()->drawPixmap(0, 0, *pixmap_.get());
 
     endDraw();
   }
@@ -182,7 +192,7 @@ setQTransform()
 
   getQPainter()->setViewTransformEnabled(true);
 
-  has_transform_ = true;
+  hasTransform_ = true;
 }
 
 void
@@ -205,7 +215,7 @@ unsetQTransform()
 
   getQPainter()->setViewTransformEnabled(false);
 
-  has_transform_ = false;
+  hasTransform_ = false;
 }
 
 void
@@ -894,7 +904,7 @@ fillText(const CPoint2D &point, const std::string &text)
 
   QTransform transform = getQPainter()->worldTransform();
 
-  if (has_transform_) {
+  if (hasTransform_) {
     QTransform transform1 = transform;
 
     transform1.scale(1, -1);
@@ -906,7 +916,7 @@ fillText(const CPoint2D &point, const std::string &text)
 
   getQPainter()->drawText(QPointF(point.x, point.y), text.c_str());
 
-  if (has_transform_)
+  if (hasTransform_)
     getQPainter()->setWorldTransform(transform);
 #endif
 }
@@ -975,7 +985,7 @@ drawImage(const CPoint2D &point, CImagePtr image)
 
   QTransform transform = getQPainter()->worldTransform();
 
-  if (has_transform_) {
+  if (hasTransform_) {
     QTransform transform1 = transform;
 
     transform1.scale(1, -1);
@@ -1000,7 +1010,7 @@ drawAlphaImage(const CPoint2D &point, CImagePtr image)
 
   QTransform transform = getQPainter()->worldTransform();
 
-  if (has_transform_) {
+  if (hasTransform_) {
     QTransform transform1 = transform;
 
     transform1.scale(1, -1);
@@ -1077,6 +1087,8 @@ void
 CQRenderer2D::
 drawBezier(C3Bezier2D &bezier)
 {
+  getQPainter()->setPen(*pen_);
+
   QPainterPath path;
 
   const CPoint2D &p1 = bezier.getFirstPoint   ();

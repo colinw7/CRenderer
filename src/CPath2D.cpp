@@ -15,18 +15,18 @@ CPath2D()
 
 CPath2D::
 CPath2D(const CPath2D &path) :
- renderer_     (path.renderer_     ),
- flattener_    (path.flattener_    ),
- parts_        (path.parts_        ),
- closed_       (path.closed_       ),
- start1_       (path.start1_       ),
- start2_       (path.start2_       ),
- current_      (path.current_      ),
- current_set_  (path.current_set_  ),
- stroke_adjust_(path.stroke_adjust_),
- flat_fill_    (path.flat_fill_    ),
- fill_type_    (path.fill_type_    ),
- fill_points_  (path.fill_points_  )
+ renderer_    (path.renderer_    ),
+ flattener_   (path.flattener_   ),
+ parts_       (path.parts_       ),
+ closed_      (path.closed_      ),
+ start1_      (path.start1_      ),
+ start2_      (path.start2_      ),
+ current_     (path.current_     ),
+ currentSet_  (path.currentSet_  ),
+ strokeAdjust_(path.strokeAdjust_),
+ flatFill_    (path.flatFill_    ),
+ fillType_    (path.fillType_    ),
+ fillPoints_  (path.fillPoints_  )
 {
 }
 
@@ -35,29 +35,29 @@ CPath2D::
 {
 }
 
-const CPath2D &
+CPath2D &
 CPath2D::
 operator=(const CPath2D &path)
 {
-  renderer_      = path.renderer_;
-  flattener_     = path.flattener_;
-  parts_         = path.parts_;
-  closed_        = path.closed_;
-  start1_        = path.start1_;
-  start2_        = path.start2_;
-  current_       = path.current_;
-  current_set_   = path.current_set_;
-  stroke_adjust_ = path.stroke_adjust_;
-  flat_fill_     = path.flat_fill_;
-  fill_type_     = path.fill_type_;
-  fill_points_   = path.fill_points_;
+  renderer_     = path.renderer_;
+  flattener_    = path.flattener_;
+  parts_        = path.parts_;
+  closed_       = path.closed_;
+  start1_       = path.start1_;
+  start2_       = path.start2_;
+  current_      = path.current_;
+  currentSet_   = path.currentSet_;
+  strokeAdjust_ = path.strokeAdjust_;
+  flatFill_     = path.flatFill_;
+  fillType_     = path.fillType_;
+  fillPoints_   = path.fillPoints_;
 
   return *this;
 }
 
 CPath2D *
 CPath2D::
-dup()
+dup() const
 {
   CPath2D *path = new CPath2D(*this);
 
@@ -75,20 +75,20 @@ init()
 
   current_.zero();
 
-  current_set_ = false;
+  currentSet_ = false;
 
-  stroke_adjust_ = false;
+  strokeAdjust_ = false;
 
-  flat_fill_ = true;
+  flatFill_ = true;
 
-  fill_type_ = FILL_TYPE_WINDING;
+  fillType_ = FILL_TYPE_WINDING;
 
   parts_.resize(0);
 
   if (renderer_)
     renderer_->initPolygons();
 
-  fill_points_.clear();
+  fillPoints_.clear();
 }
 
 void
@@ -127,7 +127,7 @@ text(const std::string &str, CFontPtr font)
 
   current_ = current;
 
-  current_set_ = true;
+  currentSet_ = true;
 }
 
 void
@@ -227,19 +227,19 @@ moveTo(const CPoint2D &point)
 
   uint num_parts = parts_.size();
 
-  if (num_parts > 0 && parts_[num_parts - 1].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO)
-    parts_[num_parts - 1] = CPath2DPart(CPATH_2D_PATH_PART_TYPE_MOVE_TO, t);
+  if (num_parts > 0 && parts_[num_parts - 1].type == CPath2DPartType::MOVE_TO)
+    parts_[num_parts - 1] = CPath2DPart(CPath2DPartType::MOVE_TO, t);
   else {
     parts_.resize(parts_.size() + 1);
 
-    parts_[num_parts] = CPath2DPart(CPATH_2D_PATH_PART_TYPE_MOVE_TO, t);
+    parts_[num_parts] = CPath2DPart(CPath2DPartType::MOVE_TO, t);
   }
 
-  closed_      = false;
-  start1_      = t;
-  start2_      = point;
-  current_     = start2_;
-  current_set_ = true;
+  closed_     = false;
+  start1_     = t;
+  start2_     = point;
+  current_    = start2_;
+  currentSet_ = true;
 
   return true;
 }
@@ -262,7 +262,7 @@ bool
 CPath2D::
 lineTo(const CPoint2D &point)
 {
-  if (! current_set_)
+  if (! currentSet_)
     return moveTo(point);
 
   if (closed_)
@@ -276,7 +276,7 @@ lineTo(const CPoint2D &point)
 
   parts_.resize(parts_.size() + 1);
 
-  parts_[num_parts] = CPath2DPart(CPATH_2D_PATH_PART_TYPE_LINE_TO, t);
+  parts_[num_parts] = CPath2DPart(CPath2DPartType::LINE_TO, t);
 
   current_ = point;
   closed_  = false;
@@ -288,7 +288,7 @@ bool
 CPath2D::
 rlineTo(const CPoint2D &point)
 {
-  if (! current_set_)
+  if (! currentSet_)
     return rmoveTo(point);
 
   CPoint2D current;
@@ -319,7 +319,7 @@ arc(const CPoint2D &center, double xr, double yr, double angle1, double angle2)
 
     beziers[0].getFirstPoint(&x1, &y1);
 
-    if (current_set_)
+    if (currentSet_)
       lineTo(CPoint2D(x1, y1));
     else
       moveTo(CPoint2D(x1, y1));
@@ -333,7 +333,7 @@ arc(const CPoint2D &center, double xr, double yr, double angle1, double angle2)
     }
   }
   else {
-    if (current_set_)
+    if (currentSet_)
       lineTo(CPoint2D(center.x + xr*cos(angle1), center.y + yr*sin(angle1)));
     else
       moveTo(CPoint2D(center.x + xr*cos(angle1), center.y + yr*sin(angle1)));
@@ -360,7 +360,7 @@ arcN(const CPoint2D &center, double xr, double yr, double angle1, double angle2)
 
     beziers[0].getFirstPoint(&x1, &y1);
 
-    if (current_set_)
+    if (currentSet_)
       lineTo(CPoint2D(x1, y1));
     else
       moveTo(CPoint2D(x1, y1));
@@ -374,7 +374,7 @@ arcN(const CPoint2D &center, double xr, double yr, double angle1, double angle2)
     }
   }
   else {
-    if (current_set_)
+    if (currentSet_)
       lineTo(CPoint2D(center.x + xr*cos(angle1), center.y + yr*sin(angle1)));
     else
       moveTo(CPoint2D(center.x + xr*cos(angle1), center.y + yr*sin(angle1)));
@@ -387,7 +387,7 @@ bool
 CPath2D::
 arcTo(const CPoint2D &point1, const CPoint2D &point2, double xr, double yr)
 {
-  if (! current_set_)
+  if (! currentSet_)
     moveTo(point1);
 
   CPoint2D point0(current_);
@@ -407,12 +407,13 @@ arcTo(const CPoint2D &point1, const CPoint2D &point2, double xr, double yr)
 
     CTriangle2D triangle(point0, point1, point2);
 
+    double t1 = CMathGen::atan2(xt1 - xc, yt1 - yc);
+    double t2 = CMathGen::atan2(xt2 - xc, yt2 - yc);
+
     if (triangle.orientation() == 1)
-      arc (CPoint2D(xc, yc), xr, yr, CMathGen::atan2(xt1 - xc, yt1 - yc),
-           CMathGen::atan2(xt2 - xc, yt2 - yc));
+      arc (CPoint2D(xc, yc), xr, yr, t1, t2);
     else
-      arcN(CPoint2D(xc, yc), xr, yr, CMathGen::atan2(xt1 - xc, yt1 - yc),
-           CMathGen::atan2(xt2 - xc, yt2 - yc));
+      arcN(CPoint2D(xc, yc), xr, yr, t1, t2);
   }
   else
     lineTo(point1);
@@ -424,7 +425,7 @@ bool
 CPath2D::
 bezier2To(const CPoint2D &point2, const CPoint2D &point3)
 {
-  if (! current_set_)
+  if (! currentSet_)
     moveTo(CPoint2D(0, 0));
 
   CPoint2D t2, t3;
@@ -436,8 +437,8 @@ bezier2To(const CPoint2D &point2, const CPoint2D &point3)
 
   parts_.resize(parts_.size() + 2);
 
-  parts_[num_parts++] = CPath2DPart(CPATH_2D_PATH_PART_TYPE_BEZIER2_TO, t2);
-  parts_[num_parts++] = CPath2DPart(CPATH_2D_PATH_PART_TYPE_BEZIER2_TO, t3);
+  parts_[num_parts++] = CPath2DPart(CPath2DPartType::BEZIER2_TO, t2);
+  parts_[num_parts++] = CPath2DPart(CPath2DPartType::BEZIER2_TO, t3);
 
   closed_  = false;
   current_ = point3;
@@ -463,7 +464,7 @@ bool
 CPath2D::
 bezier3To(const CPoint2D &point2, const CPoint2D &point3, const CPoint2D &point4)
 {
-  if (! current_set_)
+  if (! currentSet_)
     moveTo(CPoint2D(0, 0));
 
   CPoint2D t2, t3, t4;
@@ -476,9 +477,9 @@ bezier3To(const CPoint2D &point2, const CPoint2D &point3, const CPoint2D &point4
 
   parts_.resize(parts_.size() + 3);
 
-  parts_[num_parts++] = CPath2DPart(CPATH_2D_PATH_PART_TYPE_BEZIER3_TO, t2);
-  parts_[num_parts++] = CPath2DPart(CPATH_2D_PATH_PART_TYPE_BEZIER3_TO, t3);
-  parts_[num_parts++] = CPath2DPart(CPATH_2D_PATH_PART_TYPE_BEZIER3_TO, t4);
+  parts_[num_parts++] = CPath2DPart(CPath2DPartType::BEZIER3_TO, t2);
+  parts_[num_parts++] = CPath2DPart(CPath2DPartType::BEZIER3_TO, t3);
+  parts_[num_parts++] = CPath2DPart(CPath2DPartType::BEZIER3_TO, t4);
 
   closed_  = false;
   current_ = point4;
@@ -522,7 +523,7 @@ bool
 CPath2D::
 getCurrentPoint1(CPoint2D &point)
 {
-  if (current_set_) {
+  if (currentSet_) {
     uint num_parts = parts_.size();
 
     if (num_parts > 0)
@@ -576,7 +577,7 @@ void
 CPath2D::
 close()
 {
-  if (! current_set_ || closed_) {
+  if (! currentSet_ || closed_) {
     closed_ = true;
 
     return;
@@ -586,7 +587,7 @@ close()
 
   parts_.resize(num_parts + 1);
 
-  parts_[num_parts] = CPath2DPart(CPATH_2D_PATH_PART_TYPE_CLOSE_PATH, start1_);
+  parts_[num_parts] = CPath2DPart(CPath2DPartType::CLOSE_PATH, start1_);
 
   current_ = start2_;
 
@@ -604,7 +605,8 @@ void
 CPath2D::
 stroke(CPath2DRenderer *renderer)
 {
-  if (! renderer) return;
+  if (! renderer)
+    return;
 
   CPath2DRendererStroker stroker(renderer, flattener_);
 
@@ -633,13 +635,13 @@ stroke(CPath2DStroker &stroker)
   uint num_parts = parts_.size();
 
   for (uint i = 0; i < num_parts; i++) {
-    if      (parts_[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO) {
+    if      (parts_[i].type == CPath2DPartType::MOVE_TO) {
       if (getStrokeAdjust())
         stroker.adjustPoint(parts_[i].point);
 
       if (i - start_i > 1 && ! closed) {
-        if (parts_[start_i].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO ||
-            parts_[start_i].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO)
+        if (parts_[start_i].type == CPath2DPartType::BEZIER2_TO ||
+            parts_[start_i].type == CPath2DPartType::BEZIER3_TO)
           stroker.capLine(CPoint2D(x2, y2), CPoint2D(x1, y1));
         else
           stroker.capLine(CPoint2D(x2, y2), parts_[start_i].point);
@@ -652,7 +654,7 @@ stroke(CPath2DStroker &stroker)
       uint j = i + 1;
 
       while (j < num_parts) {
-        if (parts_[j].type == CPATH_2D_PATH_PART_TYPE_CLOSE_PATH) {
+        if (parts_[j].type == CPath2DPartType::CLOSE_PATH) {
           closed = true;
           break;
         }
@@ -676,13 +678,13 @@ stroke(CPath2DStroker &stroker)
       x2 = parts_[i].point.x;
       y2 = parts_[i].point.y;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO) {
+    else if (parts_[i].type == CPath2DPartType::LINE_TO) {
       if (getStrokeAdjust())
         stroker.adjustPoint(parts_[i].point);
 
-      if (i > 0 && (parts_[i - 1].type == CPATH_2D_PATH_PART_TYPE_LINE_TO ||
-                    parts_[i - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO ||
-                    parts_[i - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO))
+      if (i > 0 && (parts_[i - 1].type == CPath2DPartType::LINE_TO ||
+                    parts_[i - 1].type == CPath2DPartType::BEZIER2_TO ||
+                    parts_[i - 1].type == CPath2DPartType::BEZIER3_TO))
         stroker.joinLines(CPoint2D(x1, y1), CPoint2D(x2, y2), parts_[i].point);
 
       stroker.drawLine(CPoint2D(x2, y2), CPoint2D(parts_[i].point));
@@ -694,13 +696,13 @@ stroke(CPath2DStroker &stroker)
       x2 = parts_[i].point.x;
       y2 = parts_[i].point.y;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO) {
+    else if (parts_[i].type == CPath2DPartType::BEZIER2_TO) {
       if (getStrokeAdjust())
-        stroker.adjustPoint(parts_[i + 2].point);
+        stroker.adjustPoint(parts_[i + 1].point);
 
-      if (i > 0 && (parts_[i - 1].type == CPATH_2D_PATH_PART_TYPE_LINE_TO ||
-                    parts_[i - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO ||
-                    parts_[i - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO))
+      if (i > 0 && (parts_[i - 1].type == CPath2DPartType::LINE_TO ||
+                    parts_[i - 1].type == CPath2DPartType::BEZIER2_TO ||
+                    parts_[i - 1].type == CPath2DPartType::BEZIER3_TO))
         stroker.joinLines(CPoint2D(x1, y1), CPoint2D(x2, y2), parts_[i].point);
 
       stroker.drawBezier2(CPoint2D(x2, y2), parts_[i].point, parts_[i + 1].point);
@@ -714,13 +716,13 @@ stroke(CPath2DStroker &stroker)
       x2 = parts_[i    ].point.x;
       y2 = parts_[i    ].point.y;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO) {
+    else if (parts_[i].type == CPath2DPartType::BEZIER3_TO) {
       if (getStrokeAdjust())
         stroker.adjustPoint(parts_[i + 2].point);
 
-      if (i > 0 && (parts_[i - 1].type == CPATH_2D_PATH_PART_TYPE_LINE_TO ||
-                    parts_[i - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO ||
-                    parts_[i - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO))
+      if (i > 0 && (parts_[i - 1].type == CPath2DPartType::LINE_TO ||
+                    parts_[i - 1].type == CPath2DPartType::BEZIER2_TO ||
+                    parts_[i - 1].type == CPath2DPartType::BEZIER3_TO))
         stroker.joinLines(CPoint2D(x1, y1), CPoint2D(x2, y2), parts_[i].point);
 
       stroker.drawBezier3(CPoint2D(x2, y2), parts_[i].point,
@@ -735,7 +737,7 @@ stroke(CPath2DStroker &stroker)
       x2 = parts_[i    ].point.x;
       y2 = parts_[i    ].point.y;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_CLOSE_PATH) {
+    else if (parts_[i].type == CPath2DPartType::CLOSE_PATH) {
       if (i - start_i > 1) {
         if (fabs(x2 - parts_[start_i].point.x) > 1E-5 ||
             fabs(y2 - parts_[start_i].point.y) > 1E-5) {
@@ -756,8 +758,8 @@ stroke(CPath2DStroker &stroker)
   }
 
   if (num_parts > 1 && ! closed) {
-    if (parts_[num_parts - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO ||
-        parts_[num_parts - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO)
+    if (parts_[num_parts - 1].type == CPath2DPartType::BEZIER2_TO ||
+        parts_[num_parts - 1].type == CPath2DPartType::BEZIER3_TO)
       stroker.capLine(CPoint2D(x2, y2), CPoint2D(x1, y1));
     else
       stroker.capLine(CPoint2D(x2, y2), parts_[start_i].point);
@@ -804,13 +806,13 @@ strokePath(CPath2DRenderer *renderer)
   int start_i = 0;
 
   for (uint i = 0; i < num_parts; i++) {
-    if      (parts1[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO) {
+    if      (parts1[i].type == CPath2DPartType::MOVE_TO) {
       if (getStrokeAdjust())
         renderer->adjustPoint(parts1[i].point);
 
       if (i - start_i > 1 && ! closed) {
-        if (parts1[start_i].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO ||
-            parts1[start_i].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO)
+        if (parts1[start_i].type == CPath2DPartType::BEZIER2_TO ||
+            parts1[start_i].type == CPath2DPartType::BEZIER3_TO)
           strokeCapLine(renderer, CPoint2D(x2, y2), CPoint2D(x1, y1));
         else
           strokeCapLine(renderer, CPoint2D(x2, y2), parts1[start_i].point);
@@ -823,7 +825,7 @@ strokePath(CPath2DRenderer *renderer)
       uint j = i + 1;
 
       while (j < num_parts) {
-        if (parts1[j].type == CPATH_2D_PATH_PART_TYPE_CLOSE_PATH) {
+        if (parts1[j].type == CPath2DPartType::CLOSE_PATH) {
           closed = true;
           break;
         }
@@ -847,13 +849,13 @@ strokePath(CPath2DRenderer *renderer)
       x2 = parts1[i].point.x;
       y2 = parts1[i].point.y;
     }
-    else if (parts1[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO) {
+    else if (parts1[i].type == CPath2DPartType::LINE_TO) {
       if (getStrokeAdjust())
         renderer->adjustPoint(parts1[i].point);
 
-      if (i > 0 && (parts1[i - 1].type == CPATH_2D_PATH_PART_TYPE_LINE_TO ||
-                    parts1[i - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO ||
-                    parts1[i - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO))
+      if (i > 0 && (parts1[i - 1].type == CPath2DPartType::LINE_TO ||
+                    parts1[i - 1].type == CPath2DPartType::BEZIER2_TO ||
+                    parts1[i - 1].type == CPath2DPartType::BEZIER3_TO))
         strokeJoinLines(renderer, CPoint2D(x1, y1), CPoint2D(x2, y2), parts1[i].point);
 
       strokeLine(renderer, CPoint2D(x2, y2), parts1[i].point);
@@ -865,13 +867,13 @@ strokePath(CPath2DRenderer *renderer)
       x2 = parts1[i].point.x;
       y2 = parts1[i].point.y;
     }
-    else if (parts1[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO) {
+    else if (parts1[i].type == CPath2DPartType::BEZIER2_TO) {
       if (getStrokeAdjust())
         renderer->adjustPoint(parts1[i + 2].point);
 
-      if (i > 0 && (parts1[i - 1].type == CPATH_2D_PATH_PART_TYPE_LINE_TO ||
-                    parts1[i - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO ||
-                    parts1[i - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO))
+      if (i > 0 && (parts1[i - 1].type == CPath2DPartType::LINE_TO ||
+                    parts1[i - 1].type == CPath2DPartType::BEZIER2_TO ||
+                    parts1[i - 1].type == CPath2DPartType::BEZIER3_TO))
         strokeJoinLines(renderer, CPoint2D(x1, y1), CPoint2D(x2, y2), parts1[i].point);
 
       strokeBezier2(renderer, CPoint2D(x2, y2), parts1[i].point, parts1[i + 1].point);
@@ -885,13 +887,13 @@ strokePath(CPath2DRenderer *renderer)
       x2 = parts1[i    ].point.x;
       y2 = parts1[i    ].point.y;
     }
-    else if (parts1[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO) {
+    else if (parts1[i].type == CPath2DPartType::BEZIER3_TO) {
       if (getStrokeAdjust())
         renderer->adjustPoint(parts1[i + 2].point);
 
-      if (i > 0 && (parts1[i - 1].type == CPATH_2D_PATH_PART_TYPE_LINE_TO ||
-                    parts1[i - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO ||
-                    parts1[i - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO))
+      if (i > 0 && (parts1[i - 1].type == CPath2DPartType::LINE_TO ||
+                    parts1[i - 1].type == CPath2DPartType::BEZIER2_TO ||
+                    parts1[i - 1].type == CPath2DPartType::BEZIER3_TO))
         strokeJoinLines(renderer, CPoint2D(x1, y1), CPoint2D(x2, y2), parts1[i].point);
 
       strokeBezier3(renderer, CPoint2D(x2, y2), parts1[i].point, parts1[i + 1].point, parts1[i + 2].point);
@@ -905,7 +907,7 @@ strokePath(CPath2DRenderer *renderer)
       x2 = parts1[i    ].point.x;
       y2 = parts1[i    ].point.y;
     }
-    else if (parts1[i].type == CPATH_2D_PATH_PART_TYPE_CLOSE_PATH) {
+    else if (parts1[i].type == CPath2DPartType::CLOSE_PATH) {
       if (i - start_i > 1) {
         if (fabs(x2 - parts1[start_i].point.x) > 1E-5 ||
             fabs(y2 - parts1[start_i].point.y) > 1E-5) {
@@ -928,8 +930,8 @@ strokePath(CPath2DRenderer *renderer)
   }
 
   if (num_parts > 1 && ! closed) {
-    if (parts1[num_parts - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO ||
-        parts1[num_parts - 1].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO)
+    if (parts1[num_parts - 1].type == CPath2DPartType::BEZIER2_TO ||
+        parts1[num_parts - 1].type == CPath2DPartType::BEZIER3_TO)
       strokeCapLine(renderer, CPoint2D(x2, y2), CPoint2D(x1, y1));
     else
       strokeCapLine(renderer, CPoint2D(x2, y2), parts1[start_i].point);
@@ -1054,14 +1056,14 @@ void
 CPath2D::
 setFillType(CFillType fill_type)
 {
-  fill_type_ = fill_type;
+  fillType_ = fill_type;
 }
 
 CFillType
 CPath2D::
 getFillType() const
 {
-  return fill_type_;
+  return fillType_;
 }
 
 void
@@ -1072,7 +1074,7 @@ fill()
 
   CImagePtr image;
 
-  path1.subFill(image, fill_type_, renderer_);
+  path1.subFill(image, fillType_, renderer_);
 }
 
 void
@@ -1083,14 +1085,14 @@ fill(CPath2DRenderer *renderer)
 
   CImagePtr image;
 
-  path1.subFill(image, fill_type_, renderer);
+  path1.subFill(image, fillType_, renderer);
 }
 
 void
 CPath2D::
 fill(CPath2DFiller &filler)
 {
-  subShapeFill(fill_type_, filler);
+  subShapeFill(fillType_, filler);
 }
 
 void
@@ -1099,7 +1101,7 @@ fillImage(CImagePtr image)
 {
   CPath2D path1(*this);
 
-  path1.subFill(image, fill_type_, renderer_);
+  path1.subFill(image, fillType_, renderer_);
 }
 
 void
@@ -1108,7 +1110,7 @@ fillImage(CImagePtr image, CPath2DRenderer *renderer)
 {
   CPath2D path1(*this);
 
-  path1.subFill(image, fill_type_, renderer);
+  path1.subFill(image, fillType_, renderer);
 }
 
 void
@@ -1119,7 +1121,7 @@ fillGradient(CRefPtr<CGenGradient>)
 
   CImagePtr image;
 
-  path1.subFill(image, fill_type_, renderer_);
+  path1.subFill(image, fillType_, renderer_);
 }
 
 void
@@ -1139,7 +1141,7 @@ void
 CPath2D::
 subFill1(CImagePtr image, CFillType type, CPath2DRenderer *renderer)
 {
-  if (flat_fill_)
+  if (flatFill_)
     subFlatFill(image, type, renderer);
   else
     subShapeFill(type, renderer);
@@ -1162,38 +1164,38 @@ subFlatFill(CImagePtr image, CFillType type, CPath2DRenderer *renderer)
 
   //------
 
-  fill_points_.clear();
+  fillPoints_.clear();
 
   bool closed = false;
 
   for (uint i = 0; i < num_parts; i++) {
-    if      (parts_[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO) {
-      if (! closed && fill_points_.size() > 2)
-        renderer->addPolygon(fill_points_);
+    if      (parts_[i].type == CPath2DPartType::MOVE_TO) {
+      if (! closed && fillPoints_.size() > 2)
+        renderer->addPolygon(fillPoints_);
 
-      fill_points_.clear();
+      fillPoints_.clear();
 
-      fill_points_.push_back(parts_[i].point);
-
-      closed = false;
-    }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO) {
-      fill_points_.push_back(parts_[i].point);
+      fillPoints_.push_back(parts_[i].point);
 
       closed = false;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_CLOSE_PATH) {
-      if (! closed && fill_points_.size() > 2)
-        renderer->addPolygon(fill_points_);
+    else if (parts_[i].type == CPath2DPartType::LINE_TO) {
+      fillPoints_.push_back(parts_[i].point);
 
-      fill_points_.clear();
+      closed = false;
+    }
+    else if (parts_[i].type == CPath2DPartType::CLOSE_PATH) {
+      if (! closed && fillPoints_.size() > 2)
+        renderer->addPolygon(fillPoints_);
+
+      fillPoints_.clear();
 
       closed = true;
     }
   }
 
-  if (! closed && fill_points_.size() > 2)
-    renderer->addPolygon(fill_points_);
+  if (! closed && fillPoints_.size() > 2)
+    renderer->addPolygon(fillPoints_);
 
   if (image.isValid()) {
     if (type == FILL_TYPE_WINDING)
@@ -1234,7 +1236,7 @@ subShapeFill(CFillType type, CPath2DFiller &filler)
   uint num_parts = parts_.size();
 
   for (uint i = 0; i < num_parts; i++) {
-    if      (parts_[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO) {
+    if      (parts_[i].type == CPath2DPartType::MOVE_TO) {
       if (! closed)
         filler.fill(type);
 
@@ -1247,7 +1249,7 @@ subShapeFill(CFillType type, CPath2DFiller &filler)
       x2 = parts_[i].point.x;
       y2 = parts_[i].point.y;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO) {
+    else if (parts_[i].type == CPath2DPartType::LINE_TO) {
       filler.addLine(CPoint2D(x2, y2), CPoint2D(parts_[i].point));
 
       closed = false;
@@ -1257,7 +1259,7 @@ subShapeFill(CFillType type, CPath2DFiller &filler)
       x2 = parts_[i].point.x;
       y2 = parts_[i].point.y;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO) {
+    else if (parts_[i].type == CPath2DPartType::BEZIER2_TO) {
       filler.addBezier2(CPoint2D(x2, y2), parts_[i].point, parts_[i + 1].point);
 
       closed = false;
@@ -1269,7 +1271,7 @@ subShapeFill(CFillType type, CPath2DFiller &filler)
       x2 = parts_[i].point.x;
       y2 = parts_[i].point.y;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO) {
+    else if (parts_[i].type == CPath2DPartType::BEZIER3_TO) {
       filler.addBezier3(CPoint2D(x2, y2), parts_[i].point,
                         parts_[i + 1].point, parts_[i + 2].point);
 
@@ -1282,7 +1284,7 @@ subShapeFill(CFillType type, CPath2DFiller &filler)
       x2 = parts_[i].point.x;
       y2 = parts_[i].point.y;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_CLOSE_PATH) {
+    else if (parts_[i].type == CPath2DPartType::CLOSE_PATH) {
       if (i - start_i > 1) {
         if (fabs(x2 - parts_[start_i].point.x) > 1E-5 ||
             fabs(y2 - parts_[start_i].point.y) > 1E-5) {
@@ -1315,22 +1317,22 @@ reverse()
   while (start_i < num_parts) {
     int i = (int) start_i;
 
-    if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO)
+    if (parts_[i].type == CPath2DPartType::MOVE_TO)
       i++;
 
     while (i < (int) num_parts &&
-           parts_[i].type != CPATH_2D_PATH_PART_TYPE_CLOSE_PATH &&
-           parts_[i].type != CPATH_2D_PATH_PART_TYPE_MOVE_TO)
+           parts_[i].type != CPath2DPartType::CLOSE_PATH &&
+           parts_[i].type != CPath2DPartType::MOVE_TO)
       i++;
 
-    if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO)
+    if (parts_[i].type == CPath2DPartType::MOVE_TO)
       i--;
 
     //------
 
     bool closed = false;
 
-    if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_CLOSE_PATH) {
+    if (parts_[i].type == CPath2DPartType::CLOSE_PATH) {
       i--;
 
       closed = true;
@@ -1341,65 +1343,65 @@ reverse()
     uint end_i = i;
 
     while (i >= (int) start_i) {
-      if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO ||
-          parts_[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO) {
+      if (parts_[i].type == CPath2DPartType::MOVE_TO ||
+          parts_[i].type == CPath2DPartType::LINE_TO) {
         if (i == (int) end_i)
-          parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_MOVE_TO, parts_[i].point));
+          parts.push_back(CPath2DPart(CPath2DPartType::MOVE_TO, parts_[i].point));
         else
-          parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_LINE_TO, parts_[i].point));
+          parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, parts_[i].point));
       }
-      else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO) {
+      else if (parts_[i].type == CPath2DPartType::BEZIER2_TO) {
         if (i == (int) end_i) {
-          parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_MOVE_TO, parts_[i].point));
+          parts.push_back(CPath2DPart(CPath2DPartType::MOVE_TO, parts_[i].point));
 
           i--;
         }
 
         //------
 
-        parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_BEZIER2_TO, parts_[i].point));
+        parts.push_back(CPath2DPart(CPath2DPartType::BEZIER2_TO, parts_[i].point));
 
         i--;
 
-        parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_BEZIER2_TO, parts_[i].point));
+        parts.push_back(CPath2DPart(CPath2DPartType::BEZIER2_TO, parts_[i].point));
 
         //------
 
-        if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO) {
+        if (parts_[i].type == CPath2DPartType::LINE_TO) {
           i--;
 
           //------
 
-          parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_LINE_TO, parts_[i].point));
+          parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, parts_[i].point));
         }
       }
-      else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO) {
+      else if (parts_[i].type == CPath2DPartType::BEZIER3_TO) {
         if (i == (int) end_i) {
-          parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_MOVE_TO, parts_[i].point));
+          parts.push_back(CPath2DPart(CPath2DPartType::MOVE_TO, parts_[i].point));
 
           i--;
         }
 
         //------
 
-        parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_BEZIER3_TO, parts_[i].point));
+        parts.push_back(CPath2DPart(CPath2DPartType::BEZIER3_TO, parts_[i].point));
 
         i--;
 
-        parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_BEZIER3_TO, parts_[i].point));
+        parts.push_back(CPath2DPart(CPath2DPartType::BEZIER3_TO, parts_[i].point));
 
         i--;
 
-        parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_BEZIER3_TO, parts_[i].point));
+        parts.push_back(CPath2DPart(CPath2DPartType::BEZIER3_TO, parts_[i].point));
 
         //------
 
-        if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO) {
+        if (parts_[i].type == CPath2DPartType::LINE_TO) {
           i--;
 
           //------
 
-          parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_LINE_TO, parts_[i].point));
+          parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, parts_[i].point));
         }
       }
 
@@ -1407,7 +1409,7 @@ reverse()
     }
 
     if (closed) {
-      parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_CLOSE_PATH, parts_[i].point));
+      parts.push_back(CPath2DPart(CPath2DPartType::CLOSE_PATH, parts_[i].point));
 
       start_i = end_i + 2;
     }
@@ -1447,7 +1449,7 @@ flatten(CPath2DFlattener *flattener)
   std::vector<double>   gradients;
 
   for (uint i = 0; i < num_parts; i++) {
-    if      (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO) {
+    if      (parts_[i].type == CPath2DPartType::BEZIER2_TO) {
       C2Bezier2D bezier(parts_[i - 1].point.x, parts_[i - 1].point.y,
                         parts_[i    ].point.x, parts_[i    ].point.y,
                         parts_[i + 1].point.x, parts_[i + 1].point.y);
@@ -1461,14 +1463,14 @@ flatten(CPath2DFlattener *flattener)
 
       if (num_points > 1) {
         for (uint k = 1; k < num_points; k++)
-          parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_LINE_TO, points[k]));
+          parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, points[k]));
       }
       else
-        parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_LINE_TO, parts_[i + 2].point));
+        parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, parts_[i + 2].point));
 
       i += 1;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO) {
+    else if (parts_[i].type == CPath2DPartType::BEZIER3_TO) {
       C3Bezier2D bezier(parts_[i - 1].point.x, parts_[i - 1].point.y,
                         parts_[i    ].point.x, parts_[i    ].point.y,
                         parts_[i + 1].point.x, parts_[i + 1].point.y,
@@ -1483,10 +1485,10 @@ flatten(CPath2DFlattener *flattener)
 
       if (num_points > 1) {
         for (uint k = 1; k < num_points; k++)
-          parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_LINE_TO, points[k]));
+          parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, points[k]));
       }
       else
-        parts.push_back(CPath2DPart(CPATH_2D_PATH_PART_TYPE_LINE_TO, parts_[i + 2].point));
+        parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, parts_[i + 2].point));
 
       i += 2;
     }
@@ -1546,38 +1548,38 @@ subClip(CFillType type, CPath2DRenderer *renderer)
 
   //------
 
-  fill_points_.clear();
+  fillPoints_.clear();
 
   bool closed = false;
 
   for (uint i = 0; i < num_parts; i++) {
-    if      (parts_[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO) {
-      if (! closed && fill_points_.size() > 2)
-        renderer->addPolygon(fill_points_);
+    if      (parts_[i].type == CPath2DPartType::MOVE_TO) {
+      if (! closed && fillPoints_.size() > 2)
+        renderer->addPolygon(fillPoints_);
 
-      fill_points_.clear();
+      fillPoints_.clear();
 
-      fill_points_.push_back(parts_[i].point);
-
-      closed = false;
-    }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO) {
-      fill_points_.push_back(parts_[i].point);
+      fillPoints_.push_back(parts_[i].point);
 
       closed = false;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_CLOSE_PATH) {
-      if (! closed && fill_points_.size() > 2)
-        renderer->addPolygon(fill_points_);
+    else if (parts_[i].type == CPath2DPartType::LINE_TO) {
+      fillPoints_.push_back(parts_[i].point);
 
-      fill_points_.clear();
+      closed = false;
+    }
+    else if (parts_[i].type == CPath2DPartType::CLOSE_PATH) {
+      if (! closed && fillPoints_.size() > 2)
+        renderer->addPolygon(fillPoints_);
+
+      fillPoints_.clear();
 
       closed = true;
     }
   }
 
-  if (! closed && fill_points_.size() > 2)
-    renderer->addPolygon(fill_points_);
+  if (! closed && fillPoints_.size() > 2)
+    renderer->addPolygon(fillPoints_);
 
   if (type == FILL_TYPE_WINDING)
     renderer->clipPolygons();
@@ -1629,19 +1631,19 @@ getBounds(double *xmin, double *ymin, double *xmax, double *ymax)
   *ymax = -1E20;
 
   for (uint i = 0; i < num_parts; i++) {
-    if       (parts_[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO) {
+    if       (parts_[i].type == CPath2DPartType::MOVE_TO) {
       if (parts_[i].point.x < *xmin) *xmin = parts_[i].point.x;
       if (parts_[i].point.y < *ymin) *ymin = parts_[i].point.y;
       if (parts_[i].point.x > *xmax) *xmax = parts_[i].point.x;
       if (parts_[i].point.y > *ymax) *ymax = parts_[i].point.y;
     }
-    else if  (parts_[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO) {
+    else if  (parts_[i].type == CPath2DPartType::LINE_TO) {
       if (parts_[i].point.x < *xmin) *xmin = parts_[i].point.x;
       if (parts_[i].point.y < *ymin) *ymin = parts_[i].point.y;
       if (parts_[i].point.x > *xmax) *xmax = parts_[i].point.x;
       if (parts_[i].point.y > *ymax) *ymax = parts_[i].point.y;
     }
-    else if  (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO) {
+    else if  (parts_[i].type == CPath2DPartType::BEZIER2_TO) {
       if (parts_[i    ].point.x < *xmin) *xmin = parts_[i    ].point.x;
       if (parts_[i    ].point.y < *ymin) *ymin = parts_[i    ].point.y;
       if (parts_[i    ].point.x > *xmax) *xmax = parts_[i    ].point.x;
@@ -1654,7 +1656,7 @@ getBounds(double *xmin, double *ymin, double *xmax, double *ymax)
 
       i += 1;
     }
-    else if  (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO) {
+    else if  (parts_[i].type == CPath2DPartType::BEZIER3_TO) {
       if (parts_[i    ].point.x < *xmin) *xmin = parts_[i    ].point.x;
       if (parts_[i    ].point.y < *ymin) *ymin = parts_[i    ].point.y;
       if (parts_[i    ].point.x > *xmax) *xmax = parts_[i    ].point.x;
@@ -1684,7 +1686,7 @@ process(CPath2DVisitor &visitor) const
   if (renderer_) {
     const CMatrix2D *imatrix = renderer_->getIViewMatrix();
 
-    if (imatrix == NULL)
+    if (! imatrix)
       return;
 
     matrix = *imatrix;
@@ -1697,21 +1699,21 @@ process(CPath2DVisitor &visitor) const
   uint num_parts = parts_.size();
 
   for (uint i = 0; i < num_parts; i++) {
-    if       (parts_[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO) {
+    if       (parts_[i].type == CPath2DPartType::MOVE_TO) {
       CPoint2D p;
 
       matrix.multiplyPoint(parts_[i].point, p);
 
       visitor.moveTo(p);
     }
-    else if  (parts_[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO) {
+    else if  (parts_[i].type == CPath2DPartType::LINE_TO) {
       CPoint2D p;
 
       matrix.multiplyPoint(parts_[i].point, p);
 
       visitor.lineTo(p);
     }
-    else if  (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO) {
+    else if  (parts_[i].type == CPath2DPartType::BEZIER2_TO) {
       CPoint2D p1, p2;
 
       matrix.multiplyPoint(parts_[i    ].point, p1);
@@ -1721,7 +1723,7 @@ process(CPath2DVisitor &visitor) const
 
       i += 1;
     }
-    else if  (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO) {
+    else if  (parts_[i].type == CPath2DPartType::BEZIER3_TO) {
       CPoint2D p1, p2, p3;
 
       matrix.multiplyPoint(parts_[i    ].point, p1);
@@ -1732,7 +1734,7 @@ process(CPath2DVisitor &visitor) const
 
       i += 2;
     }
-    else if  (parts_[i].type == CPATH_2D_PATH_PART_TYPE_CLOSE_PATH)
+    else if  (parts_[i].type == CPath2DPartType::CLOSE_PATH)
       visitor.close();
   }
 }
@@ -1751,17 +1753,17 @@ bbox(CBBox2D &bbox) const
   bbox.reset();
 
   for (uint i = 0; i < num_parts; i++) {
-    if      (parts_[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO)
+    if      (parts_[i].type == CPath2DPartType::MOVE_TO)
       bbox.add(parts_[i].point);
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO)
+    else if (parts_[i].type == CPath2DPartType::LINE_TO)
       bbox.add(parts_[i].point);
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO) {
+    else if (parts_[i].type == CPath2DPartType::BEZIER2_TO) {
       bbox.add(parts_[i + 0].point);
       bbox.add(parts_[i + 1].point);
 
       i += 1;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO) {
+    else if (parts_[i].type == CPath2DPartType::BEZIER3_TO) {
       bbox.add(parts_[i + 0].point);
       bbox.add(parts_[i + 1].point);
       bbox.add(parts_[i + 2].point);
@@ -1769,6 +1771,17 @@ bbox(CBBox2D &bbox) const
       i += 2;
     }
   }
+}
+
+CPath2D
+CPath2D::
+transformed(const CMatrix2D &matrix) const
+{
+  CPath2D path = *this;
+
+  path.transform(matrix);
+
+  return path;
 }
 
 void
@@ -1785,22 +1798,69 @@ transform(const CMatrix2D &matrix)
   CPoint2D t;
 
   for (uint i = 0; i < num_parts; i++) {
-    if      (parts_[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO) {
+    if      (parts_[i].type == CPath2DPartType::MOVE_TO) {
       matrix.multiplyPoint(parts_[i].point, t); parts_[i].point = t;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO) {
+    else if (parts_[i].type == CPath2DPartType::LINE_TO) {
       matrix.multiplyPoint(parts_[i].point, t); parts_[i].point = t;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO) {
+    else if (parts_[i].type == CPath2DPartType::BEZIER2_TO) {
       matrix.multiplyPoint(parts_[i + 0].point, t); parts_[i + 0].point = t;
       matrix.multiplyPoint(parts_[i + 1].point, t); parts_[i + 1].point = t;
 
       i += 1;
     }
-    else if (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO) {
+    else if (parts_[i].type == CPath2DPartType::BEZIER3_TO) {
       matrix.multiplyPoint(parts_[i + 0].point, t); parts_[i + 0].point = t;
       matrix.multiplyPoint(parts_[i + 1].point, t); parts_[i + 1].point = t;
       matrix.multiplyPoint(parts_[i + 2].point, t); parts_[i + 2].point = t;
+
+      i += 2;
+    }
+  }
+}
+
+CPath2D
+CPath2D::
+preTransformed(const CMatrix2D &matrix) const
+{
+  CPath2D path = *this;
+
+  path.preTransform(matrix);
+
+  return path;
+}
+
+void
+CPath2D::
+preTransform(const CMatrix2D &matrix)
+{
+  uint num_parts = parts_.size();
+
+  if (num_parts == 0)
+    return;
+
+  //------
+
+  CPoint2D t;
+
+  for (uint i = 0; i < num_parts; i++) {
+    if      (parts_[i].type == CPath2DPartType::MOVE_TO) {
+      matrix.preMultiplyPoint(parts_[i].point, t); parts_[i].point = t;
+    }
+    else if (parts_[i].type == CPath2DPartType::LINE_TO) {
+      matrix.preMultiplyPoint(parts_[i].point, t); parts_[i].point = t;
+    }
+    else if (parts_[i].type == CPath2DPartType::BEZIER2_TO) {
+      matrix.preMultiplyPoint(parts_[i + 0].point, t); parts_[i + 0].point = t;
+      matrix.preMultiplyPoint(parts_[i + 1].point, t); parts_[i + 1].point = t;
+
+      i += 1;
+    }
+    else if (parts_[i].type == CPath2DPartType::BEZIER3_TO) {
+      matrix.preMultiplyPoint(parts_[i + 0].point, t); parts_[i + 0].point = t;
+      matrix.preMultiplyPoint(parts_[i + 1].point, t); parts_[i + 1].point = t;
+      matrix.preMultiplyPoint(parts_[i + 2].point, t); parts_[i + 2].point = t;
 
       i += 2;
     }
@@ -1834,18 +1894,18 @@ print()
   uint num_parts = parts_.size();
 
   for (uint i = 0; i < num_parts; i++) {
-    if       (parts_[i].type == CPATH_2D_PATH_PART_TYPE_MOVE_TO)
+    if       (parts_[i].type == CPath2DPartType::MOVE_TO)
       CStrUtil::printf("Move To %g,%g\n", parts_[i].point.x, parts_[i].point.y);
-    else if  (parts_[i].type == CPATH_2D_PATH_PART_TYPE_LINE_TO)
+    else if  (parts_[i].type == CPath2DPartType::LINE_TO)
       CStrUtil::printf("Line To %g,%g\n", parts_[i].point.x, parts_[i].point.y);
-    else if  (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER2_TO) {
+    else if  (parts_[i].type == CPath2DPartType::BEZIER2_TO) {
       CStrUtil::printf("Bezier2 To %g,%g %g,%g %g,%g\n",
                        parts_[i    ].point.x, parts_[i    ].point.y,
                        parts_[i + 1].point.x, parts_[i + 1].point.y);
 
       i += 1;
     }
-    else if  (parts_[i].type == CPATH_2D_PATH_PART_TYPE_BEZIER3_TO) {
+    else if  (parts_[i].type == CPath2DPartType::BEZIER3_TO) {
       CStrUtil::printf("Bezier3 To %g,%g %g,%g %g,%g\n",
                        parts_[i    ].point.x, parts_[i    ].point.y,
                        parts_[i + 1].point.x, parts_[i + 1].point.y,
@@ -1853,7 +1913,7 @@ print()
 
       i += 2;
     }
-    else if  (parts_[i].type == CPATH_2D_PATH_PART_TYPE_CLOSE_PATH)
+    else if  (parts_[i].type == CPath2DPartType::CLOSE_PATH)
       CStrUtil::printf("Close Path\n");
     else
       CStrUtil::printf("??\n");
@@ -2101,7 +2161,7 @@ const CMatrix2D *
 CPath2DRenderer::
 getIViewMatrix()
 {
-  return NULL;
+  return nullptr;
 }
 
 //-----------------

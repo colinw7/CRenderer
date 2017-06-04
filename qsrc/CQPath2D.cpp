@@ -10,14 +10,43 @@
 
 CQPath2D::
 CQPath2D() :
- CPath2D(), current_point_(false)
+ CPath2D(), currentPoint_(false)
 {
   path_ = new QPainterPath;
 }
 
 CQPath2D::
+CQPath2D(const CQPath2D &path) :
+ CPath2D(path), currentPoint_(path.currentPoint_)
+{
+  path_ = new QPainterPath(*path.path_);
+}
+
+CQPath2D &
+CQPath2D::
+operator=(const CQPath2D &path)
+{
+  CPath2D::operator=(*this);
+
+  delete path_;
+
+  path_         = new QPainterPath(*path.path_);
+  currentPoint_ = path.currentPoint_;
+
+  return *this;
+}
+
+CQPath2D::
 ~CQPath2D()
 {
+  delete path_;
+}
+
+CQPath2D *
+CQPath2D::
+dup() const
+{
+  return new CQPath2D(*this);
 }
 
 void
@@ -26,7 +55,7 @@ init()
 {
   path_ = new QPainterPath;
 
-  current_point_ = false;
+  currentPoint_ = false;
 }
 
 bool
@@ -35,7 +64,7 @@ moveTo(const CPoint2D &point)
 {
   path_->moveTo(point.x, point.y);
 
-  current_point_ = true;
+  currentPoint_ = true;
 
   return true;
 }
@@ -58,12 +87,12 @@ bool
 CQPath2D::
 lineTo(const CPoint2D &point)
 {
-  if (! current_point_)
+  if (! currentPoint_)
     path_->moveTo(point.x, point.y);
   else
     path_->lineTo(point.x, point.y);
 
-  current_point_ = true;
+  currentPoint_ = true;
 
   return true;
 }
@@ -72,7 +101,7 @@ bool
 CQPath2D::
 rlineTo(const CPoint2D &point)
 {
-  if (! current_point_)
+  if (! currentPoint_)
     return rmoveTo(point);
 
   CPoint2D current;
@@ -91,7 +120,7 @@ ellipse(const CPoint2D &center, double xr, double yr)
 {
   path_->addEllipse(QRectF(center.x - xr, center.y - yr, 2*xr, 2*yr));
 
-  current_point_ = true;
+  currentPoint_ = true;
 }
 
 void
@@ -106,23 +135,26 @@ text(const std::string &text, CFontPtr font)
 
   path_->addText(QPointF(point.x, point.y), qfont->getQFont(), text.c_str());
 
-  current_point_ = true;
+  currentPoint_ = true;
 }
 
 void
 CQPath2D::
 roundedRectangle(const CPoint2D &point1, const CPoint2D &point2, double rx, double ry)
 {
-  path_->addRoundedRect(QRectF(point1.x, point1.y, point2.x - point1.x, point2.y - point1.y), rx, ry);
+  double dx = point2.x - point1.x;
+  double dy = point2.y - point1.y;
 
-  current_point_ = true;
+  path_->addRoundedRect(QRectF(point1.x, point1.y, dx, dy), rx, ry);
+
+  currentPoint_ = true;
 }
 
 void
 CQPath2D::
 arc(const CPoint2D &center, double xr, double yr, double angle1, double angle2)
 {
-  if (! current_point_)
+  if (! currentPoint_)
     path_->moveTo(0, 0);
 
   QRectF rect(center.x - xr, center.y - yr, 2*xr, 2*yr);
@@ -132,14 +164,14 @@ arc(const CPoint2D &center, double xr, double yr, double angle1, double angle2)
 
   path_->arcTo(rect, angle1, angle2 - angle1);
 
-  current_point_ = true;
+  currentPoint_ = true;
 }
 
 void
 CQPath2D::
 arcN(const CPoint2D &center, double xr, double yr, double angle1, double angle2)
 {
-  if (! current_point_)
+  if (! currentPoint_)
     path_->moveTo(0, 0);
 
   QRectF rect(center.x - xr, center.y - yr, 2*xr, 2*yr);
@@ -149,14 +181,14 @@ arcN(const CPoint2D &center, double xr, double yr, double angle1, double angle2)
 
   path_->arcTo(rect, angle2, angle1 - angle2);
 
-  current_point_ = true;
+  currentPoint_ = true;
 }
 
 bool
 CQPath2D::
 arcTo(const CPoint2D &point1, const CPoint2D &point2, double xr, double yr)
 {
-  if (! current_point_)
+  if (! currentPoint_)
     path_->moveTo(point1.x, point1.y);
 
   QPointF pos = path_->currentPosition();
@@ -181,7 +213,7 @@ arcTo(const CPoint2D &point1, const CPoint2D &point2, double xr, double yr)
 
   path_->arcTo(rect, theta, delta);
 
-  current_point_ = true;
+  currentPoint_ = true;
 
   return true;
 }
@@ -190,12 +222,12 @@ bool
 CQPath2D::
 bezier2To(const CPoint2D &point2, const CPoint2D &point3)
 {
-  if (! current_point_)
+  if (! currentPoint_)
     path_->moveTo(0, 0);
 
   path_->quadTo(QPointF(point2.x, point2.y), QPointF(point3.x, point3.y));
 
-  current_point_ = true;
+  currentPoint_ = true;
 
   return true;
 }
@@ -204,12 +236,14 @@ bool
 CQPath2D::
 bezier3To(const CPoint2D &point2, const CPoint2D &point3, const CPoint2D &point4)
 {
-  if (! current_point_)
+  if (! currentPoint_)
     path_->moveTo(0, 0);
 
-  path_->cubicTo(QPointF(point2.x, point2.y), QPointF(point3.x, point3.y), QPointF(point4.x, point4.y));
+  path_->cubicTo(QPointF(point2.x, point2.y),
+                 QPointF(point3.x, point3.y),
+                 QPointF(point4.x, point4.y));
 
-  current_point_ = true;
+  currentPoint_ = true;
 
   return true;
 }
@@ -220,7 +254,7 @@ close()
 {
   path_->closeSubpath();
 
-  current_point_ = false;
+  currentPoint_ = false;
 }
 
 void
@@ -232,11 +266,11 @@ stroke(QPainter *painter)
 
 void
 CQPath2D::
-setFillType(CFillType fill_type)
+setFillType(CFillType fillType)
 {
-  CPath2D::setFillType(fill_type);
+  CPath2D::setFillType(fillType);
 
-  if (fill_type_ == FILL_TYPE_EVEN_ODD)
+  if (fillType_ == FILL_TYPE_EVEN_ODD)
     path_->setFillRule(Qt::OddEvenFill);
   else
     path_->setFillRule(Qt::WindingFill);
@@ -289,7 +323,7 @@ bool
 CQPath2D::
 getCurrentPoint(CPoint2D &point)
 {
-  if (! current_point_) {
+  if (! currentPoint_) {
     point = CPoint2D(0, 0);
 
     return false;
@@ -304,10 +338,19 @@ getCurrentPoint(CPoint2D &point)
 
 void
 CQPath2D::
-bbox(CBBox2D &bbox)
+bbox(CBBox2D &bbox) const
 {
   QRectF rect = path_->boundingRect();
 
   bbox = CBBox2D(rect.bottomLeft().x(), rect.bottomLeft().y(),
                  rect.topRight  ().x(), rect.topRight  ().y());
+}
+
+void
+CQPath2D::
+transform(const CMatrix2D &m)
+{
+  QPainterPath path = CQUtil::toQTransform(m).map(*path_);
+
+  *path_ = path;
 }

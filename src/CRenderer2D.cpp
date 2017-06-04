@@ -13,13 +13,8 @@
 const uint MAX_BEZIER_DEPTH = 9;
 
 class GenGradient2DFill : public CRenderer2DFiller {
- private:
-   CGenGradient *gradient_;
-   double        x1_, y1_, x2_, y2_;
-
  public:
-  GenGradient2DFill(CGenGradient *gradient,
-                    double x1, double y1, double x2, double y2) :
+  GenGradient2DFill(CGenGradient *gradient, double x1, double y1, double x2, double y2) :
    gradient_(gradient), x1_(x1), y1_(y1), x2_(x2), y2_(y2) {
   }
 
@@ -33,6 +28,13 @@ class GenGradient2DFill : public CRenderer2DFiller {
 
     rgba = gradient_->getColor(xt, yt);
   }
+
+ private:
+  CGenGradient *gradient_ { nullptr };
+  double        x1_       { 0.0 };
+  double        y1_       { 0.0 };
+  double        x2_       { 0.0 };
+  double        y2_       { 0.0 };
 };
 
 //--------------
@@ -104,8 +106,8 @@ operator=(const CRenderer2D &renderer)
 {
   pixel_renderer_ = renderer.pixel_renderer_->dup();
 
-  path_   = 0;
-  region_ = 0;
+  path_   = nullptr;
+  region_ = nullptr;
 
   enabled_        = true;
   display_range_  = renderer.display_range_;
@@ -370,8 +372,8 @@ setFillType(CFillType fill_type)
 
   brush_.setFillRule(fill_type);
 
-  if (path_)
-    path_->setFillType(fill_type);
+  if (getPath())
+    getPath()->setFillType(fill_type);
 }
 
 CFillType
@@ -621,10 +623,10 @@ void
 CRenderer2D::
 initPath() const
 {
-  if (! path_) {
+  if (! getPath()) {
     CRenderer2D *th = const_cast<CRenderer2D *>(this);
 
-    th->path_ = createPath();
+    th->path_ = PathP(createPath());
   }
 }
 
@@ -634,15 +636,16 @@ pathInit()
 {
   initPath();
 
-  if (! path_) return;
+  if (! getPath())
+    return;
 
-  CFillType fill_type = path_->getFillType();
+  CFillType fill_type = getPath()->getFillType();
 
   path_stack_.push_back(path_.release());
 
-  path_ = createPath();
+  path_ = PathP(createPath());
 
-  path_->setFillType(fill_type);
+  getPath()->setFillType(fill_type);
 }
 
 void
@@ -651,7 +654,7 @@ pathTerm()
 {
   assert(path_stack_.size() > 0);
 
-  path_ = path_stack_.back();
+  path_ = PathP(path_stack_.back());
 
   path_stack_.pop_back();
 }
@@ -662,7 +665,7 @@ pathRoundedRectangle(const CPoint2D &p1, const CPoint2D &p2, double xr, double y
 {
   initPath();
 
-  path_->roundedRectangle(p1, p2, xr, yr);
+  getPath()->roundedRectangle(p1, p2, xr, yr);
 }
 
 void
@@ -671,7 +674,7 @@ pathMoveTo(const CPoint2D &p)
 {
   initPath();
 
-  path_->moveTo(p);
+  getPath()->moveTo(p);
 }
 
 bool
@@ -680,7 +683,7 @@ pathRMoveTo(const CPoint2D &p)
 {
   initPath();
 
-  return path_->rmoveTo(p);
+  return getPath()->rmoveTo(p);
 }
 
 bool
@@ -689,7 +692,7 @@ pathLineTo(const CPoint2D &p)
 {
   initPath();
 
-  return path_->lineTo(p);
+  return getPath()->lineTo(p);
 }
 
 bool
@@ -698,7 +701,7 @@ pathRLineTo(const CPoint2D &p)
 {
   initPath();
 
-  return path_->rlineTo(p);
+  return getPath()->rlineTo(p);
 }
 
 bool
@@ -707,7 +710,7 @@ pathArcTo(const CPoint2D &p1, const CPoint2D &p2, double xr, double yr)
 {
   initPath();
 
-  return path_->arcTo(p1, p2, xr, yr);
+  return getPath()->arcTo(p1, p2, xr, yr);
 }
 
 bool
@@ -716,7 +719,7 @@ pathBezier2To(const CPoint2D &p1, const CPoint2D &p2)
 {
   initPath();
 
-  return path_->bezier2To(p1, p2);
+  return getPath()->bezier2To(p1, p2);
 }
 
 bool
@@ -725,7 +728,7 @@ pathRBezier2To(const CPoint2D &p1, const CPoint2D &p2)
 {
   initPath();
 
-  return path_->rbezier2To(p1, p2);
+  return getPath()->rbezier2To(p1, p2);
 }
 
 bool
@@ -734,7 +737,7 @@ pathBezier3To(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3)
 {
   initPath();
 
-  return path_->bezier3To(p1, p2, p3);
+  return getPath()->bezier3To(p1, p2, p3);
 }
 
 bool
@@ -743,7 +746,7 @@ pathRBezier3To(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3)
 {
   initPath();
 
-  return path_->rbezier3To(p1, p2, p3);
+  return getPath()->rbezier3To(p1, p2, p3);
 }
 
 void
@@ -752,7 +755,7 @@ pathClose()
 {
   initPath();
 
-  path_->close();
+  getPath()->close();
 }
 
 bool
@@ -761,7 +764,7 @@ pathGetCurrentPoint(CPoint2D &p)
 {
   initPath();
 
-  return path_->getCurrentPoint(p);
+  return getPath()->getCurrentPoint(p);
 }
 
 void
@@ -770,7 +773,7 @@ pathStroke()
 {
   initPath();
 
-  path_->stroke();
+  getPath()->stroke();
 }
 
 void
@@ -779,7 +782,7 @@ pathStrokePath()
 {
   initPath();
 
-  path_->strokePath();
+  getPath()->strokePath();
 }
 
 void
@@ -788,7 +791,7 @@ pathFill()
 {
   initPath();
 
-  path_->fill();
+  getPath()->fill();
 }
 
 void
@@ -798,7 +801,7 @@ pathEofill()
   initPath();
 
   // TODO
-  path_->fill();
+  getPath()->fill();
 }
 
 void
@@ -807,7 +810,7 @@ pathPatternFill(CBrushPattern pattern)
 {
   initPath();
 
-  path_->fillImage(CPixelRenderer::getPatternImage(pattern));
+  getPath()->fillImage(CPixelRenderer::getPatternImage(pattern));
 }
 
 void
@@ -816,7 +819,7 @@ pathImageFill(CImagePtr image)
 {
   initPath();
 
-  path_->fillImage(image);
+  getPath()->fillImage(image);
 }
 
 void
@@ -825,7 +828,7 @@ pathGradientFill(CRefPtr<CGenGradient> gradient)
 {
   initPath();
 
-  path_->fillGradient(gradient);
+  getPath()->fillGradient(gradient);
 }
 
 void
@@ -834,7 +837,7 @@ pathClip()
 {
   initPath();
 
-  path_->clip();
+  getPath()->clip();
 }
 
 void
@@ -843,7 +846,7 @@ pathEoclip()
 {
   initPath();
 
-  path_->eoclip();
+  getPath()->eoclip();
 }
 
 void
@@ -852,7 +855,7 @@ pathClipPath()
 {
   initPath();
 
-  path_->clipPath();
+  getPath()->clipPath();
 }
 
 void
@@ -861,7 +864,7 @@ pathFlatten()
 {
   initPath();
 
-  path_->flatten();
+  getPath()->flatten();
 }
 
 void
@@ -870,7 +873,7 @@ pathReverse()
 {
   initPath();
 
-  path_->reverse();
+  getPath()->reverse();
 }
 
 void
@@ -879,7 +882,7 @@ pathProcess(CPath2DVisitor &visitor)
 {
   initPath();
 
-  path_->process(visitor);
+  getPath()->process(visitor);
 }
 
 void
@@ -888,7 +891,7 @@ pathShowChar(int c, CMatrix2D *matrix, double *x, double *y)
 {
   initPath();
 
-  path_->showChar(c, matrix, x, y);
+  getPath()->showChar(c, matrix, x, y);
 }
 
 void
@@ -897,7 +900,7 @@ pathGetBounds(double *xmin, double *ymin, double *xmax, double *ymax)
 {
   initPath();
 
-  path_->getBounds(xmin, ymin, xmax, ymax);
+  getPath()->getBounds(xmin, ymin, xmax, ymax);
 }
 
 void
@@ -906,7 +909,7 @@ pathSetStrokeAdjust(bool stroke_adjust)
 {
   initPath();
 
-  path_->setStrokeAdjust(stroke_adjust);
+  getPath()->setStrokeAdjust(stroke_adjust);
 }
 
 void
@@ -915,7 +918,7 @@ pathBBox(CBBox2D &bbox)
 {
   initPath();
 
-  path_->bbox(bbox);
+  getPath()->bbox(bbox);
 }
 
 void
@@ -924,7 +927,7 @@ pathPrint()
 {
   initPath();
 
-  path_->print();
+  getPath()->print();
 }
 
 //-------------------
@@ -1842,7 +1845,7 @@ drawArc(const CPoint2D &center, double xr, double yr, double angle1, double angl
 
   pathInit();
 
-  if (path_) {
+  if (getPath()) {
     CPoint2D p1 = beziers[0].getFirstPoint();
 
     pathMoveTo(p1);
@@ -3603,7 +3606,7 @@ pathPolygon(const PointList &points)
 {
   initPath();
 
-  path_->polygon(points);
+  getPath()->polygon(points);
 }
 
 void
@@ -3655,7 +3658,7 @@ pathEllipse(const CPoint2D &center, double xr, double yr)
 {
   initPath();
 
-  path_->ellipse(center, xr, yr);
+  getPath()->ellipse(center, xr, yr);
 }
 
 void
@@ -3690,7 +3693,7 @@ pathArc(const CPoint2D &center, double xr, double yr, double angle1, double angl
 {
   initPath();
 
-  path_->arc(center, xr, yr, angle1, angle2);
+  getPath()->arc(center, xr, yr, angle1, angle2);
 }
 
 void
@@ -3725,7 +3728,7 @@ pathArcN(const CPoint2D &center, double xr, double yr, double angle1, double ang
 {
   initPath();
 
-  path_->arcN(center, xr, yr, angle1, angle2);
+  getPath()->arcN(center, xr, yr, angle1, angle2);
 }
 
 void
@@ -3760,7 +3763,7 @@ pathBezier(C3Bezier2D &bezier)
 {
   initPath();
 
-  path_->bezier(bezier);
+  getPath()->bezier(bezier);
 }
 
 void
@@ -3769,7 +3772,7 @@ pathBezier(C2Bezier2D &bezier)
 {
   initPath();
 
-  path_->bezier(bezier);
+  getPath()->bezier(bezier);
 }
 
 void
@@ -3804,7 +3807,7 @@ pathRectangle(const CBBox2D &bbox)
 {
   initPath();
 
-  path_->rectangle(bbox.getMin(), bbox.getMax());
+  getPath()->rectangle(bbox.getMin(), bbox.getMax());
 }
 
 //-------------
@@ -3813,17 +3816,17 @@ void
 CRenderer2D::
 setRegion(CRendererRegion2D *region)
 {
-  region_ = region;
+  region_ = RendererRegion2DP(region);
 }
 
 CRendererRegion2D *
 CRenderer2D::
 getRegion()
 {
-  if (! region_)
-    region_ = new CRendererRegion2D(this);
+  if (! region_.get())
+    region_ = RendererRegion2DP(new CRendererRegion2D(this));
 
-  return region_;
+  return region_.get();
 }
 
 CPath2D *

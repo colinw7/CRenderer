@@ -4,8 +4,8 @@
 #define CRENDERER_2D_VIRTUAL
 
 #include <CRenderer2D.h>
-#include <CAutoPtr.h>
 #include <QColor>
+#include <memory>
 
 class QPainter;
 class QPen;
@@ -18,31 +18,20 @@ class CQPath2D;
 class CGenGradient;
 
 class CQRenderer2D : public CRenderer2D {
- private:
-  CAutoPtr<QPainter> painter_;
-  CAutoPtr<QPen>     pen_;
-  CAutoPtr<QBrush>   brush_;
-  CAutoPtr<QPixmap>  pixmap_;
-  int                pixmap_width_, pixmap_height_;
-  QColor             qfg_, qbg_;
-  bool               drawing_;
-  bool               has_transform_;
-
  public:
-  CQRenderer2D();
+  CQRenderer2D(QPainter *painter=nullptr);
 
   virtual ~CQRenderer2D();
 
   QPainter *getQPainter() const { return painter_; }
-  QPen     *getQPen    () const { return pen_    ; }
-  QBrush   *getQBrush  () const { return brush_  ; }
+
+  QPen   *getQPen  () const { return pen_  .get(); }
+  QBrush *getQBrush() const { return brush_.get(); }
 
   CQPath2D *getQPath() const;
 
   virtual int getWidth () = 0;
   virtual int getHeight() = 0;
-
-  virtual void updateSize(int width, int height) = 0;
 
   virtual void setDataRange(double xmin, double ymin, double xmax, double ymax);
   virtual void resetDataRange();
@@ -53,8 +42,8 @@ class CQRenderer2D : public CRenderer2D {
   virtual void setQTransform();
   virtual void unsetQTransform();
 
-  virtual void beginDraw();
-  virtual void endDraw();
+  void beginDraw() override;
+  void endDraw() override;
 
   virtual void startDoubleBuffer(bool clear=true);
   virtual void endDoubleBuffer  (bool copy=true);
@@ -129,6 +118,23 @@ class CQRenderer2D : public CRenderer2D {
   virtual void strokePath(QPainterPath *path);
 
   virtual CQFont *getQFont() const;
+
+ private:
+  typedef std::unique_ptr<QPainter> PainterP;
+  typedef std::unique_ptr<QPen>     PenP;
+  typedef std::unique_ptr<QBrush>   BrushP;
+  typedef std::unique_ptr<QPixmap>  PixmapP;
+
+  QPainter* painter_ { nullptr };
+  PainterP  painterP_;
+  PenP      pen_;
+  BrushP    brush_;
+  PixmapP   pixmap_;
+  int       pixmapWidth_  { 0 };
+  int       pixmapHeight_ { 0 };
+  QColor    qfg_, qbg_;
+  bool      drawing_ { false };
+  bool      hasTransform_ { false };
 };
 
 #endif

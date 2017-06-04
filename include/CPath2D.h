@@ -18,19 +18,21 @@ class CGenGradient;
 class CPath2DRenderer;
 class CPath2DFlattener;
 
-enum CPath2DPartType {
-  CPATH_2D_PATH_PART_TYPE_NONE,
-  CPATH_2D_PATH_PART_TYPE_MOVE_TO,
-  CPATH_2D_PATH_PART_TYPE_LINE_TO,
-  CPATH_2D_PATH_PART_TYPE_BEZIER2_TO,
-  CPATH_2D_PATH_PART_TYPE_BEZIER3_TO,
-  CPATH_2D_PATH_PART_TYPE_TEXT,
-  CPATH_2D_PATH_PART_TYPE_CLOSE_PATH
+enum class CPath2DPartType {
+  NONE,
+  MOVE_TO,
+  LINE_TO,
+  BEZIER2_TO,
+  BEZIER3_TO,
+  TEXT,
+  CLOSE_PATH
 };
+
+//---
 
 struct CPath2DPart {
   CPath2DPart() :
-   type(CPATH_2D_PATH_PART_TYPE_NONE), point() {
+   type(CPath2DPartType::NONE), point() {
   }
 
   CPath2DPart(CPath2DPartType type1, const CPoint2D &point1) :
@@ -52,6 +54,8 @@ struct CPath2DPart {
   CPoint2D        point;
 };
 
+//---
+
 class CPath2DVisitor {
  public:
   virtual ~CPath2DVisitor() { }
@@ -65,6 +69,8 @@ class CPath2DVisitor {
 
   virtual void close() = 0;
 };
+
+//---
 
 class CPath2DStroker {
  public:
@@ -83,6 +89,8 @@ class CPath2DStroker {
   virtual void drawBezier3(const CPoint2D &p1, const CPoint2D &p2,
                            const CPoint2D &p3, const CPoint2D &p4) = 0;
 };
+
+//---
 
 class CPath2DRendererStroker : public CPath2DStroker {
  public:
@@ -107,9 +115,11 @@ class CPath2DRendererStroker : public CPath2DStroker {
   CPath2DRendererStroker &operator=(const CPath2DRendererStroker &rhs);
 
  private:
-  CPath2DRenderer  *renderer_;
-  CPath2DFlattener *flattener_;
+  CPath2DRenderer  *renderer_  { nullptr };
+  CPath2DFlattener *flattener_ { nullptr };
 };
+
+//---
 
 class CPath2DFiller {
  public:
@@ -124,6 +134,8 @@ class CPath2DFiller {
 
   virtual void fill(CFillType type) = 0;
 };
+
+//---
 
 class CPath2DRendererFiller : public CPath2DFiller {
  public:
@@ -144,8 +156,10 @@ class CPath2DRendererFiller : public CPath2DFiller {
   CPath2DRendererFiller &operator=(const CPath2DRendererFiller &rhs);
 
  private:
-  CPath2DRenderer *renderer_;
+  CPath2DRenderer *renderer_ { nullptr };
 };
+
+//---
 
 class CPath2D {
  public:
@@ -159,9 +173,9 @@ class CPath2D {
 
   virtual ~CPath2D();
 
-  const CPath2D &operator=(const CPath2D &path);
+  CPath2D &operator=(const CPath2D &path);
 
-  virtual CPath2D *dup();
+  virtual CPath2D *dup() const;
 
   CPath2DRenderer *getRenderer() const { return renderer_; }
 
@@ -171,8 +185,8 @@ class CPath2D {
 
   virtual void setFlattener(CPath2DFlattener *flattener) { flattener_ = flattener; }
 
-  virtual bool getStrokeAdjust() const { return stroke_adjust_; }
-  virtual void setStrokeAdjust(bool flag) { stroke_adjust_ = flag; }
+  virtual bool getStrokeAdjust() const { return strokeAdjust_; }
+  virtual void setStrokeAdjust(bool flag) { strokeAdjust_ = flag; }
 
   virtual void init();
 
@@ -248,7 +262,11 @@ class CPath2D {
 
   virtual void bbox(CBBox2D &bbox) const;
 
-  virtual void transform(const CMatrix2D &matrix);
+  virtual CPath2D transformed(const CMatrix2D &matrix) const;
+  virtual void    transform  (const CMatrix2D &matrix);
+
+  virtual CPath2D preTransformed(const CMatrix2D &matrix) const;
+  virtual void    preTransform  (const CMatrix2D &matrix);
 
   virtual void print();
 
@@ -280,19 +298,18 @@ class CPath2D {
  protected:
   typedef std::vector<CPoint2D> PointArray;
 
-  CPath2DRenderer  *renderer_ { 0 };
-  CPath2DFlattener *flattener_ { 0 };
+  CPath2DRenderer*  renderer_     { nullptr };
+  CPath2DFlattener* flattener_    { nullptr };
   PartList          parts_;
-  bool              closed_ { false };
-  CPoint2D          start1_ { 0, 0 };
-  CPoint2D          start2_ { 0, 0 };
-  CPoint2D          current_ { 0, 0 };
-  bool              current_set_ { false };
-  bool              stroke_adjust_ { false };
-  bool              flat_fill_ { false };
-  CFillType         fill_type_ { FILL_TYPE_WINDING };
-  PointArray        fill_points_;
-
+  bool              closed_       { false };
+  CPoint2D          start1_       { 0, 0 };
+  CPoint2D          start2_       { 0, 0 };
+  CPoint2D          current_      { 0, 0 };
+  bool              currentSet_   { false };
+  bool              strokeAdjust_ { false };
+  bool              flatFill_     { false };
+  CFillType         fillType_     { FILL_TYPE_WINDING };
+  PointArray        fillPoints_;
 };
 
 #endif
