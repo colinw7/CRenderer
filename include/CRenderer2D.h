@@ -65,9 +65,9 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
   uint getPixelWidth () const;
   uint getPixelHeight() const;
 
-  CSymbolType getSymbol() const { return symbol_; }
+  CSymbol2D::Type getSymbol() const { return symbol_; }
 
-  void setSymbol(CSymbolType symbol) { symbol_ = symbol; }
+  void setSymbol(CSymbol2D::Type symbol) { symbol_ = symbol; }
 
   virtual void setPixelOffset(const CIPoint2D &offset);
 
@@ -505,7 +505,7 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
 
   //------
 
-  virtual void drawSymbol(const CPoint2D &point, CSymbolType symbol);
+  virtual void drawSymbol(const CPoint2D &point, CSymbol2D::Type symbol);
 
   //------
 
@@ -621,7 +621,7 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
   PathP              path_;
   PathStack          path_stack_;
   RendererRegion2DP  region_;
-  CSymbolType        symbol_ { CSYMBOL_NONE };
+  CSymbol2D::Type    symbol_ { CSymbol2D::Type::NONE };
   CPixelRendererPath ppath_;
 };
 

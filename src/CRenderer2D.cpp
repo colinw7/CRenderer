@@ -3460,7 +3460,7 @@ drawPoint(const CPoint2D &point)
 
 void
 CRenderer2D::
-drawSymbol(const CPoint2D &point, CSymbolType symbol)
+drawSymbol(const CPoint2D &point, CSymbol2D::Type symbol)
 {
   CIPoint2D point1;
 

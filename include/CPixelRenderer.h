@@ -3,6 +3,7 @@
 
 #include <CRGBA.h>
 #include <CDirectionType.h>
+#include <CSymbol2D.h>
 #include <CThrow.h>
 #include <CPen.h>
 #include <CBrush.h>
@@ -11,7 +12,6 @@
 #include <CIPoint2D.h>
 #include <CISize2D.h>
 #include <CIBBox2D.h>
-#include <CSymbol2D.h>
 #include <CBresenham.h>
 #include <CSingleton.h>
 #include <CPixelClip.h>
@@ -158,7 +158,7 @@ class CPixelRenderer {
 
   virtual void drawClippedPoint(const CIPoint2D &) = 0;
 
-  virtual void drawSymbol(const CIPoint2D &point, CSymbolType symbol);
+  virtual void drawSymbol(const CIPoint2D &point, CSymbol2D::Type symbol);
 
   virtual uint getSymbolSize() const;
 

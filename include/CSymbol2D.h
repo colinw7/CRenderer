@@ -1,26 +1,29 @@
 #ifndef CSYMBOL_2D_H
 #define CSYMBOL_2D_H
 
+#include <string>
 #include <vector>
 
 class CSymbol2DRenderer;
 
-enum CSymbolType {
-  CSYMBOL_NONE,
-  CSYMBOL_CROSS,
-  CSYMBOL_PLUS,
-  CSYMBOL_Y,
-  CSYMBOL_TRIANGLE,
-  CSYMBOL_ITRIANGLE,
-  CSYMBOL_BOX,
-  CSYMBOL_DIAMOND,
-  CSYMBOL_STAR,
-  CSYMBOL_STAR1,
-  CSYMBOL_PENTAGON
-};
+//---
 
 struct CSymbol2D {
-  enum Connect {
+  enum class Type {
+    NONE,
+    CROSS,
+    PLUS,
+    Y,
+    TRIANGLE,
+    ITRIANGLE,
+    BOX,
+    DIAMOND,
+    STAR,
+    STAR1,
+    PENTAGON
+  };
+
+  enum class Connect {
     NONE,
     LINE,
     CLOSE,
@@ -28,30 +31,40 @@ struct CSymbol2D {
   };
 
   struct Line {
-    double  x1, y1;
-    double  x2, y2;
-    Connect connect;
+    double  x1      { 0 }, y1 { 0 };
+    double  x2      { 0 }, y2 { 0 };
+    Connect connect { Connect::NONE };
 
-    Line(double x11, double y11, double x21, double y21, Connect connect1=NONE) :
+    Line(double x11, double y11, double x21, double y21, Connect connect1=Connect::NONE) :
      x1(x11), y1(y11), x2(x21), y2(y21), connect(connect1) {
     }
   };
 
-  CSymbolType       type;
-  std::vector<Line> lines;
+  typedef std::vector<Line> Lines;
 
-  CSymbol2D(CSymbolType type1, std::initializer_list<Line> lines1) :
+  Type  type { Type::NONE };
+  Lines lines;
+
+  CSymbol2D(Type type1, std::initializer_list<Line> lines1) :
    type(type1), lines(lines1) {
   }
 };
 
+//---
+
 namespace CSymbol2DMgr {
-  bool isSymbol(CSymbolType type);
+  bool isSymbol(CSymbol2D::Type type);
 
-  const CSymbol2D &getSymbol(CSymbolType type);
+  const CSymbol2D &getSymbol(CSymbol2D::Type type);
 
-  void drawSymbol(CSymbolType type, CSymbol2DRenderer *renderer);
+  void drawSymbol(CSymbol2D::Type type, CSymbol2DRenderer *renderer);
+
+  std::string typeToName(CSymbol2D::Type type);
+
+  CSymbol2D::Type nameToType(const std::string &str);
 }
+
+//---
 
 class CSymbol2DRenderer {
  public:
@@ -64,7 +77,7 @@ class CSymbol2DRenderer {
 
   virtual void stroke() = 0;
 
-  void drawSymbol(CSymbolType type);
+  void drawSymbol(CSymbol2D::Type type);
 };
 
 #endif

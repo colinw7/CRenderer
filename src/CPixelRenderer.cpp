@@ -204,7 +204,7 @@ drawPoint(const CIPoint2D &point)
 
 void
 CPixelRenderer::
-drawSymbol(const CIPoint2D &point, CSymbolType symbol)
+drawSymbol(const CIPoint2D &point, CSymbol2D::Type symbol)
 {
   int size = getSymbolSize();
 
@@ -1091,19 +1091,19 @@ CPixelRenderer::
 getPatternImage(CBrushPattern pattern)
 {
   switch (pattern) {
-    case CBRUSH_PATTERN_HORIZONTAL:     return getHorizontalImage();
-    case CBRUSH_PATTERN_VERTICAL:       return getVerticalImage();
-    case CBRUSH_PATTERN_CROSS:          return getCrossImage();
-    case CBRUSH_PATTERN_DIAGONAL_UP:    return getUpImage();
-    case CBRUSH_PATTERN_DIAGONAL_DOWN:  return getDownImage();
-    case CBRUSH_PATTERN_DIAGONAL_CROSS: return getDiagonalCrossImage();
-    case CBRUSH_PATTERN_DOTTED1:        return getDotted1Image();
-    case CBRUSH_PATTERN_DOTTED2:        return getDotted2Image();
-    case CBRUSH_PATTERN_DOTTED3:        return getDotted3Image();
-    case CBRUSH_PATTERN_DOTTED4:        return getDotted4Image();
-    case CBRUSH_PATTERN_DOTTED5:        return getDotted5Image();
-    case CBRUSH_PATTERN_DOTTED6:        return getDotted6Image();
-    case CBRUSH_PATTERN_DOTTED7:        return getDotted7Image();
+    case CBrushPattern::HORIZONTAL:     return getHorizontalImage();
+    case CBrushPattern::VERTICAL:       return getVerticalImage();
+    case CBrushPattern::CROSS:          return getCrossImage();
+    case CBrushPattern::DIAGONAL_UP:    return getUpImage();
+    case CBrushPattern::DIAGONAL_DOWN:  return getDownImage();
+    case CBrushPattern::DIAGONAL_CROSS: return getDiagonalCrossImage();
+    case CBrushPattern::DOTTED1:        return getDotted1Image();
+    case CBrushPattern::DOTTED2:        return getDotted2Image();
+    case CBrushPattern::DOTTED3:        return getDotted3Image();
+    case CBrushPattern::DOTTED4:        return getDotted4Image();
+    case CBrushPattern::DOTTED5:        return getDotted5Image();
+    case CBrushPattern::DOTTED6:        return getDotted6Image();
+    case CBrushPattern::DOTTED7:        return getDotted7Image();
     default:                            return CImagePtr();
   }
 }
