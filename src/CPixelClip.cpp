@@ -1,5 +1,6 @@
 #include <CPixelClip.h>
 #include <CLine2D.h>
+#include <CMathRound.h>
 #include <CThrow.h>
 
 class CPixelClip1 {
@@ -258,8 +259,8 @@ processLine2(CPixelClip1 &clip1, const CILine2D &line)
       if (mu2 < 0.0 || mu2 > 1.0)
         continue;
 
-      points[ni++] = CIPoint2D(CMathGen::Round(ipoint.x),
-                               CMathGen::Round(ipoint.y));
+      points[ni++] = CIPoint2D(CMathRound::Round(ipoint.x),
+                               CMathRound::Round(ipoint.y));
     }
   }
 
@@ -347,7 +348,7 @@ isInside(CPixelClip1 &clip1, int px, int py) const
       else {
         double factor = double(x2 - x1)/double(y2 - y1);
 
-        x = CMathGen::Round((py - y1)*factor + x1);
+        x = CMathRound::Round((py - y1)*factor + x1);
       }
 
       o = CMathGen::sign(long(y2 - y1));

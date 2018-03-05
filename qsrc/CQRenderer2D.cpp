@@ -445,7 +445,7 @@ drawLine(const CPoint2D &point1, const CPoint2D &point2)
 
 void
 CQRenderer2D::
-drawSymbol(const CPoint2D &point, CSymbolType symbol)
+drawSymbol(const CPoint2D &point, CSymbol2D::Type symbol)
 {
   getQPainter()->setPen(*getQPen());
 

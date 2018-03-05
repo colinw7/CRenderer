@@ -5,6 +5,7 @@
 #include <CImageLib.h>
 #include <CImagePixelRenderer.h>
 #include <CFreeType.h>
+#include <CMathRound.h>
 
 #ifndef ROUND
 # define ROUND(x) ((int)((x) + 0.5))
@@ -663,7 +664,7 @@ fillPolygon(const IPointList &points)
           double factor = double(points[i2].x - points[i1].x)/
                           double(points[i2].y - points[i1].y);
 
-          xx = CMathGen::Round((yy - points[i1].y)*factor + points[i1].x);
+          xx = CMathRound::Round((yy - points[i1].y)*factor + points[i1].x);
         }
 
         xmin = std::min(xmin, xx);
@@ -723,7 +724,7 @@ fillClippedPolygon(const IPointList &points)
         double factor = double(points[i2].x - points[i1].x)/
                         double(points[i2].y - points[i1].y);
 
-        xx = CMathGen::Round((yy - points[i1].y)*factor + points[i1].x);
+        xx = CMathRound::Round((yy - points[i1].y)*factor + points[i1].x);
       }
 
       xmin = std::min(xmin, xx);
@@ -781,7 +782,7 @@ fillFilledPolygon(const IPointList &points, const CPixelRendererFiller &filler)
           double factor = double(points[i2].x - points[i1].x)/
                           double(points[i2].y - points[i1].y);
 
-          xx = CMathGen::Round((yy - points[i1].y)*factor + points[i1].x);
+          xx = CMathRound::Round((yy - points[i1].y)*factor + points[i1].x);
         }
 
         xmin = std::min(xmin, xx);
@@ -841,7 +842,7 @@ fillFilledClippedPolygon(const IPointList &points, const CPixelRendererFiller &f
         double factor = double(points[i2].x - points[i1].x)/
                         double(points[i2].y - points[i1].y);
 
-        xx = CMathGen::Round((yy - points[i1].y)*factor + points[i1].x);
+        xx = CMathRound::Round((yy - points[i1].y)*factor + points[i1].x);
       }
 
       xmin = std::min(xmin, xx);
@@ -915,7 +916,7 @@ fillImagePolygon(const IPointList &points, CImagePtr image)
           double factor = double(points[i2].x - points[i1].x)/
                           double(points[i2].y - points[i1].y);
 
-          xx = CMathGen::Round((yy - points[i1].y)*factor + points[i1].x);
+          xx = CMathRound::Round((yy - points[i1].y)*factor + points[i1].x);
         }
 
         xmin = std::min(xmin, xx);
@@ -1001,7 +1002,7 @@ fillImageClippedPolygon(const IPointList &points, CImagePtr image)
         double factor = double(points[i2].x - points[i1].x)/
                         double(points[i2].y - points[i1].y);
 
-        xx = CMathGen::Round((yy - points[i1].y)*factor + points[i1].x);
+        xx = CMathRound::Round((yy - points[i1].y)*factor + points[i1].x);
       }
 
       xmin = std::min(xmin, xx);
@@ -1412,10 +1413,10 @@ fillFilledAAPolygon(const std::vector<CPoint2D> &points, const CPixelRendererFil
     xmax = std::max(xmax, points[i1].x); ymax = std::max(ymax, points[i1].y);
   }
 
-  int pxs = std::max((int) CMathGen::RoundDown(xmin), (int) 0);
-  int pys = std::max((int) CMathGen::RoundDown(ymin), (int) 0);
-  int pxe = std::min((int) CMathGen::RoundUp  (xmax), (int) getWidth () - 1);
-  int pye = std::min((int) CMathGen::RoundUp  (ymax), (int) getHeight() - 1);
+  int pxs = std::max((int) CMathRound::RoundDown(xmin), (int) 0);
+  int pys = std::max((int) CMathRound::RoundDown(ymin), (int) 0);
+  int pxe = std::min((int) CMathRound::RoundUp  (xmax), (int) getWidth () - 1);
+  int pye = std::min((int) CMathRound::RoundUp  (ymax), (int) getHeight() - 1);
 
   int w = pxe - pxs;
   int h = pye - pys;
@@ -2327,7 +2328,7 @@ fillPathPolygons(IPointListList &poly_points_list, CImagePtr image, CFillType ty
         else {
           double factor = double(x2 - x1)/double(y2 - y1);
 
-          x = CMathGen::Round((y - y1)*factor + x1);
+          x = CMathRound::Round((y - y1)*factor + x1);
 
           x = std::max(x, 0);
           x = std::min(x, (int) getWidth() - 1);
@@ -2559,7 +2560,7 @@ fillPathPolygons(RPointListList &poly_points_list, CImagePtr image, CFillType ty
         else {
           double factor = double(x2 - x1)/double(y2 - y1);
 
-          x = CMathGen::Round((y - y1)*factor + x1);
+          x = CMathRound::Round((y - y1)*factor + x1);
 
           x = std::max(x, 0.0);
           x = std::min(x, (int) getWidth() - 1.0);

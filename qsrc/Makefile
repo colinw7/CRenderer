@@ -100,6 +100,7 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_webkitwidgets.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_widgets.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_widgets_private.pri \
+		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_x11extras.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_xcb_qpa_lib_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_xml.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_xml_private.pri \
@@ -213,6 +214,7 @@ Makefile: CQPixelRenderer.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_webkitwidgets.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_widgets.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_widgets_private.pri \
+		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_x11extras.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_xcb_qpa_lib_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_xml.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_xml_private.pri \
@@ -281,6 +283,7 @@ Makefile: CQPixelRenderer.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_webkitwidgets.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_widgets.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_widgets_private.pri:
+/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_x11extras.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_xcb_qpa_lib_private.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_xml.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_xml_private.pri:
@@ -365,30 +368,30 @@ compiler_clean:
 		../qinclude/CQRenderer2D.h \
 		../include/CRenderer2D.h \
 		../../CUtil/include/CDisplayRange2D.h \
-		../../CMath/include/CMathGen.h \
-		../../COS/include/NaN.h \
-		../../CMath/include/CIPoint2D.h \
+		../../CMath/include/CMathRound.h \
 		../../CMath/include/CMatrix2D.h \
 		../../CMath/include/CMathMacros.h \
 		../../CMath/include/CPoint2D.h \
 		../../CMath/include/CVector2D.h \
-		../../CMath/include/CMatrixType.h \
-		../../CUtil/include/CThrow.h \
+		../../CMath/include/CMathGen.h \
+		../../COS/include/NaN.h \
+		../../CMath/include/CIPoint2D.h \
 		../../CMath/include/CBBox2D.h \
 		../../CMath/include/CSize2D.h \
 		../../CMath/include/CISize2D.h \
-		../../CUtil/include/CAlignType.h \
 		../include/CPixelRenderer.h \
 		../../CUtil/include/CRGBA.h \
 		../../CUtil/include/CRGB.h \
+		../../CUtil/include/CRGBName.h \
 		../../CUtil/include/CRGBUtil.h \
 		../../CUtil/include/CCMYK.h \
 		../../CUtil/include/CHSL.h \
 		../../CUtil/include/CHSV.h \
 		../../CUtil/include/CHSB.h \
 		../../CUtil/include/CHSI.h \
-		../../CUtil/include/CColorComponent.h \
 		../../CUtil/include/CDirectionType.h \
+		../include/CSymbol2D.h \
+		../../CUtil/include/CThrow.h \
 		../../CUtil/include/CPen.h \
 		../../CUtil/include/CLineDash.h \
 		../../CUtil/include/CILineDash.h \
@@ -399,6 +402,7 @@ compiler_clean:
 		../../CUtil/include/CFillType.h \
 		../../CImageLib/include/CImage.h \
 		../../CUtil/include/CRGBACombineDef.h \
+		../../CUtil/include/CAlignType.h \
 		../../CMath/include/CIBBox2D.h \
 		../../CMath/include/CIVector2D.h \
 		../../CFile/include/CFileType.h \
@@ -419,7 +423,6 @@ compiler_clean:
 		../../CStrUtil/include/CStrUtil.h \
 		../../CImageLib/include/CImageAnim.h \
 		../../CImageLib/include/CImageFile.h \
-		../include/CSymbol2D.h \
 		../../CMath/include/CBresenham.h \
 		../../CUtil/include/CSingleton.h \
 		../include/CPixelClip.h \
@@ -443,30 +446,30 @@ compiler_clean:
 		../qinclude/CQRenderer2D.h \
 		../include/CRenderer2D.h \
 		../../CUtil/include/CDisplayRange2D.h \
-		../../CMath/include/CMathGen.h \
-		../../COS/include/NaN.h \
-		../../CMath/include/CIPoint2D.h \
+		../../CMath/include/CMathRound.h \
 		../../CMath/include/CMatrix2D.h \
 		../../CMath/include/CMathMacros.h \
 		../../CMath/include/CPoint2D.h \
 		../../CMath/include/CVector2D.h \
-		../../CMath/include/CMatrixType.h \
-		../../CUtil/include/CThrow.h \
+		../../CMath/include/CMathGen.h \
+		../../COS/include/NaN.h \
+		../../CMath/include/CIPoint2D.h \
 		../../CMath/include/CBBox2D.h \
 		../../CMath/include/CSize2D.h \
 		../../CMath/include/CISize2D.h \
-		../../CUtil/include/CAlignType.h \
 		../include/CPixelRenderer.h \
 		../../CUtil/include/CRGBA.h \
 		../../CUtil/include/CRGB.h \
+		../../CUtil/include/CRGBName.h \
 		../../CUtil/include/CRGBUtil.h \
 		../../CUtil/include/CCMYK.h \
 		../../CUtil/include/CHSL.h \
 		../../CUtil/include/CHSV.h \
 		../../CUtil/include/CHSB.h \
 		../../CUtil/include/CHSI.h \
-		../../CUtil/include/CColorComponent.h \
 		../../CUtil/include/CDirectionType.h \
+		../include/CSymbol2D.h \
+		../../CUtil/include/CThrow.h \
 		../../CUtil/include/CPen.h \
 		../../CUtil/include/CLineDash.h \
 		../../CUtil/include/CILineDash.h \
@@ -477,6 +480,7 @@ compiler_clean:
 		../../CUtil/include/CFillType.h \
 		../../CImageLib/include/CImage.h \
 		../../CUtil/include/CRGBACombineDef.h \
+		../../CUtil/include/CAlignType.h \
 		../../CMath/include/CIBBox2D.h \
 		../../CMath/include/CIVector2D.h \
 		../../CFile/include/CFileType.h \
@@ -497,7 +501,6 @@ compiler_clean:
 		../../CStrUtil/include/CStrUtil.h \
 		../../CImageLib/include/CImageAnim.h \
 		../../CImageLib/include/CImageFile.h \
-		../include/CSymbol2D.h \
 		../../CMath/include/CBresenham.h \
 		../../CUtil/include/CSingleton.h \
 		../include/CPixelClip.h \
@@ -519,30 +522,30 @@ compiler_clean:
 ../obj/CQRenderer2D.o: CQRenderer2D.cpp ../qinclude/CQRenderer2D.h \
 		../include/CRenderer2D.h \
 		../../CUtil/include/CDisplayRange2D.h \
-		../../CMath/include/CMathGen.h \
-		../../COS/include/NaN.h \
-		../../CMath/include/CIPoint2D.h \
+		../../CMath/include/CMathRound.h \
 		../../CMath/include/CMatrix2D.h \
 		../../CMath/include/CMathMacros.h \
 		../../CMath/include/CPoint2D.h \
 		../../CMath/include/CVector2D.h \
-		../../CMath/include/CMatrixType.h \
-		../../CUtil/include/CThrow.h \
+		../../CMath/include/CMathGen.h \
+		../../COS/include/NaN.h \
+		../../CMath/include/CIPoint2D.h \
 		../../CMath/include/CBBox2D.h \
 		../../CMath/include/CSize2D.h \
 		../../CMath/include/CISize2D.h \
-		../../CUtil/include/CAlignType.h \
 		../include/CPixelRenderer.h \
 		../../CUtil/include/CRGBA.h \
 		../../CUtil/include/CRGB.h \
+		../../CUtil/include/CRGBName.h \
 		../../CUtil/include/CRGBUtil.h \
 		../../CUtil/include/CCMYK.h \
 		../../CUtil/include/CHSL.h \
 		../../CUtil/include/CHSV.h \
 		../../CUtil/include/CHSB.h \
 		../../CUtil/include/CHSI.h \
-		../../CUtil/include/CColorComponent.h \
 		../../CUtil/include/CDirectionType.h \
+		../include/CSymbol2D.h \
+		../../CUtil/include/CThrow.h \
 		../../CUtil/include/CPen.h \
 		../../CUtil/include/CLineDash.h \
 		../../CUtil/include/CILineDash.h \
@@ -553,6 +556,7 @@ compiler_clean:
 		../../CUtil/include/CFillType.h \
 		../../CImageLib/include/CImage.h \
 		../../CUtil/include/CRGBACombineDef.h \
+		../../CUtil/include/CAlignType.h \
 		../../CMath/include/CIBBox2D.h \
 		../../CMath/include/CIVector2D.h \
 		../../CFile/include/CFileType.h \
@@ -573,7 +577,6 @@ compiler_clean:
 		../../CStrUtil/include/CStrUtil.h \
 		../../CImageLib/include/CImageAnim.h \
 		../../CImageLib/include/CImageFile.h \
-		../include/CSymbol2D.h \
 		../../CMath/include/CBresenham.h \
 		../../CUtil/include/CSingleton.h \
 		../include/CPixelClip.h \
@@ -609,17 +612,16 @@ compiler_clean:
 		../include/CPixelRenderer.h \
 		../../CUtil/include/CRGBA.h \
 		../../CUtil/include/CRGB.h \
+		../../CUtil/include/CRGBName.h \
 		../../CUtil/include/CRGBUtil.h \
 		../../CUtil/include/CCMYK.h \
 		../../CUtil/include/CHSL.h \
 		../../CUtil/include/CHSV.h \
 		../../CUtil/include/CHSB.h \
 		../../CUtil/include/CHSI.h \
-		../../CMath/include/CMathGen.h \
-		../../COS/include/NaN.h \
-		../../CMath/include/CIPoint2D.h \
-		../../CUtil/include/CColorComponent.h \
+		../../CMath/include/CMathRound.h \
 		../../CUtil/include/CDirectionType.h \
+		../include/CSymbol2D.h \
 		../../CUtil/include/CThrow.h \
 		../../CUtil/include/CPen.h \
 		../../CUtil/include/CLineDash.h \
@@ -634,7 +636,10 @@ compiler_clean:
 		../../CUtil/include/CAlignType.h \
 		../../CMath/include/CISize2D.h \
 		../../CMath/include/CIBBox2D.h \
+		../../CMath/include/CIPoint2D.h \
 		../../CMath/include/CIVector2D.h \
+		../../CMath/include/CMathGen.h \
+		../../COS/include/NaN.h \
 		../../CFile/include/CFileType.h \
 		../../CUtil/include/COptVal.h \
 		../../CImageLib/include/CImagePtr.h \
@@ -653,7 +658,6 @@ compiler_clean:
 		../../CImageLib/include/CImageAnim.h \
 		../../CImageLib/include/CImageFile.h \
 		../../CMath/include/CPoint2D.h \
-		../include/CSymbol2D.h \
 		../../CMath/include/CBresenham.h \
 		../../CUtil/include/CSingleton.h \
 		../include/CPixelClip.h \
@@ -666,17 +670,16 @@ compiler_clean:
 		../include/CPixelRenderer.h \
 		../../CUtil/include/CRGBA.h \
 		../../CUtil/include/CRGB.h \
+		../../CUtil/include/CRGBName.h \
 		../../CUtil/include/CRGBUtil.h \
 		../../CUtil/include/CCMYK.h \
 		../../CUtil/include/CHSL.h \
 		../../CUtil/include/CHSV.h \
 		../../CUtil/include/CHSB.h \
 		../../CUtil/include/CHSI.h \
-		../../CMath/include/CMathGen.h \
-		../../COS/include/NaN.h \
-		../../CMath/include/CIPoint2D.h \
-		../../CUtil/include/CColorComponent.h \
+		../../CMath/include/CMathRound.h \
 		../../CUtil/include/CDirectionType.h \
+		../include/CSymbol2D.h \
 		../../CUtil/include/CThrow.h \
 		../../CUtil/include/CPen.h \
 		../../CUtil/include/CLineDash.h \
@@ -691,7 +694,10 @@ compiler_clean:
 		../../CUtil/include/CAlignType.h \
 		../../CMath/include/CISize2D.h \
 		../../CMath/include/CIBBox2D.h \
+		../../CMath/include/CIPoint2D.h \
 		../../CMath/include/CIVector2D.h \
+		../../CMath/include/CMathGen.h \
+		../../COS/include/NaN.h \
 		../../CFile/include/CFileType.h \
 		../../CUtil/include/COptVal.h \
 		../../CImageLib/include/CImagePtr.h \
@@ -710,7 +716,6 @@ compiler_clean:
 		../../CImageLib/include/CImageAnim.h \
 		../../CImageLib/include/CImageFile.h \
 		../../CMath/include/CPoint2D.h \
-		../include/CSymbol2D.h \
 		../../CMath/include/CBresenham.h \
 		../../CUtil/include/CSingleton.h \
 		../include/CPixelClip.h \
@@ -723,17 +728,16 @@ compiler_clean:
 		../include/CPixelRenderer.h \
 		../../CUtil/include/CRGBA.h \
 		../../CUtil/include/CRGB.h \
+		../../CUtil/include/CRGBName.h \
 		../../CUtil/include/CRGBUtil.h \
 		../../CUtil/include/CCMYK.h \
 		../../CUtil/include/CHSL.h \
 		../../CUtil/include/CHSV.h \
 		../../CUtil/include/CHSB.h \
 		../../CUtil/include/CHSI.h \
-		../../CMath/include/CMathGen.h \
-		../../COS/include/NaN.h \
-		../../CMath/include/CIPoint2D.h \
-		../../CUtil/include/CColorComponent.h \
+		../../CMath/include/CMathRound.h \
 		../../CUtil/include/CDirectionType.h \
+		../include/CSymbol2D.h \
 		../../CUtil/include/CThrow.h \
 		../../CUtil/include/CPen.h \
 		../../CUtil/include/CLineDash.h \
@@ -748,7 +752,10 @@ compiler_clean:
 		../../CUtil/include/CAlignType.h \
 		../../CMath/include/CISize2D.h \
 		../../CMath/include/CIBBox2D.h \
+		../../CMath/include/CIPoint2D.h \
 		../../CMath/include/CIVector2D.h \
+		../../CMath/include/CMathGen.h \
+		../../COS/include/NaN.h \
 		../../CFile/include/CFileType.h \
 		../../CUtil/include/COptVal.h \
 		../../CImageLib/include/CImagePtr.h \
@@ -767,7 +774,6 @@ compiler_clean:
 		../../CImageLib/include/CImageAnim.h \
 		../../CImageLib/include/CImageFile.h \
 		../../CMath/include/CPoint2D.h \
-		../include/CSymbol2D.h \
 		../../CMath/include/CBresenham.h \
 		../../CUtil/include/CSingleton.h \
 		../include/CPixelClip.h \
@@ -783,7 +789,6 @@ compiler_clean:
 		../../CMath/include/CSize2D.h \
 		../../CMath/include/CMatrix2D.h \
 		../../CMath/include/CMathMacros.h \
-		../../CMath/include/CMatrixType.h \
 		../../CMath/include/CLinearGradient.h \
 		../../CMath/include/CRadialGradient.h \
 		../../CMath/include/CMathGeom2D.h \
@@ -795,57 +800,61 @@ compiler_clean:
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../obj/CQPixelRenderer.o CQPixelRenderer.cpp
 
 ../obj/CQPath2D.o: CQPath2D.cpp ../qinclude/CQPath2D.h \
-		../../CQUtil/include/CQFont.h \
-		../../CFont/include/CFont.h \
-		../../CUtil/include/CRefPtr.h \
-		../../CFont/include/CFontStyle.h \
-		../../CUtil/include/CFlags.h \
-		../../CImageLib/include/CImageLib.h \
-		../../CFile/include/CFile.h \
-		../../CFile/include/CFileBase.h \
-		../../CFile/include/CFileType.h \
-		../../CUtil/include/CAlignType.h \
+		../include/CPath2D.h \
+		../../CUtil/include/CSingleton.h \
+		../include/CBuffer.h \
+		../../CMath/include/CPoint2D.h \
+		../../CMath/include/CMatrix2D.h \
+		../../CMath/include/CMathMacros.h \
+		../../CMath/include/CVector2D.h \
+		../../CMath/include/CMathGen.h \
+		../../COS/include/NaN.h \
+		../../CMath/include/CIPoint2D.h \
+		../../CMath/include/CBBox2D.h \
+		../../CMath/include/CSize2D.h \
+		../../CMath/include/CISize2D.h \
+		../../CMath/include/C3Bezier2D.h \
+		../../CMath/include/C2Bezier2D.h \
+		../../CUtil/include/CFillType.h \
+		../../CImageLib/include/CImage.h \
 		../../CUtil/include/CRGBA.h \
 		../../CUtil/include/CRGB.h \
+		../../CUtil/include/CRGBName.h \
 		../../CUtil/include/CRGBUtil.h \
 		../../CUtil/include/CCMYK.h \
 		../../CUtil/include/CHSL.h \
 		../../CUtil/include/CHSV.h \
 		../../CUtil/include/CHSB.h \
 		../../CUtil/include/CHSI.h \
-		../../CMath/include/CMathGen.h \
-		../../COS/include/NaN.h \
-		../../CMath/include/CIPoint2D.h \
-		../../CUtil/include/CColorComponent.h \
-		../../CImageLib/include/CImageState.h \
-		../../CImageLib/include/CImage.h \
+		../../CMath/include/CMathRound.h \
 		../../CUtil/include/CRGBACombineDef.h \
-		../../CMath/include/CISize2D.h \
+		../../CUtil/include/CAlignType.h \
 		../../CMath/include/CIBBox2D.h \
 		../../CMath/include/CIVector2D.h \
+		../../CFile/include/CFileType.h \
 		../../CUtil/include/COptVal.h \
 		../../CImageLib/include/CImagePtr.h \
+		../../CUtil/include/CRefPtr.h \
+		../../CFont/include/CFont.h \
+		../../CFont/include/CFontStyle.h \
+		../../CUtil/include/CFlags.h \
+		../../CImageLib/include/CImageLib.h \
+		../../CFile/include/CFile.h \
+		../../CFile/include/CFileBase.h \
+		../../CImageLib/include/CImageState.h \
 		../../CImageLib/include/CImageMgr.h \
 		../../CStrUtil/include/CStrUtil.h \
 		../../CImageLib/include/CImageAnim.h \
 		../../CImageLib/include/CImageFile.h \
+		../../CQUtil/include/CQFont.h \
 		../../CQUtil/include/CQUtil.h \
 		../../CUtil/include/CEvent.h \
 		../../CUtil/include/CKeyType.h \
 		../../CUtil/include/CLineDash.h \
 		../../CUtil/include/CILineDash.h \
 		../../CMath/include/CAngle.h \
-		../../CMath/include/CPoint2D.h \
-		../../CMath/include/CBBox2D.h \
-		../../CMath/include/CVector2D.h \
-		../../CMath/include/CSize2D.h \
-		../../CMath/include/CMatrix2D.h \
-		../../CMath/include/CMathMacros.h \
-		../../CMath/include/CMatrixType.h \
-		../../CUtil/include/CThrow.h \
 		../../CUtil/include/CBrush.h \
 		../../CUtil/include/CBrushStyle.h \
-		../../CUtil/include/CFillType.h \
 		../../CUtil/include/CAutoPtr.h \
 		../../CMath/include/CGenGradient.h \
 		../../CUtil/include/CPen.h \
@@ -857,8 +866,6 @@ compiler_clean:
 		../../CMath/include/CLine2D.h \
 		../../CMath/include/CMathGeom2D.h \
 		../../CMath/include/CPolygonOrientation.h \
-		../../CMath/include/C3Bezier2D.h \
-		../../CMath/include/C2Bezier2D.h \
 		../../CMath/include/CTriangle2D.h \
 		../../CMath/include/CLinearGradient.h \
 		../../CMath/include/CRadialGradient.h

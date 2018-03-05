@@ -9,6 +9,7 @@
 #include <COrientation.h>
 #include <CStrUtil.h>
 #include <CFreeType.h>
+#include <CMathRound.h>
 
 const uint MAX_BEZIER_DEPTH = 9;
 
@@ -545,19 +546,19 @@ getScaleMin() const
 
 void
 CRenderer2D::
-setAlign(CHAlignType halign, CVAlignType valign)
+setAlign(CDisplayRange2D::HAlign halign, CDisplayRange2D::VAlign valign)
 {
   return display_range_.setAlign(halign, valign);
 }
 
-CHAlignType
+CDisplayRange2D::HAlign
 CRenderer2D::
 getHAlign() const
 {
   return display_range_.getHAlign();
 }
 
-CVAlignType
+CDisplayRange2D::VAlign
 CRenderer2D::
 getVAlign() const
 {
@@ -1194,7 +1195,7 @@ calcNumArcBeziers(const CPoint2D &, double xr, double yr, double angle1, double 
 
   //------
 
-  uint num_beziers = CMathGen::Round(angle_diff/M_PI);
+  uint num_beziers = CMathRound::Round(angle_diff/M_PI);
 
   if (num_beziers <= 0)
     num_beziers = 1;
@@ -1206,7 +1207,7 @@ calcNumArcBeziers(const CPoint2D &, double xr, double yr, double angle1, double 
   windowLengthToPixelLength(xr, &xsize);
   windowLengthToPixelLength(yr, &ysize);
 
-  int size = CMathGen::Round(std::max(xsize, ysize));
+  int size = CMathRound::Round(std::max(xsize, ysize));
 
   if      (size <= 27)
     ;
@@ -2942,8 +2943,8 @@ adjustPoint(CPoint2D &p)
 
   windowToPixel(p, p1);
 
-  p1.x = CMathGen::RoundDown(p1.x - 0.25) + 0.25;
-  p1.y = CMathGen::RoundDown(p1.y - 0.25) + 0.25;
+  p1.x = CMathRound::RoundDown(p1.x - 0.25) + 0.25;
+  p1.y = CMathRound::RoundDown(p1.y - 0.25) + 0.25;
 
   pixelToWindow(p1, p);
 }
@@ -3119,8 +3120,8 @@ transformPointToPixel(const CPoint2D &w, CIPoint2D &p) const
 
   transformPointToPixel(w, tp);
 
-  p.x = CMathGen::Round(tp.x);
-  p.y = CMathGen::Round(tp.y);
+  p.x = CMathRound::Round(tp.x);
+  p.y = CMathRound::Round(tp.y);
 }
 
 void
@@ -3247,19 +3248,19 @@ windowLengthToPixelLength(double l, int *pl) const
 
   windowLengthToPixelLength(l, &pl1);
 
-  *pl = CMathGen::Round(pl1);
+  *pl = CMathRound::Round(pl1);
 }
 
 void
 CRenderer2D::
-windowToPixel(const CPoint2D &w, CIPoint2D &p, CMathGen::Rounding rounding) const
+windowToPixel(const CPoint2D &w, CIPoint2D &p, CMathRound::Rounding rounding) const
 {
   CPoint2D p1;
 
   windowToPixel(w, p1);
 
-  p.x = CMathGen::Round(p1.x, rounding);
-  p.y = CMathGen::Round(p1.y, rounding);
+  p.x = CMathRound::Round(p1.x, rounding);
+  p.y = CMathRound::Round(p1.y, rounding);
 }
 
 void

@@ -68,7 +68,7 @@ class CQRenderer2D : public CRenderer2D {
 
   virtual void drawPoint(const CPoint2D &point);
 
-  virtual void drawSymbol(const CPoint2D &point, CSymbolType type);
+  virtual void drawSymbol(const CPoint2D &point, CSymbol2D::Type type);
 
   virtual void drawLine(const CPoint2D &point1, const CPoint2D &point2);
 

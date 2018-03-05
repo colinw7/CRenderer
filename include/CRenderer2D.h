@@ -103,10 +103,10 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
 
   bool getScaleMin() const;
 
-  virtual void setAlign(CHAlignType halign, CVAlignType valign);
+  virtual void setAlign(CDisplayRange2D::HAlign halign, CDisplayRange2D::VAlign valign);
 
-  CHAlignType getHAlign() const;
-  CVAlignType getVAlign() const;
+  CDisplayRange2D::HAlign getHAlign() const;
+  CDisplayRange2D::VAlign getVAlign() const;
 
   //------
 
@@ -482,7 +482,7 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
  public:
   virtual void windowToPixel(const CPoint2D &w, CPoint2D &p) const;
   virtual void windowToPixel(const CPoint2D &w, CIPoint2D &p,
-                             CMathGen::Rounding rounding=CMathGen::ROUND_NEAREST) const;
+                             CMathRound::Rounding rounding=CMathRound::ROUND_NEAREST) const;
 
   virtual void pixelToWindow(const CIPoint2D &pixel, CPoint2D &window) const;
   virtual void pixelToWindow(const CPoint2D &p, CPoint2D &w) const;
