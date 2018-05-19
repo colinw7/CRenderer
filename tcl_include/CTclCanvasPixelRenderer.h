@@ -1,16 +1,11 @@
 #ifndef CXLIB_PIXEL_RENDERER_H
 #define CXLIB_PIXEL_RENDERER_H
 
-#include "CPixelRenderer/CPixelRenderer.h"
+#include <CPixelRenderer.h>
 
 class CTclCanvas;
 
 class CTclCanvasPixelRenderer : public CPixelRenderer {
- private:
-  CTclCanvas *canvas_;
-  int         canvas_width1_;
-  int         canvas_height1_;
-
  public:
   CTclCanvasPixelRenderer(CTclCanvas *canvas);
  ~CTclCanvasPixelRenderer() { }
@@ -39,7 +34,7 @@ class CTclCanvasPixelRenderer : public CPixelRenderer {
   void drawClippedPoint(const CIPoint2D &p);
 
   void drawChar(int x, int y, char c);
-  void drawString(int x, int y, const string &str);
+  void drawString(int x, int y, const std::string &str);
 
   void drawLine(int x1, int y1, int x2, int y2);
 
@@ -59,9 +54,14 @@ class CTclCanvasPixelRenderer : public CPixelRenderer {
   int getCharWidth ();
   int getCharHeight();
 
-  CFontPtr lookupFont(const string &name, CFontStyle style, int size);
+  CFontPtr lookupFont(const std::string &name, CFontStyle style, int size);
 
   void flush();
+
+ private:
+  CTclCanvas* canvas_         { nullptr };
+  int         canvas_width1_  { 0 };
+  int         canvas_height1_ { 0 };
 };
 
 #endif

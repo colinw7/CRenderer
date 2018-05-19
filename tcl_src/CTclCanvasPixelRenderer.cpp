@@ -1,7 +1,6 @@
-#include <std_c++.h>
-#include <CMath/CLine2D.h>
-#include <CTclCanvas/CTclCanvas.h>
-#include <CTclCanvasPixelRenderer/CTclCanvasPixelRenderer.h>
+#include <CTclCanvasPixelRenderer.h>
+#include <CTclCanvas.h>
+#include <CLine2D.h>
 
 CTclCanvasPixelRenderer::
 CTclCanvasPixelRenderer(CTclCanvas *canvas) :
@@ -120,7 +119,7 @@ void
 CTclCanvasPixelRenderer::
 drawChar(int x, int y, char c)
 {
-  string str;
+  std::string str;
 
   str += c;
 
@@ -129,7 +128,7 @@ drawChar(int x, int y, char c)
 
 void
 CTclCanvasPixelRenderer::
-drawString(int x, int y, const string &str)
+drawString(int x, int y, const std::string &str)
 {
   canvas_->drawText(x, y, str);
 }

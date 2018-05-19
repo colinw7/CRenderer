@@ -78,6 +78,8 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_eglfs_device_lib_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_gui.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_gui_private.pri \
+		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_multimedia.pri \
+		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_multimediawidgets.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_network.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_network_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_opengl.pri \
@@ -192,6 +194,8 @@ Makefile: CQPixelRenderer.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_eglfs_device_lib_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_gui.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_gui_private.pri \
+		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_multimedia.pri \
+		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_multimediawidgets.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_network.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_network_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_opengl.pri \
@@ -261,6 +265,8 @@ Makefile: CQPixelRenderer.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_eglfs_device_lib_private.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_gui.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_gui_private.pri:
+/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_multimedia.pri:
+/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_multimediawidgets.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_network.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_network_private.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_opengl.pri:
@@ -370,7 +376,6 @@ compiler_clean:
 		../../CUtil/include/CDisplayRange2D.h \
 		../../CMath/include/CMathRound.h \
 		../../CMath/include/CMatrix2D.h \
-		../../CMath/include/CMathMacros.h \
 		../../CMath/include/CPoint2D.h \
 		../../CMath/include/CVector2D.h \
 		../../CMath/include/CMathGen.h \
@@ -448,7 +453,6 @@ compiler_clean:
 		../../CUtil/include/CDisplayRange2D.h \
 		../../CMath/include/CMathRound.h \
 		../../CMath/include/CMatrix2D.h \
-		../../CMath/include/CMathMacros.h \
 		../../CMath/include/CPoint2D.h \
 		../../CMath/include/CVector2D.h \
 		../../CMath/include/CMathGen.h \
@@ -524,7 +528,6 @@ compiler_clean:
 		../../CUtil/include/CDisplayRange2D.h \
 		../../CMath/include/CMathRound.h \
 		../../CMath/include/CMatrix2D.h \
-		../../CMath/include/CMathMacros.h \
 		../../CMath/include/CPoint2D.h \
 		../../CMath/include/CVector2D.h \
 		../../CMath/include/CMathGen.h \
@@ -596,6 +599,7 @@ compiler_clean:
 		../../CUtil/include/CEvent.h \
 		../../CUtil/include/CKeyType.h \
 		../../CMath/include/CAngle.h \
+		../../CQUtil/include/CQUtilMeta.h \
 		../qinclude/CQPath2D.h \
 		../qinclude/CQImageRenderer2D.h \
 		../../CMath/include/CLinearGradient.h \
@@ -788,7 +792,7 @@ compiler_clean:
 		../../CMath/include/CVector2D.h \
 		../../CMath/include/CSize2D.h \
 		../../CMath/include/CMatrix2D.h \
-		../../CMath/include/CMathMacros.h \
+		../../CQUtil/include/CQUtilMeta.h \
 		../../CMath/include/CLinearGradient.h \
 		../../CMath/include/CRadialGradient.h \
 		../../CMath/include/CMathGeom2D.h \
@@ -805,7 +809,6 @@ compiler_clean:
 		../include/CBuffer.h \
 		../../CMath/include/CPoint2D.h \
 		../../CMath/include/CMatrix2D.h \
-		../../CMath/include/CMathMacros.h \
 		../../CMath/include/CVector2D.h \
 		../../CMath/include/CMathGen.h \
 		../../COS/include/NaN.h \
@@ -853,13 +856,14 @@ compiler_clean:
 		../../CUtil/include/CLineDash.h \
 		../../CUtil/include/CILineDash.h \
 		../../CMath/include/CAngle.h \
+		../../CUtil/include/CLineCapType.h \
+		../../CUtil/include/CLineJoinType.h \
 		../../CUtil/include/CBrush.h \
 		../../CUtil/include/CBrushStyle.h \
 		../../CUtil/include/CAutoPtr.h \
 		../../CMath/include/CGenGradient.h \
 		../../CUtil/include/CPen.h \
-		../../CUtil/include/CLineCapType.h \
-		../../CUtil/include/CLineJoinType.h \
+		../../CQUtil/include/CQUtilMeta.h \
 		../../CQUtil/include/CQImage.h \
 		../../CMath/include/CLineList2D.h \
 		../../CMath/include/CShape2D.h \

@@ -260,7 +260,7 @@ drawClippedString(const CIPoint2D &point, const std::string &str)
 
   double angle = qfont->getAngle();
 
-  if (! REAL_EQ(angle, 0.0)) {
+  if (! CMathGen::realEq(angle, 0.0)) {
     QTransform trans1, trans2, trans3;
 
     trans1.translate(point.x, point.y);
@@ -346,7 +346,7 @@ drawScaledStringInRect(const CIBBox2D &bbox, const std::string &str)
 
   QTransform old_trans = getQPainter()->worldTransform();
 
-  if (! REAL_EQ(angle, 0.0)) {
+  if (! CMathGen::realEq(angle, 0.0)) {
     QTransform trans1, trans2, trans3;
 
     CIPoint2D origin = bbox.getCenter();
@@ -556,7 +556,7 @@ drawClippedArc(const CIPoint2D &center, int xr, int yr, double a1, double a2)
 
   QPainterPath path;
 
-  if (REAL_EQ(a1, 0) && REAL_EQ(a2, 360)) {
+  if (CMathGen::realEq(a1, 0) && CMathGen::realEq(a2, 360)) {
     path.addEllipse(rect);
   }
   else {
@@ -576,7 +576,7 @@ fillClippedArc(const CIPoint2D &center, int xr, int yr, double a1, double a2)
 
   QPainterPath path;
 
-  if (REAL_EQ(a1, 0) && REAL_EQ(a2, 360)) {
+  if (CMathGen::realEq(a1, 0) && CMathGen::realEq(a2, 360)) {
     path.addEllipse(rect);
   }
   else {

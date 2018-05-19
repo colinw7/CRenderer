@@ -4,6 +4,7 @@
 #include <CFreeTypePath2D.h>
 #include <CTriangle2D.h>
 #include <CLineList2D.h>
+#include <CMathMacros.h>
 #include <CStrUtil.h>
 #include <CFreeType.h>
 
