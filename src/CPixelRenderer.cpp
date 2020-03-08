@@ -1023,8 +1023,8 @@ fillImageClippedPolygon(const IPointList &points, CImagePtr image)
 
     yi %= image->getHeight();
 
-    for (int xx = xmin; xx <= xmax; ++xx) {
-      int xi = xx - xo;
+    for (int xx1 = xmin; xx1 <= xmax; ++xx1) {
+      int xi = xx1 - xo;
 
       xi %= image->getWidth();
 
@@ -1033,7 +1033,7 @@ fillImageClippedPolygon(const IPointList &points, CImagePtr image)
       if (! rgba.isTransparent()) {
         setForeground(rgba);
 
-        drawClippedPoint(CIPoint2D(xx, yy));
+        drawClippedPoint(CIPoint2D(xx1, yy));
       }
     }
   }
@@ -1612,8 +1612,8 @@ void
 CPixelRenderer::
 drawClippedArc(const CIPoint2D &center, int xr, int yr, double a1, double a2)
 {
-  while (a1 < 0) a1 += 360.0; while (a1 > 360) a1 -= 360.0;
-  while (a2 < 0) a2 += 360.0; while (a2 > 360) a2 -= 360.0;
+  while (a1 < 0) { a1 += 360.0; } while (a1 > 360) { a1 -= 360.0; }
+  while (a2 < 0) { a2 += 360.0; } while (a2 > 360) { a2 -= 360.0; }
 
   if (a1 > a2) std::swap(a1, a2);
 
@@ -1677,8 +1677,8 @@ void
 CPixelRenderer::
 fillClippedArc(const CIPoint2D &center, int xr, int yr, double a1, double a2)
 {
-  while (a1 < 0) a1 += 360.0; while (a1 > 360) a1 -= 360.0;
-  while (a2 < 0) a2 += 360.0; while (a2 > 360) a2 -= 360.0;
+  while (a1 < 0) { a1 += 360.0; } while (a1 > 360) { a1 -= 360.0; }
+  while (a2 < 0) { a2 += 360.0; } while (a2 > 360) { a2 -= 360.0; }
 
   if (a1 > a2) std::swap(a1, a2);
 
@@ -1763,8 +1763,8 @@ void
 CPixelRenderer::
 fillImageClippedArc(const CIPoint2D &center, int xr, int yr, double a1, double a2, CImagePtr image)
 {
-  while (a1 < 0) a1 += 360.0; while (a1 > 360) a1 -= 360.0;
-  while (a2 < 0) a2 += 360.0; while (a2 > 360) a2 -= 360.0;
+  while (a1 < 0) { a1 += 360.0; } while (a1 > 360) { a1 -= 360.0; }
+  while (a2 < 0) { a2 += 360.0; } while (a2 > 360) { a2 -= 360.0; }
 
   if (a1 > a2) std::swap(a1, a2);
 
@@ -2294,9 +2294,9 @@ fillPathPolygons(IPointListList &poly_points_list, CImagePtr image, CFillType ty
 
     ni2 = 0;
 
-    uint num_polygons = poly_points_list.size();
+    uint num_polygons1 = poly_points_list.size();
 
-    for (uint i = 0; i < num_polygons; ++i) {
+    for (uint i = 0; i < num_polygons1; ++i) {
       IPointList *points = poly_points_list[i];
 
       uint num_points = points->size();
@@ -2403,15 +2403,15 @@ fillPathPolygons(IPointListList &poly_points_list, CImagePtr image, CFillType ty
     //------
 
     if (type == FILL_TYPE_WINDING) {
-      for (uint i = 1; i < ni3; ++i) {
+      for (uint ii = 1; ii < ni3; ++ii) {
         int i1 = 0;
 
-        for (uint j = 0; j < i; ++j)
+        for (uint j = 0; j < ii; ++j)
           i1 += idata_list[j].o;
 
         if (i1 != 0) {
-          int x1 = idata_list[i - 1].x;
-          int x2 = idata_list[i    ].x;
+          int x1 = idata_list[ii - 1].x;
+          int x2 = idata_list[ii    ].x;
 
           if (! image)
             drawHLine(x1, x2, y);
@@ -2440,7 +2440,7 @@ fillPathPolygons(IPointListList &poly_points_list, CImagePtr image, CFillType ty
       int  x2 = idata_list[1].x;
       uint j  = 1;
 
-      for (uint i = 1; i < ni3; ++i) {
+      for (uint ii = 1; ii < ni3; ++ii) {
         if (j == 1) {
           if (! image)
             drawHLine(x1, x2, y);
@@ -2466,7 +2466,7 @@ fillPathPolygons(IPointListList &poly_points_list, CImagePtr image, CFillType ty
         j = 1 - j;
 
         x2 = x1;
-        x1 = idata_list[i].x;
+        x1 = idata_list[ii].x;
       }
     }
   }
@@ -2526,9 +2526,9 @@ fillPathPolygons(RPointListList &poly_points_list, CImagePtr image, CFillType ty
 
     ni = 0;
 
-    uint num_polygons = poly_points_list.size();
+    uint num_polygons1 = poly_points_list.size();
 
-    for (uint i = 0; i < num_polygons; ++i) {
+    for (uint i = 0; i < num_polygons1; ++i) {
       RPointList *points = poly_points_list[i];
 
       uint num_points = points->size();
@@ -2633,15 +2633,15 @@ fillPathPolygons(RPointListList &poly_points_list, CImagePtr image, CFillType ty
     //------
 
     if (type == FILL_TYPE_WINDING) {
-      for (uint i = 1; i < ni; ++i) {
+      for (uint ii = 1; ii < ni; ++ii) {
         double i1 = 0;
 
-        for (uint j = 0; j < i; ++j)
+        for (uint j = 0; j < ii; ++j)
           i1 += rdata_list[j].o;
 
         if (i1 != 0) {
-          double x1 = rdata_list[i - 1].x;
-          double x2 = rdata_list[i    ].x;
+          double x1 = rdata_list[ii - 1].x;
+          double x2 = rdata_list[ii    ].x;
 
           if (! image)
             drawHLine(int(x1), int(x2), int(y));
@@ -2670,7 +2670,7 @@ fillPathPolygons(RPointListList &poly_points_list, CImagePtr image, CFillType ty
       double x2 = rdata_list[1].x;
       uint   j  = 1;
 
-      for (uint i = 1; i < ni; ++i) {
+      for (uint ii = 1; ii < ni; ++ii) {
         if (j == 1) {
           if (! image)
             drawHLine(int(x1), int(x2), int(y));
@@ -2696,7 +2696,7 @@ fillPathPolygons(RPointListList &poly_points_list, CImagePtr image, CFillType ty
         j = 1 - j;
 
         x2 = x1;
-        x1 = rdata_list[i].x;
+        x1 = rdata_list[ii].x;
       }
     }
   }

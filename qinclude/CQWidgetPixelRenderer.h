@@ -2,7 +2,6 @@
 #define CQWIGDET_PIXEL_RENDERER_H
 
 #include <CQPixelRenderer.h>
-#include <CAutoPtr.h>
 
 class QWidget;
 

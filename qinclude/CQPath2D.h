@@ -24,7 +24,8 @@ class CQPath2D : public CPath2D {
 
   void text(const std::string &text, CFontPtr font) override;
 
-  void roundedRectangle(const CPoint2D &point1, const CPoint2D &point2, double rx, double ry) override;
+  void roundedRectangle(const CPoint2D &point1, const CPoint2D &point2,
+                        double rx, double ry) override;
 
   bool moveTo (const CPoint2D &point) override;
   bool rmoveTo(const CPoint2D &point) override;
@@ -55,6 +56,12 @@ class CQPath2D : public CPath2D {
   void bbox(CBBox2D &bbox) const override;
 
   void transform(const CMatrix2D &m) override;
+
+ private:
+  using CPath2D::stroke;
+  using CPath2D::fill;
+  using CPath2D::fillImage;
+  using CPath2D::fillGradient;
 
  private:
   QPainterPath *path_         { nullptr };

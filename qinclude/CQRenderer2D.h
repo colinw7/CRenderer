@@ -33,11 +33,11 @@ class CQRenderer2D : public CRenderer2D {
   virtual int getWidth () = 0;
   virtual int getHeight() = 0;
 
-  virtual void setDataRange(double xmin, double ymin, double xmax, double ymax);
-  virtual void resetDataRange();
+  void setDataRange(double xmin, double ymin, double xmax, double ymax) override;
+  void resetDataRange() override;
 
-  void setViewMatrix(const CMatrix2D &view_matrix);
-  void unsetViewMatrix();
+  void setViewMatrix(const CMatrix2D &view_matrix) override;
+  void unsetViewMatrix() override;
 
   virtual void setQTransform();
   virtual void unsetQTransform();
@@ -45,75 +45,72 @@ class CQRenderer2D : public CRenderer2D {
   void beginDraw() override;
   void endDraw() override;
 
-  virtual void startDoubleBuffer(bool clear=true);
-  virtual void endDoubleBuffer  (bool copy=true);
-  virtual void copyDoubleBuffer ();
+  void startDoubleBuffer(bool clear=true) override;
+  void endDoubleBuffer  (bool copy=true) override;
+  void copyDoubleBuffer () override;
 
-  virtual void setForeground(const CRGBA &fg);
-  virtual void setBackground(const CRGBA &bg);
+  void setForeground(const CRGBA &fg) override;
+  void setBackground(const CRGBA &bg) override;
 
-  virtual void setLineWidth(double width);
-  virtual void setLineDash(const CLineDash &line_dash);
-  virtual void setLineCap(CLineCapType cap);
-  virtual void setLineJoin(CLineJoinType join);
+  void setLineWidth(double width) override;
+  void setLineDash(const CLineDash &line_dash) override;
+  void setLineCap(CLineCapType cap) override;
+  void setLineJoin(CLineJoinType join) override;
 
-  virtual void   setMitreLimit(double limit);
+  void setMitreLimit(double limit) override;
   virtual double getMitreLimit() const;
 
-  virtual void      setFillType(CFillType fill_type);
+  void setFillType(CFillType fill_type) override;
   virtual CFillType getFillType() const;
 
-  virtual void clear();
-  virtual void fill();
+  void clear() override;
+  void fill() override;
 
-  virtual void drawPoint(const CPoint2D &point);
+  void drawPoint(const CPoint2D &point) override;
 
-  virtual void drawSymbol(const CPoint2D &point, CSymbol2D::Type type);
+  void drawSymbol(const CPoint2D &point, CSymbol2D::Type type) override;
 
-  virtual void drawLine(const CPoint2D &point1, const CPoint2D &point2);
+  void drawLine(const CPoint2D &point1, const CPoint2D &point2) override;
 
-  virtual void drawRectangle(const CBBox2D &bbox);
-  virtual void fillRectangle(const CBBox2D &bbox);
+  void drawRectangle(const CBBox2D &bbox) override;
+  void fillRectangle(const CBBox2D &bbox) override;
 
-  virtual void gradientFillRectangle(const CBBox2D &bbox,
-                                     CGenGradient *gradient);
+  void gradientFillRectangle(const CBBox2D &bbox, CGenGradient *gradient) override;
 
-  virtual void drawPolygon(const PointList &points);
+  void drawPolygon(const PointList &points) override;
 
-  virtual void fillPolygon(const PointList &points);
-  virtual void fillImagePolygon(const PointList &points, CImagePtr image);
-  virtual void fillGradientPolygon(const PointList &points,
-                                   CRefPtr<CGenGradient> gradient);
+  void fillPolygon(const PointList &points) override;
+  void fillImagePolygon(const PointList &points, CImagePtr image) override;
+  void fillGradientPolygon(const PointList &points, CRefPtr<CGenGradient> gradient) override;
 
-  virtual void fillArc(const CPoint2D &center, double xr, double yr,
-                       double angle1, double angle2);
-  virtual void fillImageArc(const CPoint2D &center, double xr, double yr,
-                            double angle1, double angle2, CImagePtr image);
-  virtual void fillGradientArc(const CPoint2D &center, double xr, double yr,
-                               double angle1, double angle2,
-                               CRefPtr<CGenGradient> gradient);
+  void fillArc(const CPoint2D &center, double xr, double yr,
+               double angle1, double angle2) override;
+  void fillImageArc(const CPoint2D &center, double xr, double yr,
+                    double angle1, double angle2, CImagePtr image) override;
+  void fillGradientArc(const CPoint2D &center, double xr, double yr,
+                       double angle1, double angle2, CRefPtr<CGenGradient> gradient) override;
 
-  virtual void drawText(const CPoint2D &point, const std::string &text);
-  virtual void fillText(const CPoint2D &point, const std::string &text);
+  void drawText(const CPoint2D &point, const std::string &text) override;
+  void fillText(const CPoint2D &point, const std::string &text) override;
 
-  virtual void drawTextInRect(const CBBox2D &rect, const std::string &text);
+  void drawTextInRect(const CBBox2D &rect, const std::string &text) override;
 
-  virtual void setImage(CImagePtr image);
-  virtual void setAlphaImage(CImagePtr image);
+  void setImage(CImagePtr image) override;
+  void setAlphaImage(CImagePtr image) override;
 
-  virtual void drawImage(const CPoint2D &point, CImagePtr image);
+  void drawImage(const CPoint2D &point, CImagePtr image) override;
 
-  virtual void drawAlphaImage(const CPoint2D &point, CImagePtr image);
+  void drawAlphaImage(const CPoint2D &point, CImagePtr image) override;
 
-  virtual void drawImageInBox(const CBBox2D &bbox, CImagePtr image);
+  void drawImageInBox(const CBBox2D &bbox, CImagePtr image) override;
 
-  virtual void drawAlphaImageInBox(const CBBox2D &bbox, CImagePtr image);
+  void drawAlphaImageInBox(const CBBox2D &bbox, CImagePtr image) override;
 
-  virtual void drawBezier(C3Bezier2D &bezier);
+  void drawBezier(C3Bezier2D &bezier) override;
 
-  virtual CRenderer2D *createImageRenderer() const;
+  CRenderer2D *createImageRenderer() const override;
 
-  virtual CPath2D *createPath() const;
+  CPath2D *createPath() const override;
 
   virtual void strokePath(QPainterPath *path);
 

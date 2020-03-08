@@ -1,5 +1,6 @@
 #include <CRendererRegion2D.h>
 #include <CRenderer2D.h>
+#include <CImageMgr.h>
 
 #include <region_images/tlsize1.xpm>
 #include <region_images/tlsize2.xpm>

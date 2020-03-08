@@ -80,17 +80,6 @@ class CPixelRenderer {
   typedef std::vector<RPointList *> RPointListList;
 
  protected:
-  CPixelClip clip_;
-  CIPoint2D  offset_;
-  CISize2D   vsize_;
-  CRGBA      bg_;
-  CImagePtr  bg_image_;
-  CFontPtr   font_;
-  bool       contentsChanged_;
-  CIPen      pen_;
-  CBrush     brush_;
-
- protected:
   CPixelRenderer();
   CPixelRenderer(const CPixelRenderer &renderer);
 
@@ -448,15 +437,22 @@ class CPixelRenderer {
   // not to be implemented
  private:
   CPixelRenderer &operator=(const CPixelRenderer &renderer);
+
+ protected:
+  CPixelClip clip_;
+  CIPoint2D  offset_;
+  CISize2D   vsize_;
+  CRGBA      bg_;
+  CImagePtr  bg_image_;
+  CFontPtr   font_;
+  bool       contentsChanged_ { false };
+  CIPen      pen_;
+  CBrush     brush_;
 };
 
 //-------------
 
 class CPixelRendererBresenham : public CBresenham {
- private:
-  CPixelRenderer *renderer_;
-  CRGBA           rgba_;
-
  public:
   CPixelRendererBresenham(CPixelRenderer *renderer) :
    renderer_(renderer), rgba_(0,0,0) {
@@ -473,6 +469,10 @@ class CPixelRendererBresenham : public CBresenham {
  private:
   CPixelRendererBresenham(const CPixelRendererBresenham &renderer);
   CPixelRendererBresenham &operator=(const CPixelRendererBresenham &renderer);
+
+ private:
+  CPixelRenderer *renderer_ { nullptr };
+  CRGBA           rgba_;
 };
 
 #endif

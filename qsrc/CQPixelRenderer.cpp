@@ -14,11 +14,11 @@
 
 CQPixelRenderer::
 CQPixelRenderer() :
- CPixelRenderer(), rep_painter_(0), font_id_(INT_MAX), drawing_(false)
+ CPixelRenderer()
 {
-  painter_ = new QPainter;
-  pen_     = new QPen;
-  brush_   = new QBrush;
+  painter_ = std::make_unique<QPainter>();
+  pen_     = std::make_unique<QPen    >();
+  brush_   = std::make_unique<QBrush  >();
 
   pixmap_width_  = 0;
   pixmap_height_ = 0;
@@ -42,7 +42,7 @@ getQPainter() const
   if (rep_painter_)
     return rep_painter_;
 
-  return painter_;
+  return painter_.get();
 }
 
 void
@@ -79,12 +79,12 @@ startDoubleBuffer(bool do_clear)
     pixmap_width_  = width;
     pixmap_height_ = height;
 
-    pixmap_ = new QPixmap(pixmap_width_, pixmap_height_);
+    pixmap_ = std::make_unique<QPixmap>(pixmap_width_, pixmap_height_);
 
     pixmap_->fill(Qt::black);
   }
 
-  getQPainter()->begin(pixmap_);
+  getQPainter()->begin(pixmap_.get());
 
   if (do_clear)
     clear();
@@ -260,7 +260,7 @@ drawClippedString(const CIPoint2D &point, const std::string &str)
 
   double angle = qfont->getAngle();
 
-  if (! CMathGen::realEq(angle, 0.0)) {
+  if (! CMathUtil::realEq(angle, 0.0)) {
     QTransform trans1, trans2, trans3;
 
     trans1.translate(point.x, point.y);
@@ -346,7 +346,7 @@ drawScaledStringInRect(const CIBBox2D &bbox, const std::string &str)
 
   QTransform old_trans = getQPainter()->worldTransform();
 
-  if (! CMathGen::realEq(angle, 0.0)) {
+  if (! CMathUtil::realEq(angle, 0.0)) {
     QTransform trans1, trans2, trans3;
 
     CIPoint2D origin = bbox.getCenter();
@@ -556,7 +556,7 @@ drawClippedArc(const CIPoint2D &center, int xr, int yr, double a1, double a2)
 
   QPainterPath path;
 
-  if (CMathGen::realEq(a1, 0) && CMathGen::realEq(a2, 360)) {
+  if (CMathUtil::realEq(a1, 0) && CMathUtil::realEq(a2, 360)) {
     path.addEllipse(rect);
   }
   else {
@@ -576,7 +576,7 @@ fillClippedArc(const CIPoint2D &center, int xr, int yr, double a1, double a2)
 
   QPainterPath path;
 
-  if (CMathGen::realEq(a1, 0) && CMathGen::realEq(a2, 360)) {
+  if (CMathUtil::realEq(a1, 0) && CMathUtil::realEq(a2, 360)) {
     path.addEllipse(rect);
   }
   else {

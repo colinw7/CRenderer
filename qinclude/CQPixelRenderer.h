@@ -1,7 +1,7 @@
 #ifndef CQT_PIXEL_RENDERER_H
 #define CQT_PIXEL_RENDERER_H
 
-#include <CAutoPtr.h>
+#include <memory>
 #include <QColor>
 
 #ifndef CPIXEL_RENDERER_VIRTUAL
@@ -19,17 +19,6 @@ class QImage;
 class CQFont;
 
 class CQPixelRenderer : public CPixelRenderer {
- protected:
-  CAutoPtr<QPainter> painter_;
-  CAutoPtr<QPen>     pen_;
-  CAutoPtr<QBrush>   brush_;
-  CAutoPtr<QPixmap>  pixmap_;
-  int                pixmap_width_, pixmap_height_;
-  QPainter*          rep_painter_;
-  QColor             qfg_, qbg_;
-  uint               font_id_;
-  bool               drawing_;
-
  public:
   CQPixelRenderer();
 
@@ -38,8 +27,8 @@ class CQPixelRenderer : public CPixelRenderer {
   QPainter *getQPainter() const;
   void setQPainter(QPainter *painter);
 
-  QPen   *getQPen  () const { return pen_    ; }
-  QBrush *getQBrush() const { return brush_  ; }
+  QPen   *getQPen  () const { return pen_  .get(); }
+  QBrush *getQBrush() const { return brush_.get(); }
 
   virtual uint getWidth () const = 0;
   virtual uint getHeight() const = 0;
@@ -124,6 +113,19 @@ class CQPixelRenderer : public CPixelRenderer {
 
  private:
   void setQFont();
+
+ protected:
+  std::unique_ptr<QPainter> painter_;
+  std::unique_ptr<QPen>     pen_;
+  std::unique_ptr<QBrush>   brush_;
+  std::unique_ptr<QPixmap>  pixmap_;
+  int                       pixmap_width_;
+  int                       pixmap_height_;
+  QPainter*                 rep_painter_ { nullptr };
+  QColor                    qfg_;
+  QColor                    qbg_;
+  uint                      font_id_ { INT_MAX };
+  bool                      drawing_ { false };
 };
 
 #endif
