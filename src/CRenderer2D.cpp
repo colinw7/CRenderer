@@ -418,14 +418,20 @@ void
 CRenderer2D::
 setBrushTexture(CImagePtr texture)
 {
+#ifdef CBRUSH_IMAGE
   brush_.setTexture(texture);
+#endif
 }
 
 CImagePtr
 CRenderer2D::
 getBrushTexture() const
 {
+#ifdef CBRUSH_IMAGE
   return brush_.getTexture();
+#else
+  return CImagePtr();
+#endif
 }
 
 void
@@ -978,15 +984,15 @@ getClipPolygons(uint i)
 
   poly_points_list.resize(num_ipolygon_points);
 
-  for (uint i = 0; i < num_ipolygon_points; ++i) {
-    PointList &points = poly_points_list[i];
+  for (uint ip = 0; ip < num_ipolygon_points; ++ip) {
+    PointList &points = poly_points_list[ip];
 
-    uint num_points = (*ipolygon_points[i]).size();
+    uint num_points = (*ipolygon_points[ip]).size();
 
     points.resize(num_points);
 
     for (uint j = 0; j < num_points; ++j) {
-      const CIPoint2D &p1 = (*ipolygon_points[i])[j];
+      const CIPoint2D &p1 = (*ipolygon_points[ip])[j];
 
       untransformPoint(CPoint2D(p1.x, p1.y), points[j]);
     }
@@ -1722,7 +1728,9 @@ fillBrushPolygon(const IPointList &ipoints, const CBrush &brush)
       fillGradientPolygon(ipoints, brush_.getGradient());
       break;
     case CBRUSH_STYLE_TEXTURE:
+#ifdef CBRUSH_IMAGE
       fillImagePolygon(ipoints, brush_.getTexture());
+#endif
       break;
     default:
       break;

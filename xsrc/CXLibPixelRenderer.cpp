@@ -193,16 +193,16 @@ fillClippedPolygon(const IPointList &points)
 
 void
 CXLibPixelRenderer::
-drawClippedArc(int x, int y, int xr, int yr, double a1, double a2)
+drawClippedArc(const CIPoint2D &center, int xr, int yr, double a1, double a2)
 {
-  window_->drawArc(x, y, xr, yr, a1, a2);
+  window_->drawArc(center.x, center.y, xr, yr, a1, a2);
 }
 
 void
 CXLibPixelRenderer::
-fillClippedArc(int x, int y, int xr, int yr, double a1, double a2)
+fillClippedArc(const CIPoint2D &center, int xr, int yr, double a1, double a2)
 {
-  window_->fillArc(x, y, xr, yr, a1, a2);
+  window_->fillArc(center.x, center.y, xr, yr, a1, a2);
 }
 
 void

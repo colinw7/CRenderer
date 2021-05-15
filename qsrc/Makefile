@@ -16,7 +16,7 @@ CC            = gcc
 CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -fPIC -Wall -W -D_REENTRANT $(DEFINES)
-CXXFLAGS      = -pipe -std=c++14 -O2 -fPIC -Wall -W -D_REENTRANT $(DEFINES)
+CXXFLAGS      = -pipe -std=c++14 -DCQUTIL_PEN -DCQUTIL_BRUSH -DCQUTIL_FONT -DCQUTIL_IMAGE -DCBRUSH_IMAGE -O2 -fPIC -Wall -W -D_REENTRANT $(DEFINES)
 INCPATH       = -I. -I../qinclude -I../include -I../../CQUtil/include -I../../CImageLib/include -I../../CFont/include -I../../CFile/include -I../../CMath/include -I../../CStrUtil/include -I../../COS/include -I../../CUtil/include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I.moc -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
@@ -136,6 +136,7 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/qt_config.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exclusive_builds.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/toolchain.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/default_pre.prf \
@@ -256,6 +257,7 @@ Makefile: CQPixelRenderer.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qm
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/qt_config.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exclusive_builds.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/toolchain.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/default_pre.prf \
@@ -349,6 +351,7 @@ Makefile: CQPixelRenderer.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qm
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/qt_config.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake.conf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_post.prf:
+.qmake.stash:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exclusive_builds.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/toolchain.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/default_pre.prf:
@@ -414,7 +417,7 @@ compiler_moc_predefs_make_all: .moc/moc_predefs.h
 compiler_moc_predefs_clean:
 	-$(DEL_FILE) .moc/moc_predefs.h
 .moc/moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
-	g++ -pipe -std=c++14 -O2 -fPIC -Wall -W -dM -E -o .moc/moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
+	g++ -pipe -std=c++14 -DCQUTIL_PEN -DCQUTIL_BRUSH -DCQUTIL_FONT -DCQUTIL_IMAGE -DCBRUSH_IMAGE -O2 -fPIC -Wall -W -dM -E -o .moc/moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
 compiler_moc_header_make_all:
 compiler_moc_header_clean:
@@ -464,6 +467,7 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CUtil/include/CBrush.h \
 		../../CUtil/include/CBrushStyle.h \
 		../../CUtil/include/CFillType.h \
+		../../CUtil/include/CRefPtr.h \
 		../../CImageLib/include/CImageLib.h \
 		../../CUtil/include/CAlignType.h \
 		../../CImageLib/include/CImageState.h \
@@ -474,7 +478,6 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CFile/include/CFileType.h \
 		../../CUtil/include/COptVal.h \
 		../../CImageLib/include/CImagePtr.h \
-		../../CUtil/include/CRefPtr.h \
 		../../CImageLib/include/CImageMgr.h \
 		../../CFile/include/CFile.h \
 		../../CFile/include/CFileBase.h \
@@ -537,6 +540,7 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CUtil/include/CBrush.h \
 		../../CUtil/include/CBrushStyle.h \
 		../../CUtil/include/CFillType.h \
+		../../CUtil/include/CRefPtr.h \
 		../../CImageLib/include/CImageLib.h \
 		../../CUtil/include/CAlignType.h \
 		../../CImageLib/include/CImageState.h \
@@ -547,7 +551,6 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CFile/include/CFileType.h \
 		../../CUtil/include/COptVal.h \
 		../../CImageLib/include/CImagePtr.h \
-		../../CUtil/include/CRefPtr.h \
 		../../CImageLib/include/CImageMgr.h \
 		../../CFile/include/CFile.h \
 		../../CFile/include/CFileBase.h \
@@ -608,6 +611,7 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CUtil/include/CBrush.h \
 		../../CUtil/include/CBrushStyle.h \
 		../../CUtil/include/CFillType.h \
+		../../CUtil/include/CRefPtr.h \
 		../../CImageLib/include/CImageLib.h \
 		../../CUtil/include/CAlignType.h \
 		../../CImageLib/include/CImageState.h \
@@ -618,7 +622,6 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CFile/include/CFileType.h \
 		../../CUtil/include/COptVal.h \
 		../../CImageLib/include/CImagePtr.h \
-		../../CUtil/include/CRefPtr.h \
 		../../CImageLib/include/CImageMgr.h \
 		../../CFile/include/CFile.h \
 		../../CFile/include/CFileBase.h \
@@ -679,6 +682,7 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CUtil/include/CBrush.h \
 		../../CUtil/include/CBrushStyle.h \
 		../../CUtil/include/CFillType.h \
+		../../CUtil/include/CRefPtr.h \
 		../../CImageLib/include/CImageLib.h \
 		../../CUtil/include/CAlignType.h \
 		../../CImageLib/include/CImageState.h \
@@ -692,7 +696,6 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CFile/include/CFileType.h \
 		../../CUtil/include/COptVal.h \
 		../../CImageLib/include/CImagePtr.h \
-		../../CUtil/include/CRefPtr.h \
 		../../CImageLib/include/CImageMgr.h \
 		../../CFile/include/CFile.h \
 		../../CFile/include/CFileBase.h \
@@ -729,6 +732,7 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CUtil/include/CBrush.h \
 		../../CUtil/include/CBrushStyle.h \
 		../../CUtil/include/CFillType.h \
+		../../CUtil/include/CRefPtr.h \
 		../../CImageLib/include/CImageLib.h \
 		../../CUtil/include/CAlignType.h \
 		../../CImageLib/include/CImageState.h \
@@ -742,7 +746,6 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CFile/include/CFileType.h \
 		../../CUtil/include/COptVal.h \
 		../../CImageLib/include/CImagePtr.h \
-		../../CUtil/include/CRefPtr.h \
 		../../CImageLib/include/CImageMgr.h \
 		../../CFile/include/CFile.h \
 		../../CFile/include/CFileBase.h \
@@ -780,6 +783,7 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CUtil/include/CBrush.h \
 		../../CUtil/include/CBrushStyle.h \
 		../../CUtil/include/CFillType.h \
+		../../CUtil/include/CRefPtr.h \
 		../../CImageLib/include/CImageLib.h \
 		../../CUtil/include/CAlignType.h \
 		../../CImageLib/include/CImageState.h \
@@ -793,7 +797,6 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CFile/include/CFileType.h \
 		../../CUtil/include/COptVal.h \
 		../../CImageLib/include/CImagePtr.h \
-		../../CUtil/include/CRefPtr.h \
 		../../CImageLib/include/CImageMgr.h \
 		../../CFile/include/CFile.h \
 		../../CFile/include/CFileBase.h \
@@ -876,18 +879,6 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CMath/include/CAngle.h \
 		../../CUtil/include/CLineCapType.h \
 		../../CUtil/include/CLineJoinType.h \
-		../../CUtil/include/CBrush.h \
-		../../CUtil/include/CBrushStyle.h \
-		../../CImageLib/include/CImageLib.h \
-		../../CImageLib/include/CImageState.h \
-		../../CImageLib/include/CImageMgr.h \
-		../../CFile/include/CFile.h \
-		../../CFile/include/CFileBase.h \
-		../../CStrUtil/include/CStrUtil.h \
-		../../CImageLib/include/CImageAnim.h \
-		../../CImageLib/include/CImageFile.h \
-		../../CMath/include/CGenGradient.h \
-		../../CUtil/include/CPen.h \
 		../../CQUtil/include/CQUtilMeta.h \
 		../../CQUtil/include/CQImage.h \
 		../../CMath/include/CLineList2D.h \
@@ -897,6 +888,7 @@ compiler_clean: compiler_moc_predefs_clean
 		../../CMath/include/CPolygonOrientation.h \
 		../../CMath/include/CTriangle2D.h \
 		../../CMath/include/CLinearGradient.h \
+		../../CMath/include/CGenGradient.h \
 		../../CMath/include/CRadialGradient.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../obj/CQPath2D.o CQPath2D.cpp
 

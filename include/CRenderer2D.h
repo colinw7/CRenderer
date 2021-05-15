@@ -605,9 +605,12 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
  public:
   void drawFunction(const CRenderer2DFunc &func);
 
- private:
-  using CPath2DRenderer::getIViewMatrix;
+ protected:
   using CPath2DRenderer::getNumClipPolygons;
+
+ public:
+  using CPath2DRenderer::getIViewMatrix;
+
   using CPath2DRenderer::transformPoint;
   using CPath2DRenderer::untransformPoint;
 
