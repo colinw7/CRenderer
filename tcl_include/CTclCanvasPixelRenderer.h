@@ -10,53 +10,54 @@ class CTclCanvasPixelRenderer : public CPixelRenderer {
   CTclCanvasPixelRenderer(CTclCanvas *canvas);
  ~CTclCanvasPixelRenderer() { }
 
-  CTclCanvasPixelRenderer *dup() const;
+  CTclCanvasPixelRenderer *dup() const override;
 
-  uint getWidth () const;
-  uint getHeight() const;
+  uint getWidth () const override;
+  uint getHeight() const override;
 
-  void updateSize(int, int);
+  void updateSize(int, int) override;
 
   void drawInit();
   void drawTerm();
 
-  void startDoubleBuffer();
-  void endDoubleBuffer();
+  void startDoubleBuffer(bool) override;
+  void endDoubleBuffer(bool) override;
 
-  void setForeground(const CRGBA &rgb);
-  void setBackground(const CRGBA &rgb);
+  void setForeground(const CRGBA &rgb) override;
+  void setBackground(const CRGBA &rgb) override;
 
-  void setFont(CFontPtr font);
+  void setFont(CFontPtr font) override;
   void getFont(CFontPtr &font) const;
 
-  void clear();
+  void clear() override;
 
-  void drawClippedPoint(const CIPoint2D &p);
+  void drawClippedPoint(const CIPoint2D &p) override;
 
-  void drawChar(int x, int y, char c);
-  void drawString(int x, int y, const std::string &str);
+  void drawChar(const CIPoint2D &point, char c) override;
 
-  void drawLine(int x1, int y1, int x2, int y2);
+  void drawString(const CIPoint2D &point, const std::string &str) override;
 
-  void drawRectangle(int x1, int y1, int x2, int y2);
-  void fillRectangle(int x1, int y1, int x2, int y2);
+  void drawLine(const CIPoint2D &point1, const CIPoint2D &point2) override;
 
-  void drawArc(int x, int y, int xr, int yr, double a1, double a2);
-  void fillArc(int x, int y, int xr, int yr, double a1, double a2);
+  void drawRectangle(const CIBBox2D &bbox) override;
+  void fillRectangle(const CIBBox2D &bbox) override;
 
-  void drawEllipse(int x, int y, int xr, int yr);
-  void fillEllipse(int x, int y, int xr, int yr);
+  void drawArc(const CIPoint2D &center, int xr, int yr, double a1, double a2) override;
+  void fillArc(const CIPoint2D &center, int xr, int yr, double a1, double a2) override;
 
-  void drawImage(int x, int y, CImagePtr image);
+  void drawEllipse(const CIPoint2D &center, int xr, int yr) override;
+  void fillEllipse(const CIPoint2D &center, int xr, int yr) override;
+
+  void drawImage(const CIPoint2D &point, CImagePtr image) override;
 
   void getClip(int *xmin, int *ymin, int *xmax, int *ymax);
 
-  int getCharWidth ();
-  int getCharHeight();
+  int getCharWidth () override;
+  int getCharHeight() override;
 
   CFontPtr lookupFont(const std::string &name, CFontStyle style, int size);
 
-  void flush();
+  void flush() override;
 
  private:
   CTclCanvas* canvas_         { nullptr };

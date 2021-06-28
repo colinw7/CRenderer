@@ -113,6 +113,13 @@ setBackground(const CRGBA &bg)
 
 void
 CPixelRenderer::
+getBackgroundImage(CImagePtr &image) const
+{
+  image = bg_image_;
+}
+
+void
+CPixelRenderer::
 setBackgroundImage(CImagePtr image)
 {
   bg_image_ = image;
@@ -209,18 +216,18 @@ drawSymbol(const CIPoint2D &point, CSymbol2D::Type symbol)
 {
   int size = getSymbolSize();
 
-  const CSymbol2D &psymbol = CSymbol2DMgr::getSymbol(symbol);
+  const auto &psymbol = CSymbol2DMgr::getSymbol(symbol);
 
   CPoint2D p(point.x, point.y);
 
   for (uint i = 0; i < psymbol.lines.size(); ++i) {
-    const CSymbol2D::Line &line = psymbol.lines[i];
+    const auto &line = psymbol.lines[i];
 
     CPoint2D start(line.x1, line.y1);
     CPoint2D end  (line.x2, line.y2);
 
-    CPoint2D p1 = p + start*size;
-    CPoint2D p2 = p + end  *size;
+    auto p1 = p + start*size;
+    auto p2 = p + end  *size;
 
     drawLine(CIPoint2D(p1.x, p1.y), CIPoint2D(p2.x, p2.y));
   }
@@ -371,8 +378,8 @@ drawLine1(const CIPoint2D &point1, const CIPoint2D &point2)
   CLine2D line1;
 
   if (line.clip(bbox, line1)) {
-    CPoint2D p1 = line1.start();
-    CPoint2D p2 = line1.end  ();
+    auto p1 = line1.start();
+    auto p2 = line1.end  ();
 
     drawClippedLine(CIPoint2D(p1.x, p1.y), CIPoint2D(p2.x, p2.y));
   }
@@ -393,8 +400,8 @@ drawFilledLine1(const CIPoint2D &point1, const CIPoint2D &point2,
   CLine2D line1;
 
   if (line.clip(bbox, line1)) {
-    CPoint2D p1 = line1.start();
-    CPoint2D p2 = line1.end  ();
+    auto p1 = line1.start();
+    auto p2 = line1.end  ();
 
     drawFilledClippedLine(CIPoint2D(p1.x, p1.y), CIPoint2D(p2.x, p2.y), filler);
   }
@@ -2123,9 +2130,8 @@ CImagePtr
 CPixelRenderer::
 getAlphaImage()
 {
-  CImagePtr image = getImage();
-
-  CImagePtr alpha_image = image->dup();
+  auto image       = getImage();
+  auto alpha_image = image->dup();
 
   alpha_image->setRGBAData(CRGBA(0,0,0,0));
 
@@ -2944,7 +2950,7 @@ fillGouraudTriangle(const CPoint2D &point1, CRGBA rgb1, const CPoint2D &point2, 
 
     double x4 = p1.x + dy*(p3.x - p1.x);
 
-    CRGBA rgb4 = rgb1 + dy*(rgb3 - rgb1);
+    auto rgb4 = rgb1 + dy*(rgb3 - rgb1);
 
     CPoint2D p4(x4, p2.y);
 
@@ -2994,14 +3000,14 @@ fillGouraudTriangleTop(const CPoint2D &point1, CRGBA rgb1, const CPoint2D &point
   double dx_left  = (p3.x - p1.x)/height;
   double dx_right = (p3.x - p2.x)/height;
 
-  CRGBA drgb_left  = (rgb3 - rgb1)/height;
-  CRGBA drgb_right = (rgb3 - rgb2)/height;
+  auto drgb_left  = (rgb3 - rgb1)/height;
+  auto drgb_right = (rgb3 - rgb2)/height;
 
   double xs = p1.x;
   double xe = p2.x;
 
-  CRGBA rgbs = rgb1;
-  CRGBA rgbe = rgb2;
+  auto rgbs = rgb1;
+  auto rgbe = rgb2;
 
   double dy = iy1 - p1.y;
 
@@ -3126,14 +3132,14 @@ fillGouraudTriangleBot(const CPoint2D &point1, CRGBA rgb1, const CPoint2D &point
   double dx_left  = (p2.x - p1.x)/height;
   double dx_right = (p3.x - p1.x)/height;
 
-  CRGBA drgb_left  = (rgb2 - rgb1)/height;
-  CRGBA drgb_right = (rgb3 - rgb1)/height;
+  auto drgb_left  = (rgb2 - rgb1)/height;
+  auto drgb_right = (rgb3 - rgb1)/height;
 
   double xs = p1.x;
   double xe = p1.x;
 
-  CRGBA rgbs = rgb1;
-  CRGBA rgbe = rgb1;
+  auto rgbs = rgb1;
+  auto rgbe = rgb1;
 
   double dy = iy1 - p1.y;
 
@@ -3274,7 +3280,7 @@ textureTriangle(CImagePtr texture,
     double tx4 = tx1 + dy*(tx3 - tx1);
     double ty4 = ty1 + dy*(ty3 - ty1);
 
-    CRGBA rgb4 = rgb1 + dy*(rgb3 - rgb1);
+    auto rgb4 = rgb1 + dy*(rgb3 - rgb1);
 
     CPoint2D p4(x4, p2.y);
 
@@ -3333,8 +3339,8 @@ textureTriangleTop(CImagePtr texture,
   double dtx_right = (tx3 - tx2)/height;
   double dty_right = (ty3 - ty2)/height;
 
-  CRGBA drgb_left  = (rgb3 - rgb1)/height;
-  CRGBA drgb_right = (rgb3 - rgb2)/height;
+  auto drgb_left  = (rgb3 - rgb1)/height;
+  auto drgb_right = (rgb3 - rgb2)/height;
 
   double xs = p1.x;
   double xe = p2.x;
@@ -3344,8 +3350,8 @@ textureTriangleTop(CImagePtr texture,
   double txe = tx2;
   double tye = ty2;
 
-  CRGBA rgbs = rgb1;
-  CRGBA rgbe = rgb2;
+  auto rgbs = rgb1;
+  auto rgbe = rgb2;
 
   double dy = iy1 - p1.y;
 
@@ -3516,8 +3522,8 @@ textureTriangleBot(CImagePtr texture,
   double dtx_right = (tx3 - tx1)/height;
   double dty_right = (ty3 - ty1)/height;
 
-  CRGBA drgb_left  = (rgb2 - rgb1)/height;
-  CRGBA drgb_right = (rgb3 - rgb1)/height;
+  auto drgb_left  = (rgb2 - rgb1)/height;
+  auto drgb_right = (rgb3 - rgb1)/height;
 
   double xs = p1.x;
   double xe = p1.x;
@@ -3527,8 +3533,8 @@ textureTriangleBot(CImagePtr texture,
   double txe = tx1;
   double tye = ty1;
 
-  CRGBA rgbs = rgb1;
-  CRGBA rgbe = rgb1;
+  auto rgbs = rgb1;
+  auto rgbe = rgb1;
 
   double dy = iy1 - p1.y;
 
@@ -3672,11 +3678,24 @@ createImageRenderer() const
 
 //---------------------
 
+CPixelRendererPath::
+~CPixelRendererPath()
+{
+  initPolygons();
+}
+
 void
 CPixelRendererPath::
 initPolygons()
 {
+  for (const auto &ip : ipoly_points_list_)
+    delete ip;
+
   ipoly_points_list_.clear();
+
+  for (const auto &rp : rpoly_points_list_)
+    delete rp;
+
   rpoly_points_list_.clear();
 }
 
@@ -3684,37 +3703,29 @@ void
 CPixelRendererPath::
 addPathPolygon(const IPointList &points)
 {
-  IPointList *poly_points = nextIPolygon();
+  auto *poly_points = nextIPolygon();
 
-  uint num_points = points.size();
-
-  for (uint i = 0; i < num_points; ++i)
-    poly_points->push_back(points[i]);
+  for (const auto &p : points)
+    poly_points->push_back(p);
 }
 
 void
 CPixelRendererPath::
 addPathPolygon(const RPointList &points)
 {
-  RPointList *poly_points = nextRPolygon();
+  auto *poly_points = nextRPolygon();
 
-  uint num_points = points.size();
-
-  for (uint i = 0; i < num_points; ++i)
-    poly_points->push_back(points[i]);
+  for (const auto &p : points)
+    poly_points->push_back(p);
 }
 
 CPixelRendererPath::IPointList *
 CPixelRendererPath::
 nextIPolygon()
 {
-  uint num_poly_points = ipoly_points_list_.size();
+  auto *poly_points = new IPointList;
 
-  ipoly_points_list_.push_back(new IPointList);
-
-  IPointList *poly_points = ipoly_points_list_[num_poly_points];
-
-  poly_points->clear();
+  ipoly_points_list_.push_back(poly_points);
 
   return poly_points;
 }
@@ -3723,13 +3734,9 @@ CPixelRendererPath::RPointList *
 CPixelRendererPath::
 nextRPolygon()
 {
-  uint num_poly_points = rpoly_points_list_.size();
+  auto *poly_points = new RPointList;
 
-  rpoly_points_list_.push_back(new RPointList);
-
-  RPointList *poly_points = rpoly_points_list_[num_poly_points];
-
-  poly_points->clear();
+  rpoly_points_list_.push_back(poly_points);
 
   return poly_points;
 }

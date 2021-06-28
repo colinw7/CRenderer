@@ -26,6 +26,7 @@ OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SRC))
 
 CPPFLAGS = \
 -std=c++14 \
+-DCBRUSH_IMAGE \
 -I. -I$(INC_DIR) \
 -I../../CImageLib/include \
 -I../../CFont/include \

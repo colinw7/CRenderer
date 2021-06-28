@@ -31,26 +31,13 @@ enum class CPath2DPartType {
 //---
 
 struct CPath2DPart {
-  CPath2DPart() :
-   type(CPath2DPartType::NONE), point() {
-  }
+  CPath2DPart() = default;
 
   CPath2DPart(CPath2DPartType type1, const CPoint2D &point1) :
    type(type1), point(point1) {
   }
 
-  CPath2DPart(const CPath2DPart &part) :
-   type(part.type), point(part.point) {
-  }
-
-  const CPath2DPart &operator=(const CPath2DPart &part) {
-    type  = part.type;
-    point = part.point;
-
-    return *this;
-  }
-
-  CPath2DPartType type;
+  CPath2DPartType type { CPath2DPartType::NONE };
   CPoint2D        point;
 };
 
@@ -94,9 +81,18 @@ class CPath2DStroker {
 
 class CPath2DRendererStroker : public CPath2DStroker {
  public:
-  CPath2DRendererStroker(CPath2DRenderer *renderer, CPath2DFlattener *flattener=NULL) :
+  explicit CPath2DRendererStroker(CPath2DRenderer *renderer, CPath2DFlattener *flattener=nullptr) :
    renderer_(renderer), flattener_(flattener) {
   }
+
+ ~CPath2DRendererStroker() { }
+
+  CPath2DRendererStroker(const CPath2DRendererStroker &rhs) = delete;
+  CPath2DRendererStroker &operator=(const CPath2DRendererStroker &rhs) = delete;
+
+  CPath2DRenderer *renderer() const { return renderer_; }
+
+  CPath2DFlattener *flattener() const { return flattener_; }
 
   void adjustPoint(CPoint2D &p1);
 
@@ -111,12 +107,8 @@ class CPath2DRendererStroker : public CPath2DStroker {
   void drawBezier3(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3, const CPoint2D &p4);
 
  private:
-  CPath2DRendererStroker(const CPath2DRendererStroker &rhs);
-  CPath2DRendererStroker &operator=(const CPath2DRendererStroker &rhs);
-
- private:
-  CPath2DRenderer  *renderer_  { nullptr };
-  CPath2DFlattener *flattener_ { nullptr };
+  CPath2DRenderer*  renderer_  { nullptr };
+  CPath2DFlattener* flattener_ { nullptr };
 };
 
 //---
@@ -139,9 +131,16 @@ class CPath2DFiller {
 
 class CPath2DRendererFiller : public CPath2DFiller {
  public:
-  CPath2DRendererFiller(CPath2DRenderer *renderer) :
+  explicit CPath2DRendererFiller(CPath2DRenderer *renderer) :
    renderer_(renderer) {
   }
+
+ ~CPath2DRendererFiller() { }
+
+  CPath2DRendererFiller(const CPath2DRendererFiller &rhs) = delete;
+  CPath2DRendererFiller &operator=(const CPath2DRendererFiller &rhs) = delete;
+
+  CPath2DRenderer *renderer() const { return renderer_; }
 
   void addLine(const CPoint2D &p1, const CPoint2D &p2);
 
@@ -152,10 +151,6 @@ class CPath2DRendererFiller : public CPath2DFiller {
   void fill(CFillType type);
 
  private:
-  CPath2DRendererFiller(const CPath2DRendererFiller &rhs);
-  CPath2DRendererFiller &operator=(const CPath2DRendererFiller &rhs);
-
- private:
   CPath2DRenderer *renderer_ { nullptr };
 };
 
@@ -163,26 +158,23 @@ class CPath2DRendererFiller : public CPath2DFiller {
 
 class CPath2D {
  public:
-  typedef std::vector<CPoint2D>    PointList;
-  typedef std::vector<CPath2DPart> PartList;
+  using PointList = std::vector<CPoint2D>;
+  using PartList  = std::vector<CPath2DPart>;
 
  public:
   CPath2D();
-
-  CPath2D(const CPath2D &path);
+  CPath2D(const CPath2D &rhs);
 
   virtual ~CPath2D();
 
-  CPath2D &operator=(const CPath2D &path);
+  CPath2D &operator=(const CPath2D &rhs);
 
   virtual CPath2D *dup() const;
 
   CPath2DRenderer *getRenderer() const { return renderer_; }
-
   virtual void setRenderer(CPath2DRenderer *renderer) { renderer_ = renderer; }
 
   CPath2DFlattener *getFlattener() const { return flattener_; }
-
   virtual void setFlattener(CPath2DFlattener *flattener) { flattener_ = flattener; }
 
   virtual bool getStrokeAdjust() const { return strokeAdjust_; }
@@ -262,11 +254,11 @@ class CPath2D {
 
   virtual void bbox(CBBox2D &bbox) const;
 
-  virtual CPath2D transformed(const CMatrix2D &matrix) const;
-  virtual void    transform  (const CMatrix2D &matrix);
+  virtual CPath2D* transformed(const CMatrix2D &matrix) const;
+  virtual void     transform  (const CMatrix2D &matrix);
 
-  virtual CPath2D preTransformed(const CMatrix2D &matrix) const;
-  virtual void    preTransform  (const CMatrix2D &matrix);
+  virtual CPath2D* preTransformed(const CMatrix2D &matrix) const;
+  virtual void     preTransform  (const CMatrix2D &matrix);
 
   virtual void print();
 
@@ -296,7 +288,7 @@ class CPath2D {
   void untransformPoint(const CPoint2D &point, CPoint2D &point1);
 
  protected:
-  typedef std::vector<CPoint2D> PointArray;
+  using PointArray = std::vector<CPoint2D>;
 
   CPath2DRenderer*  renderer_     { nullptr };
   CPath2DFlattener* flattener_    { nullptr };

@@ -9,8 +9,7 @@
 #include <QPainterPath>
 
 CQPath2D::
-CQPath2D() :
- CPath2D(), currentPoint_(false)
+CQPath2D()
 {
   path_ = new QPainterPath;
 }

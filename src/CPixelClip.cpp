@@ -51,7 +51,7 @@ class CPixelClip1 {
 
   void init();
 
-  const CPixelClip1 &operator=(const CPixelClip1 &clip1);
+  CPixelClip1 &operator=(const CPixelClip1 &clip1);
 };
 
 //-------------
@@ -110,7 +110,7 @@ CPixelClip::
   term();
 }
 
-const CPixelClip &
+CPixelClip &
 CPixelClip::
 operator=(const CPixelClip &clip)
 {
@@ -413,9 +413,9 @@ isInside(CPixelClip1 &clip1, int px, int py) const
   if (clip1.getType() == FILL_TYPE_WINDING) {
     int i1 = 0;
 
-    for (uint i = 0; i < ni; ++i)
-      if (idata_list[i].x < px)
-        i1 += idata_list[i].o;
+    for (uint ii = 0; ii < ni; ++ii)
+      if (idata_list[ii].x < px)
+        i1 += idata_list[ii].o;
 
     return (i1 != 0);
   }
@@ -425,8 +425,8 @@ isInside(CPixelClip1 &clip1, int px, int py) const
 
     uint j = 1;
 
-    for (uint i = 1; i < ni; ++i) {
-      if (px > idata_list[i - 1].x && px < idata_list[i].x)
+    for (uint ii = 1; ii < ni; ++ii) {
+      if (px > idata_list[ii - 1].x && px < idata_list[ii].x)
         return (j == 1);
 
       j = 1 - j;
@@ -583,7 +583,7 @@ init()
   poly_points_list_.clear();
 }
 
-const CPixelClip1 &
+CPixelClip1 &
 CPixelClip1::
 operator=(const CPixelClip1 &clip1)
 {

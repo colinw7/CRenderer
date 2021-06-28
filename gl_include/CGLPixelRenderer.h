@@ -11,12 +11,6 @@
 class CGLWindow;
 
 class CGLPixelRenderer : public CPixelRenderer {
- private:
-  CGLWindow *window_;
-  double     z_;
-  double     img_scale_;
-  bool       keep_aspect_;
-
  public:
   CGLPixelRenderer(CGLWindow *window);
  ~CGLPixelRenderer();
@@ -32,8 +26,8 @@ class CGLPixelRenderer : public CPixelRenderer {
 
   void updateSize(int, int);
 
-  void startDoubleBuffer();
-  void endDoubleBuffer  ();
+  void startDoubleBuffer(bool);
+  void endDoubleBuffer  (bool);
   void copyDoubleBuffer ();
 
   void setLineWidth(double line_width);
@@ -100,6 +94,15 @@ class CGLPixelRenderer : public CPixelRenderer {
   void saveImage(const std::string &fileName);
 
   void errorPrint();
+
+ private:
+  using CPixelRenderer::setLineWidth;
+
+ private:
+  CGLWindow *window_      { nullptr };
+  double     z_           { 0.0 };
+  double     img_scale_   { 1.0 };
+  bool       keep_aspect_ { false };
 };
 
 #endif

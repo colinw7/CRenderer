@@ -8,7 +8,7 @@
 
 CGLPixelRenderer::
 CGLPixelRenderer(CGLWindow *window) :
- CPixelRenderer(), window_(window), z_(0.0), img_scale_(1.0), keep_aspect_(false)
+ CPixelRenderer(), window_(window)
 {
 }
 
@@ -84,13 +84,13 @@ updateSize(int,int)
 
 void
 CGLPixelRenderer::
-startDoubleBuffer()
+startDoubleBuffer(bool /*clear*/)
 {
 }
 
 void
 CGLPixelRenderer::
-endDoubleBuffer()
+endDoubleBuffer(bool /*copy*/)
 {
   glutSwapBuffers();
 }

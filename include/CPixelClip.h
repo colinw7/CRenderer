@@ -53,7 +53,7 @@ class CPixelClip {
 
  ~CPixelClip();
 
-  const CPixelClip &operator=(const CPixelClip &clip);
+  CPixelClip &operator=(const CPixelClip &clip);
 
  private:
   void assign(const CPixelClip &clip);

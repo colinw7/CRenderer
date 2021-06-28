@@ -65,18 +65,11 @@ class CGLRenderer3D {
  public:
   typedef std::vector<CGLPoint3D> PointList;
 
- private:
-  CWindow               *window_;
-  CGLPixelRenderer      *renderer_;
-  CDisplayRange2D        overlay_range_;
-  uint                   overlay_layer_;
-  GLUtesselator         *tess_;
-  CPoint3D               current_;
-  std::vector<CPoint3D>  pathPoints_;
-
  public:
   CGLRenderer3D(CGLWindow *window);
  ~CGLRenderer3D();
+
+  CWindow *getWindow() const { return window_; }
 
   CGLPixelRenderer *getPixelRenderer() const { return renderer_; }
 
@@ -172,6 +165,15 @@ class CGLRenderer3D {
 
   void initOverlay();
   void termOverlay();
+
+ private:
+  CWindow*              window_ { nullptr };
+  CGLPixelRenderer*     renderer_ { nullptr };
+  CDisplayRange2D       overlay_range_;
+  uint                  overlay_layer_ { 1 };
+  GLUtesselator*        tess_ { nullptr };
+  CPoint3D              current_;
+  std::vector<CPoint3D> pathPoints_;
 };
 
 #endif

@@ -36,8 +36,7 @@ class PathVistor : public CPath2DVisitor {
 };
 
 CGLRenderer3D::
-CGLRenderer3D(CGLWindow *window) :
- overlay_layer_(1)
+CGLRenderer3D(CGLWindow *window)
 {
   renderer_ = new CGLPixelRenderer(window);
 }
@@ -671,9 +670,9 @@ fillOverlayTriangle(const CGLPoint2D &p1, const CGLPoint2D &p2, const CGLPoint2D
   glBegin(GL_TRIANGLES);
 
   if (p1.color.isValid()) {
-    const CRGBA &fg = p1.color.getValue();
+    const CRGBA &fg1 = p1.color.getValue();
 
-    glColor4f(fg.getRed(), fg.getGreen(), fg.getBlue(), fg.getAlpha());
+    glColor4f(fg1.getRed(), fg1.getGreen(), fg1.getBlue(), fg1.getAlpha());
   }
   else
     glColor4f(fg.getRed(), fg.getGreen(), fg.getBlue(), fg.getAlpha());
@@ -687,9 +686,9 @@ fillOverlayTriangle(const CGLPoint2D &p1, const CGLPoint2D &p2, const CGLPoint2D
   glVertex3d(px1, py1, z);
 
   if (p2.color.isValid()) {
-    const CRGBA &fg = p2.color.getValue();
+    const CRGBA &fg1 = p2.color.getValue();
 
-    glColor4f(fg.getRed(), fg.getGreen(), fg.getBlue(), fg.getAlpha());
+    glColor4f(fg1.getRed(), fg1.getGreen(), fg1.getBlue(), fg1.getAlpha());
   }
   else
     glColor4f(fg.getRed(), fg.getGreen(), fg.getBlue(), fg.getAlpha());
@@ -703,9 +702,9 @@ fillOverlayTriangle(const CGLPoint2D &p1, const CGLPoint2D &p2, const CGLPoint2D
   }
 
   if (p3.color.isValid()) {
-    const CRGBA &fg = p3.color.getValue();
+    const CRGBA &fg1 = p3.color.getValue();
 
-    glColor4f(fg.getRed(), fg.getGreen(), fg.getBlue(), fg.getAlpha());
+    glColor4f(fg1.getRed(), fg1.getGreen(), fg1.getBlue(), fg1.getAlpha());
   }
   else
     glColor4f(fg.getRed(), fg.getGreen(), fg.getBlue(), fg.getAlpha());

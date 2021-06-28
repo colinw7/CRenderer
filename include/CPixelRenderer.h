@@ -42,18 +42,17 @@ class CPixelRendererDefFiller : public CPixelRendererFiller {
 
 class CPixelRendererPath {
  public:
-  typedef std::vector<CIPoint2D>    IPointList;
-  typedef std::vector<CPoint2D>     RPointList;
-  typedef std::vector<IPointList *> IPointListList;
-  typedef std::vector<RPointList *> RPointListList;
-
- private:
-  IPointListList ipoly_points_list_;
-  RPointListList rpoly_points_list_;
+  using IPointList     = std::vector<CIPoint2D>;
+  using RPointList     = std::vector<CPoint2D>;
+  using IPointListList = std::vector<IPointList *>;
+  using RPointListList = std::vector<RPointList *>;
 
  public:
-  CPixelRendererPath() : ipoly_points_list_(), rpoly_points_list_() { }
- ~CPixelRendererPath() { }
+  CPixelRendererPath() { }
+ ~CPixelRendererPath();
+
+  CPixelRendererPath(const CPixelRendererPath &) = delete;
+  CPixelRendererPath &operator=(const CPixelRendererPath &) = delete;
 
   //-----
 
@@ -68,16 +67,20 @@ class CPixelRendererPath {
 
   IPointListList &getIPolygons() { return ipoly_points_list_; }
   RPointListList &getRPolygons() { return rpoly_points_list_; }
+
+ private:
+  IPointListList ipoly_points_list_;
+  RPointListList rpoly_points_list_;
 };
 
 //-------------
 
 class CPixelRenderer {
  public:
-  typedef std::vector<CIPoint2D>    IPointList;
-  typedef std::vector<CPoint2D>     RPointList;
-  typedef std::vector<IPointList *> IPointListList;
-  typedef std::vector<RPointList *> RPointListList;
+  using IPointList     = std::vector<CIPoint2D>;
+  using RPointList     = std::vector<CPoint2D>;
+  using IPointListList = std::vector<IPointList *>;
+  using RPointListList = std::vector<RPointList *>;
 
  protected:
   CPixelRenderer();
@@ -85,6 +88,8 @@ class CPixelRenderer {
 
  public:
   virtual ~CPixelRenderer();
+
+  CPixelRenderer &operator=(const CPixelRenderer &renderer) = delete;
 
   virtual CPixelRenderer *dup() const = 0;
 
@@ -121,7 +126,7 @@ class CPixelRenderer {
   void getBackground(CRGBA &bg) const { bg = bg_; }
   virtual void setBackground(const CRGBA &bg);
 
-  void getBackgroundImage(CImagePtr &image) const { image = bg_image_; }
+  void getBackgroundImage(CImagePtr &image) const;
   virtual void setBackgroundImage(CImagePtr image);
 
   void getFont(CFontPtr &font) const { font = font_; }
@@ -433,10 +438,6 @@ class CPixelRenderer {
   // notifications
  public:
   virtual void updatePen() { }
-
-  // not to be implemented
- private:
-  CPixelRenderer &operator=(const CPixelRenderer &renderer);
 
  protected:
   CPixelClip clip_;

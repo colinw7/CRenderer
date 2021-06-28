@@ -15,43 +15,43 @@ CPath2D()
 }
 
 CPath2D::
-CPath2D(const CPath2D &path) :
- renderer_    (path.renderer_    ),
- flattener_   (path.flattener_   ),
- parts_       (path.parts_       ),
- closed_      (path.closed_      ),
- start1_      (path.start1_      ),
- start2_      (path.start2_      ),
- current_     (path.current_     ),
- currentSet_  (path.currentSet_  ),
- strokeAdjust_(path.strokeAdjust_),
- flatFill_    (path.flatFill_    ),
- fillType_    (path.fillType_    ),
- fillPoints_  (path.fillPoints_  )
+~CPath2D()
 {
 }
 
 CPath2D::
-~CPath2D()
+CPath2D(const CPath2D &rhs) :
+  renderer_    (rhs.renderer_),
+  flattener_   (rhs.flattener_),
+  parts_       (rhs.parts_),
+  closed_      (rhs.closed_),
+  start1_      (rhs.start1_),
+  start2_      (rhs.start2_),
+  current_     (rhs.current_),
+  currentSet_  (rhs.currentSet_),
+  strokeAdjust_(rhs.strokeAdjust_),
+  flatFill_    (rhs.flatFill_),
+  fillType_    (rhs.fillType_),
+  fillPoints_  (rhs.fillPoints_)
 {
 }
 
 CPath2D &
 CPath2D::
-operator=(const CPath2D &path)
+operator=(const CPath2D &rhs)
 {
-  renderer_     = path.renderer_;
-  flattener_    = path.flattener_;
-  parts_        = path.parts_;
-  closed_       = path.closed_;
-  start1_       = path.start1_;
-  start2_       = path.start2_;
-  current_      = path.current_;
-  currentSet_   = path.currentSet_;
-  strokeAdjust_ = path.strokeAdjust_;
-  flatFill_     = path.flatFill_;
-  fillType_     = path.fillType_;
-  fillPoints_   = path.fillPoints_;
+  renderer_     = rhs.renderer_;
+  flattener_    = rhs.flattener_;
+  parts_        = rhs.parts_;
+  closed_       = rhs.closed_;
+  start1_       = rhs.start1_;
+  start2_       = rhs.start2_;
+  current_      = rhs.current_;
+  currentSet_   = rhs.currentSet_;
+  strokeAdjust_ = rhs.strokeAdjust_;
+  flatFill_     = rhs.flatFill_;
+  fillType_     = rhs.fillType_;
+  fillPoints_   = rhs.fillPoints_;
 
   return *this;
 }
@@ -60,9 +60,7 @@ CPath2D *
 CPath2D::
 dup() const
 {
-  CPath2D *path = new CPath2D(*this);
-
-  return path;
+  return new CPath2D(*this);
 }
 
 void
@@ -84,7 +82,7 @@ init()
 
   fillType_ = FILL_TYPE_WINDING;
 
-  parts_.resize(0);
+  parts_.clear();
 
   if (renderer_)
     renderer_->initPolygons();
@@ -565,7 +563,7 @@ showChar(int c, CMatrix2D *matrix, double *x, double *y)
   if (renderer_)
     renderer_->drawText(current_, str);
 
-  double text_x, text_y;
+  double text_x { 0 }, text_y { 0 };
 
   if (renderer_)
     renderer_->getTextLimits(str, &text_x, &text_y);
@@ -784,12 +782,7 @@ strokePath(CPath2DRenderer *renderer)
 
   uint num_parts = parts_.size();
 
-  PartList parts1;
-
-  parts1.resize(num_parts);
-
-  for (uint i = 0; i < num_parts; i++)
-    parts1[i] = parts_[i];
+  auto parts1 = parts_;
 
   //------
 
@@ -1071,22 +1064,26 @@ void
 CPath2D::
 fill()
 {
-  CPath2D path1(*this);
+  auto *path1 = dup();
 
   CImagePtr image;
 
-  path1.subFill(image, fillType_, renderer_);
+  path1->subFill(image, fillType_, renderer_);
+
+  delete path1;
 }
 
 void
 CPath2D::
 fill(CPath2DRenderer *renderer)
 {
-  CPath2D path1(*this);
+  auto *path1 = dup();
 
   CImagePtr image;
 
-  path1.subFill(image, fillType_, renderer);
+  path1->subFill(image, fillType_, renderer);
+
+  delete path1;
 }
 
 void
@@ -1100,29 +1097,35 @@ void
 CPath2D::
 fillImage(CImagePtr image)
 {
-  CPath2D path1(*this);
+  auto *path1 = dup();
 
-  path1.subFill(image, fillType_, renderer_);
+  path1->subFill(image, fillType_, renderer_);
+
+  delete path1;
 }
 
 void
 CPath2D::
 fillImage(CImagePtr image, CPath2DRenderer *renderer)
 {
-  CPath2D path1(*this);
+  auto *path1 = dup();
 
-  path1.subFill(image, fillType_, renderer);
+  path1->subFill(image, fillType_, renderer);
+
+  delete path1;
 }
 
 void
 CPath2D::
 fillGradient(CRefPtr<CGenGradient>)
 {
-  CPath2D path1(*this);
+  auto *path1 = dup();
 
   CImagePtr image;
 
-  path1.subFill(image, fillType_, renderer_);
+  path1->subFill(image, fillType_, renderer_);
+
+  delete path1;
 }
 
 void
@@ -1311,7 +1314,7 @@ reverse()
 
   PartList parts;
 
-  parts.resize(num_parts);
+  parts.reserve(num_parts);
 
   uint start_i = 0;
 
@@ -1418,12 +1421,7 @@ reverse()
       start_i = end_i + 1;
   }
 
-  uint len = parts.size();
-
-  parts_.resize(len);
-
-  for (uint i = 0; i < len; ++i)
-    parts_[i] = parts[i];
+  parts_ = parts;
 }
 
 void
@@ -1438,33 +1436,33 @@ CPath2D::
 flatten(CPath2DFlattener *flattener)
 {
   uint num_parts = parts_.size();
-
-  if (num_parts == 0)
-    return;
+  if (num_parts == 0) return;
 
   PartList parts;
 
-  parts.resize(num_parts);
-
-  std::vector<CPoint2D> points;
-  std::vector<double>   gradients;
+  parts.reserve(num_parts);
 
   for (uint i = 0; i < num_parts; i++) {
     if      (parts_[i].type == CPath2DPartType::BEZIER2_TO) {
+      assert(i > 0 && i < num_parts - 1);
+
       C2Bezier2D bezier(parts_[i - 1].point.x, parts_[i - 1].point.y,
                         parts_[i    ].point.x, parts_[i    ].point.y,
                         parts_[i + 1].point.x, parts_[i + 1].point.y);
 
-      if (flattener)
+      std::vector<CPoint2D> points;
+
+      if (flattener) {
+        std::vector<double> gradients;
+
         flattener->bezierToLines(bezier, points, gradients);
+      }
       else
         CMathGeom2D::BezierToLines(bezier, points);
 
-      uint num_points = points.size();
-
-      if (num_points > 1) {
-        for (uint k = 1; k < num_points; k++)
-          parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, points[k]));
+      if (points.size() > 1) {
+        for (const auto &p : points)
+          parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, p));
       }
       else
         parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, parts_[i + 2].point));
@@ -1472,21 +1470,26 @@ flatten(CPath2DFlattener *flattener)
       i += 1;
     }
     else if (parts_[i].type == CPath2DPartType::BEZIER3_TO) {
+      assert(i > 0 && i < num_parts - 2);
+
       C3Bezier2D bezier(parts_[i - 1].point.x, parts_[i - 1].point.y,
                         parts_[i    ].point.x, parts_[i    ].point.y,
                         parts_[i + 1].point.x, parts_[i + 1].point.y,
                         parts_[i + 2].point.x, parts_[i + 2].point.y);
 
-      if (flattener)
+      std::vector<CPoint2D> points;
+
+      if (flattener) {
+        std::vector<double> gradients;
+
         flattener->bezierToLines(bezier, points, gradients);
+      }
       else
         CMathGeom2D::BezierToLines(bezier, points);
 
-      uint num_points = points.size();
-
-      if (num_points > 1) {
-        for (uint k = 1; k < num_points; k++)
-          parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, points[k]));
+      if (points.size() > 1) {
+        for (const auto &p : points)
+          parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, p));
       }
       else
         parts.push_back(CPath2DPart(CPath2DPartType::LINE_TO, parts_[i + 2].point));
@@ -1497,12 +1500,7 @@ flatten(CPath2DFlattener *flattener)
       parts.push_back(parts_[i]);
   }
 
-  uint len = parts.size();
-
-  parts_.resize(len);
-
-  for (uint i = 0; i < len; ++i)
-    parts_[i] = parts[i];
+  parts_ = parts;
 }
 
 void
@@ -1774,15 +1772,15 @@ bbox(CBBox2D &bbox) const
   }
 }
 
-CPath2D
+CPath2D *
 CPath2D::
 transformed(const CMatrix2D &matrix) const
 {
-  CPath2D path = *this;
+  auto *path1 = dup();
 
-  path.transform(matrix);
+  path1->transform(matrix);
 
-  return path;
+  return path1;
 }
 
 void
@@ -1821,15 +1819,15 @@ transform(const CMatrix2D &matrix)
   }
 }
 
-CPath2D
+CPath2D *
 CPath2D::
 preTransformed(const CMatrix2D &matrix) const
 {
-  CPath2D path = *this;
+  auto *path1 = dup();
 
-  path.preTransform(matrix);
+  path1->preTransform(matrix);
 
-  return path;
+  return path1;
 }
 
 void

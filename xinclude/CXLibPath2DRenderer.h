@@ -16,7 +16,7 @@ class CXLibPath2DRenderer : public CPath2DRenderer {
 
   void adjustPoint(CPoint2D &p) { renderer_->adjustPoint(p); }
 
-  void transformPoint  (const CPoint2D &p1, CPoint2D &p2) {
+  void transformPoint(const CPoint2D &p1, CPoint2D &p2) {
     renderer_->transformPoint(p1, p2);
   }
 

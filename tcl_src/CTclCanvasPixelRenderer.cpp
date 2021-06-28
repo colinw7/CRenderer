@@ -45,7 +45,7 @@ drawInit()
   setBackground(CRGBA(0,0,0));
   setForeground(CRGBA(1,1,1));
 
-  startDoubleBuffer();
+  startDoubleBuffer(false);
 
   clear();
 }
@@ -54,21 +54,21 @@ void
 CTclCanvasPixelRenderer::
 drawTerm()
 {
-  endDoubleBuffer();
+  endDoubleBuffer(false);
 
   flush();
 }
 
 void
 CTclCanvasPixelRenderer::
-startDoubleBuffer()
+startDoubleBuffer(bool)
 {
   canvas_->startDoubleBuffer();
 }
 
 void
 CTclCanvasPixelRenderer::
-endDoubleBuffer()
+endDoubleBuffer(bool)
 {
   canvas_->endDoubleBuffer();
 }
@@ -117,27 +117,27 @@ drawClippedPoint(const CIPoint2D &p)
 
 void
 CTclCanvasPixelRenderer::
-drawChar(int x, int y, char c)
+drawChar(const CIPoint2D &point, char c)
 {
   std::string str;
 
   str += c;
 
-  canvas_->drawText(x, y, str);
+  canvas_->drawText(point.x, point.y, str);
 }
 
 void
 CTclCanvasPixelRenderer::
-drawString(int x, int y, const std::string &str)
+drawString(const CIPoint2D &point, const std::string &str)
 {
-  canvas_->drawText(x, y, str);
+  canvas_->drawText(point.x, point.y, str);
 }
 
 void
 CTclCanvasPixelRenderer::
-drawLine(int x1, int y1, int x2, int y2)
+drawLine(const CIPoint2D &point1, const CIPoint2D &point2)
 {
-  CLine2D line(x1, y1, x2, y2);
+  CLine2D line(point1.x, point1.y, point2.x, point2.y);
 
   CBBox2D bbox(0, 0, canvas_width1_, canvas_height1_);
 
@@ -150,51 +150,53 @@ drawLine(int x1, int y1, int x2, int y2)
 
 void
 CTclCanvasPixelRenderer::
-drawRectangle(int x1, int y1, int x2, int y2)
+drawRectangle(const CIBBox2D &bbox)
 {
-  canvas_->drawRectangle(x1, y1, x2 - x1, y2 - y1);
+  canvas_->drawRectangle(bbox.getXMin(), bbox.getYMin(),
+                         bbox.getXMax() - bbox.getXMin(), bbox.getYMax() - bbox.getYMin());
 }
 
 void
 CTclCanvasPixelRenderer::
-fillRectangle(int x1, int y1, int x2, int y2)
+fillRectangle(const CIBBox2D &bbox)
 {
-  canvas_->fillRectangle(x1, y1, x2 - x1, y2 - y1);
+  canvas_->fillRectangle(bbox.getXMin(), bbox.getYMin(),
+                         bbox.getXMax() - bbox.getXMin(), bbox.getYMax() - bbox.getYMin());
 }
 
 void
 CTclCanvasPixelRenderer::
-drawArc(int x, int y, int xr, int yr, double a1, double a2)
+drawArc(const CIPoint2D &center, int xr, int yr, double a1, double a2)
 {
-  canvas_->drawArc(x, y, xr, yr, a1, a2);
+  canvas_->drawArc(center.x, center.y, xr, yr, a1, a2);
 }
 
 void
 CTclCanvasPixelRenderer::
-fillArc(int x, int y, int xr, int yr, double a1, double a2)
+fillArc(const CIPoint2D &center, int xr, int yr, double a1, double a2)
 {
-  canvas_->fillArc(x, y, xr, yr, a1, a2);
+  canvas_->fillArc(center.x, center.y, xr, yr, a1, a2);
 }
 
 void
 CTclCanvasPixelRenderer::
-drawEllipse(int x, int y, int xr, int yr)
+drawEllipse(const CIPoint2D &center, int xr, int yr)
 {
-  canvas_->drawEllipse(x, y, xr, yr);
+  canvas_->drawEllipse(center.x, center.y, xr, yr);
 }
 
 void
 CTclCanvasPixelRenderer::
-fillEllipse(int x, int y, int xr, int yr)
+fillEllipse(const CIPoint2D &center, int xr, int yr)
 {
-  canvas_->fillEllipse(x, y, xr, yr);
+  canvas_->fillEllipse(center.x, center.y, xr, yr);
 }
 
 void
 CTclCanvasPixelRenderer::
-drawImage(int x, int y, CImagePtr image)
+drawImage(const CIPoint2D &point, CImagePtr image)
 {
-  canvas_->drawImage(image, x, y);
+  canvas_->drawImage(image, point.x, point.y);
 }
 
 void

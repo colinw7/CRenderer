@@ -5,14 +5,19 @@
 
 class CFreeTypeRenderer2D : public CFreeTypePathRenderer {
  public:
-  CFreeTypeRenderer2D(CRenderer2D *renderer) :
+  explicit CFreeTypeRenderer2D(CRenderer2D *renderer) :
    renderer_(renderer) {
     path_ = renderer_->createPath();
   }
 
+  CFreeTypeRenderer2D(const CFreeTypeRenderer2D &) = delete;
+  CFreeTypeRenderer2D &operator=(const CFreeTypeRenderer2D &) = delete;
+
  ~CFreeTypeRenderer2D() {
     delete path_;
   }
+
+  CPath2D *getPath() const { return path_; }
 
   void init() {
     path_->init();
@@ -48,11 +53,9 @@ class CFreeTypeRenderer2D : public CFreeTypePathRenderer {
     path_->fill();
   }
 
-  CPath2D *getPath() const { return path_; }
-
  private:
-  CRenderer2D *renderer_;
-  CPath2D     *path_;
+  CRenderer2D *renderer_ { nullptr };
+  CPath2D     *path_     { nullptr };
 };
 
 #endif

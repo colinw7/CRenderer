@@ -25,7 +25,7 @@ CQPixelRenderer() :
 
   brush_->setStyle(Qt::SolidPattern);
 
-  CFontPtr font = CFontMgrInst->lookupFont("helvetica", CFONT_STYLE_NORMAL, 8);
+  auto font = CFontMgrInst->lookupFont("helvetica", CFONT_STYLE_NORMAL, 8);
 
   setFont(font);
 }
@@ -250,13 +250,13 @@ drawClippedString(const CIPoint2D &point, const std::string &str)
 
   setQFont();
 
-  CQFont *qfont = getQFont();
+  auto *qfont = getQFont();
 
   int ascent = getCharAscent();
 
   QString qstr(str.c_str());
 
-  QTransform old_trans = getQPainter()->worldTransform();
+  auto old_trans = getQPainter()->worldTransform();
 
   double angle = qfont->getAngle();
 
@@ -290,11 +290,11 @@ drawStringInRect(const CIBBox2D &bbox, const std::string &str)
 
   setQFont();
 
-  QFont qfont = getQFont()->getQFont();
+  auto qfont = getQFont()->getQFont();
 
   QFontMetrics fm(qfont);
 
-  QRect rect = fm.boundingRect(qstr);
+  auto rect = fm.boundingRect(qstr);
 
   int dx = (bbox.getWidth () - rect.width ())/2;
   int dy = (bbox.getHeight() - rect.height())/2;
@@ -317,12 +317,12 @@ drawScaledStringInRect(const CIBBox2D &bbox, const std::string &str)
 
   double angle = getQFont()->getAngle();
 
-  QFont qfont = getQFont()->getQFont();
+  auto qfont = getQFont()->getQFont();
 
   QFontMetrics fm(qfont);
 
-  QRect rect = fm.boundingRect(qstr);
-  //QRect rect = fm.tightBoundingRect(qstr);
+  auto rect = fm.boundingRect(qstr);
+  //auto rect = fm.tightBoundingRect(qstr);
 
   int width  = rect.width();
   int height = rect.height();
@@ -344,12 +344,12 @@ drawScaledStringInRect(const CIBBox2D &bbox, const std::string &str)
   width  = rect.width();
   height = rect.height();
 
-  QTransform old_trans = getQPainter()->worldTransform();
+  auto old_trans = getQPainter()->worldTransform();
 
   if (! CMathUtil::realEq(angle, 0.0)) {
     QTransform trans1, trans2, trans3;
 
-    CIPoint2D origin = bbox.getCenter();
+    auto origin = bbox.getCenter();
 
     trans1.translate(origin.x, origin.y);
     trans2.rotate   (-angle);
@@ -488,7 +488,7 @@ fillImageClippedPolygon(const IPointList &points, CImagePtr image)
 {
   if (! image.isValid()) return;
 
-  QImage &qimage = image.cast<CQImage>()->getQImage();
+  auto &qimage = image.cast<CQImage>()->getQImage();
 
   brush_->setTextureImage(qimage);
 
@@ -522,12 +522,12 @@ fillGradientClippedPolygon(const IPointList &points,
   CRadialGradient *rg;
 
   if      ((lg = dynamic_cast<CLinearGradient*>(gradient.getPtr())) != 0) {
-    QLinearGradient qlg = CQUtil::toQGradient(lg);
+    auto qlg = CQUtil::toQGradient(lg);
 
     getQPainter()->setBrush(QBrush(qlg));
   }
   else if ((rg = dynamic_cast<CRadialGradient*>(gradient.getPtr())) != 0) {
-    QRadialGradient qrg = CQUtil::toQGradient(rg);
+    auto qrg = CQUtil::toQGradient(rg);
 
     getQPainter()->setBrush(QBrush(qrg));
   }
@@ -591,7 +591,7 @@ void
 CQPixelRenderer::
 drawClippedImage(const CIPoint2D &point, CImagePtr image)
 {
-  QImage &qimage = image.cast<CQImage>()->getQImage();
+  auto &qimage = image.cast<CQImage>()->getQImage();
 
   //QImage qimage((uchar *) image->getData(), image->getWidth(),
   //              image->getHeight(), QImage::Format_ARGB32);
@@ -699,7 +699,7 @@ bool
 CQPixelRenderer::
 mmToPixel(double mm, double *pixel)
 {
-  QWidget *w = QApplication::desktop()->screen(0);
+  auto *w = QApplication::desktop()->screen(0);
 
   int dpi = (w->logicalDpiX() + w->logicalDpiY())/2;
 

@@ -43,34 +43,27 @@ class GenGradient2DFill : public CRenderer2DFiller {
 CRenderer2D::
 CRenderer2D()
 {
-  display_range_.setPixelRange (0, 0, 100, 100);
-  display_range_.setWindowRange(0, 0, 1, 1);
-
-  pen_.init();
-
-  transform_flag_ = true;
-  anti_alias_     = false;
-
-  //----
-
-  unsetViewMatrix();
-
-  //----
-
-  enabled_ = true;
+  init();
 }
 
 CRenderer2D::
 CRenderer2D(CPixelRenderer *renderer) :
- pixel_renderer_(renderer)
+ pixelRenderer_(renderer)
 {
-  display_range_.setPixelRange (0, 0, 100, 100);
-  display_range_.setWindowRange(0, 0, 1, 1);
+  init();
+}
+
+void
+CRenderer2D::
+init()
+{
+  displayRange_.setPixelRange (0, 0, 100, 100);
+  displayRange_.setWindowRange(0, 0, 1, 1);
 
   pen_.init();
 
-  transform_flag_ = true;
-  anti_alias_     = false;
+  transformFlag_ = true;
+  antiAlias_     = false;
 
   //----
 
@@ -82,18 +75,18 @@ CRenderer2D(CPixelRenderer *renderer) :
 }
 
 CRenderer2D::
-CRenderer2D(const CRenderer2D &renderer) :
- pixel_renderer_(renderer.pixel_renderer_)
+CRenderer2D(const CRenderer2D &renderer)
 {
-  enabled_        = true;
-  display_range_  = renderer.display_range_;
-  view_matrix_    = renderer.view_matrix_;
-  view_imatrix_   = renderer.view_imatrix_;
-  transform_flag_ = renderer.transform_flag_;
-  anti_alias_     = renderer.anti_alias_;
-  pen_            = renderer.pen_;
-  brush_          = renderer.brush_;
-  symbol_         = renderer.symbol_;
+  enabled_       = true;
+  pixelRenderer_ = renderer.pixelRenderer_;
+  displayRange_  = renderer.displayRange_;
+  viewMatrix_    = renderer.viewMatrix_;
+  viewIMatrix_   = renderer.viewIMatrix_;
+  transformFlag_ = renderer.transformFlag_;
+  antiAlias_     = renderer.antiAlias_;
+  pen_           = renderer.pen_;
+  brush_         = renderer.brush_;
+  symbol_        = renderer.symbol_;
 }
 
 CRenderer2D::
@@ -101,26 +94,27 @@ CRenderer2D::
 {
 }
 
-const CRenderer2D &
+CRenderer2D &
 CRenderer2D::
 operator=(const CRenderer2D &renderer)
 {
-  pixel_renderer_ = renderer.pixel_renderer_->dup();
+  enabled_       = true;
+  pixelRenderer_ = renderer.pixelRenderer_;
+  displayRange_  = renderer.displayRange_;
+  viewMatrix_    = renderer.viewMatrix_;
+  viewIMatrix_   = renderer.viewIMatrix_;
+  transformFlag_ = renderer.transformFlag_;
+  antiAlias_     = renderer.antiAlias_;
+  pen_           = renderer.pen_;
+  brush_         = renderer.brush_;
+  symbol_        = renderer.symbol_;
 
   path_   = nullptr;
   region_ = nullptr;
 
-  enabled_        = true;
-  display_range_  = renderer.display_range_;
-  view_matrix_    = renderer.view_matrix_;
-  view_imatrix_   = renderer.view_imatrix_;
-  transform_flag_ = renderer.transform_flag_;
-  anti_alias_     = renderer.anti_alias_;
-  pen_            = renderer.pen_;
-  brush_          = renderer.brush_;
-  symbol_         = renderer.symbol_;
+  pathStack_.clear();
 
-  path_stack_.clear();
+  ppath_ = nullptr;
 
   return *this;
 }
@@ -129,7 +123,7 @@ void
 CRenderer2D::
 setPixelRenderer(CPixelRenderer *renderer)
 {
-  pixel_renderer_ = renderer;
+  pixelRenderer_ = PixelRendererP(renderer);
 
   resetDataRange();
 }
@@ -138,70 +132,70 @@ CPixelRenderer *
 CRenderer2D::
 getPixelRenderer() const
 {
-  return pixel_renderer_;
+  return pixelRenderer_.get();
 }
 
 bool
 CRenderer2D::
 getContentsChanged()
 {
-  return pixel_renderer_->getContentsChanged();
+  return pixelRenderer_->getContentsChanged();
 }
 
 void
 CRenderer2D::
 setContentsChanged(bool flag)
 {
-  pixel_renderer_->setContentsChanged(flag);
+  pixelRenderer_->setContentsChanged(flag);
 }
 
 uint
 CRenderer2D::
 getPixelWidth() const
 {
-  return pixel_renderer_->getWidth();
+  return pixelRenderer_->getWidth();
 }
 
 uint
 CRenderer2D::
 getPixelHeight() const
 {
-  return pixel_renderer_->getHeight();
+  return pixelRenderer_->getHeight();
 }
 
 void
 CRenderer2D::
 setPixelOffset(const CIPoint2D &offset)
 {
-  pixel_renderer_->setOffset(offset);
+  pixelRenderer_->setOffset(offset);
 }
 
 const CIPoint2D &
 CRenderer2D::
 getPixelOffset() const
 {
-  return pixel_renderer_->getOffset();
+  return pixelRenderer_->getOffset();
 }
 
 void
 CRenderer2D::
 applyPixelOffset(CIPoint2D &point) const
 {
-  pixel_renderer_->applyOffset(point);
+  pixelRenderer_->applyOffset(point);
 }
 
 void
 CRenderer2D::
 unapplyPixelOffset(CIPoint2D &point) const
 {
-  pixel_renderer_->unapplyOffset(point);
+  pixelRenderer_->unapplyOffset(point);
 }
 
 const CPixelClip &
 CRenderer2D::
 getClip() const
 {
-  return pixel_renderer_->getClip();
+  return pixelRenderer_->getClip();
 }
 
 //------
@@ -212,14 +206,14 @@ void
 CRenderer2D::
 setPixelRange(int xmin, int ymin, int xmax, int ymax)
 {
-  display_range_.setPixelRange(xmin, ymin, xmax, ymax);
+  displayRange_.setPixelRange(xmin, ymin, xmax, ymax);
 }
 
 void
 CRenderer2D::
 getPixelRange(int *xmin, int *ymin, int *xmax, int *ymax)
 {
-  display_range_.getPixelRange(xmin, ymin, xmax, ymax);
+  displayRange_.getPixelRange(xmin, ymin, xmax, ymax);
 }
 
 void
@@ -228,22 +222,22 @@ setDataRange(double xmin, double ymin, double xmax, double ymax)
 {
   resetDataRange();
 
-  display_range_.setWindowRange(xmin, ymin, xmax, ymax);
+  displayRange_.setWindowRange(xmin, ymin, xmax, ymax);
 }
 
 void
 CRenderer2D::
 getDataRange(double *xmin, double *ymin, double *xmax, double *ymax)
 {
-  display_range_.getWindowRange(xmin, ymin, xmax, ymax);
+  displayRange_.getWindowRange(xmin, ymin, xmax, ymax);
 }
 
 void
 CRenderer2D::
 resetDataRange()
 {
-  int pwidth  = pixel_renderer_->getWidth ();
-  int pheight = pixel_renderer_->getHeight();
+  int pwidth  = pixelRenderer_->getWidth ();
+  int pheight = pixelRenderer_->getHeight();
 
   setPixelRange(0, 0, pwidth - 1, pheight - 1);
 }
@@ -254,7 +248,7 @@ void
 CRenderer2D::
 updateSize(int width, int height)
 {
-  pixel_renderer_->updateSize(width, height);
+  pixelRenderer_->updateSize(width, height);
 }
 
 //------
@@ -309,28 +303,28 @@ void
 CRenderer2D::
 setLineCap(CLineCapType cap)
 {
-  pixel_renderer_->setLineCap(cap);
+  pixelRenderer_->setLineCap(cap);
 }
 
 CLineCapType
 CRenderer2D::
 getLineCap() const
 {
-  return pixel_renderer_->getLineCap();
+  return pixelRenderer_->getLineCap();
 }
 
 void
 CRenderer2D::
 setLineJoin(CLineJoinType join)
 {
-  pixel_renderer_->setLineJoin(join);
+  pixelRenderer_->setLineJoin(join);
 }
 
 CLineJoinType
 CRenderer2D::
 getLineJoin() const
 {
-  return pixel_renderer_->getLineJoin();
+  return pixelRenderer_->getLineJoin();
 }
 
 void
@@ -418,20 +412,14 @@ void
 CRenderer2D::
 setBrushTexture(CImagePtr texture)
 {
-#ifdef CBRUSH_IMAGE
   brush_.setTexture(texture);
-#endif
 }
 
 CImagePtr
 CRenderer2D::
 getBrushTexture() const
 {
-#ifdef CBRUSH_IMAGE
   return brush_.getTexture();
-#else
-  return CImagePtr();
-#endif
 }
 
 void
@@ -454,35 +442,35 @@ void
 CRenderer2D::
 beginDraw()
 {
-  pixel_renderer_->beginDraw();
+  pixelRenderer_->beginDraw();
 }
 
 void
 CRenderer2D::
 endDraw()
 {
-  pixel_renderer_->endDraw();
+  pixelRenderer_->endDraw();
 }
 
 void
 CRenderer2D::
 startDoubleBuffer(bool clear)
 {
-  pixel_renderer_->startDoubleBuffer(clear);
+  pixelRenderer_->startDoubleBuffer(clear);
 }
 
 void
 CRenderer2D::
 endDoubleBuffer(bool copy)
 {
-  pixel_renderer_->endDoubleBuffer(copy);
+  pixelRenderer_->endDoubleBuffer(copy);
 }
 
 void
 CRenderer2D::
 copyDoubleBuffer()
 {
-  pixel_renderer_->copyDoubleBuffer();
+  pixelRenderer_->copyDoubleBuffer();
 }
 
 void
@@ -501,13 +489,13 @@ enableCanvas()
 
 void
 CRenderer2D::
-setViewMatrix(const CMatrix2D &view_matrix)
+setViewMatrix(const CMatrix2D &viewMatrix)
 {
   CMatrix2D imatrix;
 
-  if (view_matrix.invert(imatrix)) {
-    view_matrix_  = view_matrix;
-    view_imatrix_ = imatrix;
+  if (viewMatrix.invert(imatrix)) {
+    viewMatrix_  = viewMatrix;
+    viewIMatrix_ = imatrix;
   }
   else {
     std::cerr << "CRenderer2D::setViewMatrix - Invalid View Matrix" << std::endl;
@@ -518,73 +506,73 @@ void
 CRenderer2D::
 unsetViewMatrix()
 {
-  view_matrix_ .setIdentity();
-  view_imatrix_.setIdentity();
+  viewMatrix_ .setIdentity();
+  viewIMatrix_.setIdentity();
 }
 
 void
 CRenderer2D::
 setEqualScale(bool flag)
 {
-  display_range_.setEqualScale(flag);
+  displayRange_.setEqualScale(flag);
 }
 
 bool
 CRenderer2D::
 getEqualScale() const
 {
-  return display_range_.getEqualScale();
+  return displayRange_.getEqualScale();
 }
 
 void
 CRenderer2D::
 setScaleMin(bool flag)
 {
-  display_range_.setScaleMin(flag);
+  displayRange_.setScaleMin(flag);
 }
 
 bool
 CRenderer2D::
 getScaleMin() const
 {
-  return display_range_.getScaleMin();
+  return displayRange_.getScaleMin();
 }
 
 void
 CRenderer2D::
 setAlign(CDisplayRange2D::HAlign halign, CDisplayRange2D::VAlign valign)
 {
-  return display_range_.setAlign(halign, valign);
+  return displayRange_.setAlign(halign, valign);
 }
 
 CDisplayRange2D::HAlign
 CRenderer2D::
 getHAlign() const
 {
-  return display_range_.getHAlign();
+  return displayRange_.getHAlign();
 }
 
 CDisplayRange2D::VAlign
 CRenderer2D::
 getVAlign() const
 {
-  return display_range_.getVAlign();
+  return displayRange_.getVAlign();
 }
 
 void
 CRenderer2D::
 setBackground(const CRGBA &rgba)
 {
-  if (pixel_renderer_ != 0)
-    pixel_renderer_->setBackground(rgba);
+  if (pixelRenderer_ != 0)
+    pixelRenderer_->setBackground(rgba);
 }
 
 void
 CRenderer2D::
 setForeground(const CRGBA &rgba)
 {
-  if (pixel_renderer_ != 0)
-    pixel_renderer_->setForeground(rgba);
+  if (pixelRenderer_ != 0)
+    pixelRenderer_->setForeground(rgba);
 }
 
 //-------------------
@@ -593,35 +581,35 @@ CImagePtr
 CRenderer2D::
 getImage()
 {
-  return pixel_renderer_->getImage();
+  return pixelRenderer_->getImage();
 }
 
 CImagePtr
 CRenderer2D::
 getAlphaImage()
 {
-  return pixel_renderer_->getAlphaImage();
+  return pixelRenderer_->getAlphaImage();
 }
 
 void
 CRenderer2D::
 setImage(CImagePtr image)
 {
-  pixel_renderer_->setImage(image);
+  pixelRenderer_->setImage(image);
 }
 
 void
 CRenderer2D::
 setImage(CRenderer2D *renderer)
 {
-  pixel_renderer_->setImage(renderer->getImage());
+  pixelRenderer_->setImage(renderer->getImage());
 }
 
 void
 CRenderer2D::
 setAlphaImage(CImagePtr image)
 {
-  pixel_renderer_->setAlphaImage(image);
+  pixelRenderer_->setAlphaImage(image);
 }
 
 //-------------------
@@ -648,7 +636,7 @@ pathInit()
 
   CFillType fill_type = getPath()->getFillType();
 
-  path_stack_.push_back(path_.release());
+  pathStack_.push_back(path_.release());
 
   path_ = PathP(createPath());
 
@@ -659,11 +647,11 @@ void
 CRenderer2D::
 pathTerm()
 {
-  assert(path_stack_.size() > 0);
+  assert(pathStack_.size() > 0);
 
-  path_ = PathP(path_stack_.back());
+  path_ = PathP(pathStack_.back());
 
-  path_stack_.pop_back();
+  pathStack_.pop_back();
 }
 
 void
@@ -943,30 +931,32 @@ void
 CRenderer2D::
 clipPolygons()
 {
-  if (! enabled_ || pixel_renderer_ == 0)
+  if (! enabled_ || ! pixelRenderer_)
     return;
 
-  pixel_renderer_->clipPolygons(ppath_.getIPolygons());
+  if (ppath_)
+    pixelRenderer_->clipPolygons(ppath_->getIPolygons());
 }
 
 void
 CRenderer2D::
 eoclipPolygons()
 {
-  if (! enabled_ || pixel_renderer_ == 0)
+  if (! enabled_ || ! pixelRenderer_)
     return;
 
-  pixel_renderer_->eoclipPolygons(ppath_.getIPolygons());
+  if (ppath_)
+    pixelRenderer_->eoclipPolygons(ppath_->getIPolygons());
 }
 
 uint
 CRenderer2D::
 getNumClipPolygons()
 {
-  if (! enabled_ || pixel_renderer_ == 0)
+  if (! enabled_ || ! pixelRenderer_)
     return 0;
 
-  return pixel_renderer_->getNumClipPolygons();
+  return pixelRenderer_->getNumClipPolygons();
 }
 
 const CRenderer2D::PointListList &
@@ -975,10 +965,10 @@ getClipPolygons(uint i)
 {
   static PointListList poly_points_list;
 
-  if (! enabled_ || pixel_renderer_ == 0)
+  if (! enabled_ || ! pixelRenderer_)
     return poly_points_list;
 
-  const CPixelRenderer::IPointListList &ipolygon_points = pixel_renderer_->getClipPolygons(i);
+  const CPixelRenderer::IPointListList &ipolygon_points = pixelRenderer_->getClipPolygons(i);
 
   uint num_ipolygon_points = ipolygon_points.size();
 
@@ -1005,22 +995,26 @@ void
 CRenderer2D::
 initPolygons()
 {
-  if (! enabled_ || pixel_renderer_ == 0)
+  if (! enabled_ || ! pixelRenderer_)
     return;
 
-  ppath_.initPolygons();
+  if (ppath_)
+    ppath_->initPolygons();
 }
 
 void
 CRenderer2D::
 addPolygon(const RPointList &points)
 {
-  if (! enabled_ || pixel_renderer_ == 0)
+  if (! enabled_ || ! pixelRenderer_)
     return;
+
+  if (! ppath_)
+    ppath_ = new CPixelRendererPath;
 
   uint num_points = points.size();
 
-  if (anti_alias_) {
+  if (antiAlias_) {
     std::vector<CPoint2D> rpoints;
 
     rpoints.resize(num_points);
@@ -1033,7 +1027,7 @@ addPolygon(const RPointList &points)
       rpoints[i] = p;
     }
 
-    ppath_.addPathPolygon(rpoints);
+    ppath_->addPathPolygon(rpoints);
   }
   else {
     std::vector<CIPoint2D> ipoints;
@@ -1048,7 +1042,7 @@ addPolygon(const RPointList &points)
       ipoints[i] = p;
     }
 
-    ppath_.addPathPolygon(ipoints);
+    ppath_->addPathPolygon(ipoints);
   }
 }
 
@@ -1056,7 +1050,7 @@ void
 CRenderer2D::
 fillPolygons()
 {
-  if (! enabled_ || pixel_renderer_ == 0)
+  if (! enabled_ || ! pixelRenderer_)
     return;
 
   CImagePtr image;
@@ -1068,18 +1062,20 @@ void
 CRenderer2D::
 fillPolygons(CImagePtr image)
 {
-  if (! enabled_ || pixel_renderer_ == 0)
+  if (! enabled_ || ! pixelRenderer_)
     return;
 
-  pixel_renderer_->fillPathPolygons(ppath_.getIPolygons(), image, FILL_TYPE_WINDING);
-  pixel_renderer_->fillPathPolygons(ppath_.getRPolygons(), image, FILL_TYPE_WINDING);
+  if (ppath_) {
+    pixelRenderer_->fillPathPolygons(ppath_->getIPolygons(), image, FILL_TYPE_WINDING);
+    pixelRenderer_->fillPathPolygons(ppath_->getRPolygons(), image, FILL_TYPE_WINDING);
+  }
 }
 
 void
 CRenderer2D::
 eofillPolygons()
 {
-  if (! enabled_ || pixel_renderer_ == 0)
+  if (! enabled_ || ! pixelRenderer_)
     return;
 
   CImagePtr image;
@@ -1091,11 +1087,13 @@ void
 CRenderer2D::
 eofillPolygons(CImagePtr image)
 {
-  if (! enabled_ || pixel_renderer_ == 0)
+  if (! enabled_ || ! pixelRenderer_)
     return;
 
-  pixel_renderer_->fillPathPolygons(ppath_.getIPolygons(), image, FILL_TYPE_EVEN_ODD);
-  pixel_renderer_->fillPathPolygons(ppath_.getRPolygons(), image, FILL_TYPE_EVEN_ODD);
+  if (ppath_) {
+    pixelRenderer_->fillPathPolygons(ppath_->getIPolygons(), image, FILL_TYPE_EVEN_ODD);
+    pixelRenderer_->fillPathPolygons(ppath_->getRPolygons(), image, FILL_TYPE_EVEN_ODD);
+  }
 }
 
 //-------------------
@@ -1574,13 +1572,13 @@ drawWideSolidLine(const CPoint2D &point1, const CPoint2D &point2)
   addWidthToPointG1(point1, g, p[0], p[3]);
   addWidthToPointG1(point2, g, p[1], p[2]);
 
-  if (anti_alias_) {
+  if (antiAlias_) {
     CPoint2D rpoints[4];
 
     for (uint i = 0; i < 4; ++i)
       transformPointToPixel(p[i], rpoints[i]);
 
-    pixel_renderer_->fillAAPolygon(rpoints, 4);
+    pixelRenderer_->fillAAPolygon(rpoints, 4);
   }
   else {
     IPointList ipoints;
@@ -1590,7 +1588,7 @@ drawWideSolidLine(const CPoint2D &point1, const CPoint2D &point2)
     for (uint i = 0; i < 4; ++i)
       transformPointToPixel(p[i], ipoints[i]);
 
-    pixel_renderer_->fillPolygon(ipoints);
+    pixelRenderer_->fillPolygon(ipoints);
   }
 }
 
@@ -1625,7 +1623,7 @@ drawThinSolidLine(const CPoint2D &point1, const CPoint2D &point2)
   transformPointToPixel(point1, ipoint1);
   transformPointToPixel(point2, ipoint2);
 
-  pixel_renderer_->drawLine(ipoint1, ipoint2);
+  pixelRenderer_->drawLine(ipoint1, ipoint2);
 }
 
 //-----------
@@ -1645,13 +1643,13 @@ fillPolygon(const PointList &points)
 
   uint num_points = points.size();
 
-  if (anti_alias_) {
+  if (antiAlias_) {
     rpoints.resize(num_points);
 
     for (uint i = 0; i < num_points; ++i)
       transformPointToPixel(points[i], rpoints[i]);
 
-    pixel_renderer_->fillAAPolygon(rpoints);
+    pixelRenderer_->fillAAPolygon(rpoints);
   }
   else {
     ipoints.resize(num_points);
@@ -1691,7 +1689,7 @@ fillFilledPolygon(const PointList &points, const CRenderer2DFiller &filler)
 
   uint num_xy = points.size();
 
-  if (anti_alias_) {
+  if (antiAlias_) {
     rpoints.resize(num_xy);
 
     for (uint i = 0; i < num_xy; ++i)
@@ -1699,7 +1697,7 @@ fillFilledPolygon(const PointList &points, const CRenderer2DFiller &filler)
 
     Filler pfiller(this, filler);
 
-    pixel_renderer_->fillFilledAAPolygon(rpoints, pfiller);
+    pixelRenderer_->fillFilledAAPolygon(rpoints, pfiller);
   }
   else {
     ipoints.resize(num_xy);
@@ -1709,7 +1707,7 @@ fillFilledPolygon(const PointList &points, const CRenderer2DFiller &filler)
 
     Filler pfiller(this, filler);
 
-    pixel_renderer_->fillFilledPolygon(ipoints, pfiller);
+    pixelRenderer_->fillFilledPolygon(ipoints, pfiller);
   }
 }
 
@@ -1719,7 +1717,7 @@ fillBrushPolygon(const IPointList &ipoints, const CBrush &brush)
 {
   switch (brush.getStyle()) {
     case CBRUSH_STYLE_SOLID:
-      pixel_renderer_->fillPolygon(ipoints);
+      pixelRenderer_->fillPolygon(ipoints);
       break;
     case CBRUSH_STYLE_PATTERN:
       fillPatternPolygon(ipoints, brush.getPattern());
@@ -1728,9 +1726,7 @@ fillBrushPolygon(const IPointList &ipoints, const CBrush &brush)
       fillGradientPolygon(ipoints, brush_.getGradient());
       break;
     case CBRUSH_STYLE_TEXTURE:
-#ifdef CBRUSH_IMAGE
       fillImagePolygon(ipoints, brush_.getTexture());
-#endif
       break;
     default:
       break;
@@ -1771,7 +1767,7 @@ void
 CRenderer2D::
 fillGradientPolygon(const IPointList &ipoints, CRefPtr<CGenGradient> gradient)
 {
-  pixel_renderer_->fillGradientPolygon(ipoints, gradient);
+  pixelRenderer_->fillGradientPolygon(ipoints, gradient);
 }
 
 void
@@ -1794,7 +1790,7 @@ void
 CRenderer2D::
 fillImagePolygon(const IPointList &ipoints, CImagePtr image)
 {
-  pixel_renderer_->fillImagePolygon(ipoints, image);
+  pixelRenderer_->fillImagePolygon(ipoints, image);
 }
 
 void
@@ -2221,14 +2217,14 @@ lineToPolygon(const CPoint2D &p1, const CPoint2D &p2, PointList &points)
 bool
 CRenderer2D::
 image(char *image_data, int width, int height, int bits_per_sample, CMatrix2D *matrix,
-      CMatrix2D *ctm_matrix, double *decode_array, int decode_size)
+      CMatrix2D *ctmMatrix, double *decode_array, int decode_size)
 {
   if (! enabled_)
     return true;
 
 #ifdef DEBUG
   debugPrintImage(image_data, width, height, bits_per_sample,
-                  matrix, ctm_matrix, decode_array, decode_size);
+                  matrix, ctmMatrix, decode_array, decode_size);
 #endif
 
   setTransform(false);
@@ -2291,8 +2287,8 @@ image(char *image_data, int width, int height, int bits_per_sample, CMatrix2D *m
 
       double x12, y12, x22, y22;
 
-      ctm_matrix->multiplyPoint(x11, y11, &x12, &y12);
-      ctm_matrix->multiplyPoint(x21, y21, &x22, &y22);
+      ctmMatrix->multiplyPoint(x11, y11, &x12, &y12);
+      ctmMatrix->multiplyPoint(x21, y21, &x22, &y22);
 
       PointList points;
 
@@ -2360,13 +2356,13 @@ debugPrintImage(char *image_data, int width, int height, int bits_per_sample,
 bool
 CRenderer2D::
 imageMask(char *image_data, int width, int height, int polarity,
-          CMatrix2D *matrix, CMatrix2D *ctm_matrix)
+          CMatrix2D *matrix, CMatrix2D *ctmMatrix)
 {
   if (! enabled_)
     return true;
 
 #ifdef DEBUG
-  debugPrintImageMask(image_data, width, height, polarity, matrix, ctm_matrix);
+  debugPrintImageMask(image_data, width, height, polarity, matrix, ctmMatrix);
 #endif
 
   setTransform(false);
@@ -2414,8 +2410,8 @@ imageMask(char *image_data, int width, int height, int polarity,
 
       double x12, y12, x22, y22;
 
-      ctm_matrix->multiplyPoint(x11, y11, &x12, &y12);
-      ctm_matrix->multiplyPoint(x21, y21, &x22, &y22);
+      ctmMatrix->multiplyPoint(x11, y11, &x12, &y12);
+      ctmMatrix->multiplyPoint(x21, y21, &x22, &y22);
 
       PointList points;
 
@@ -2500,9 +2496,9 @@ joinLines(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3)
   if (! getLineDash().isDraw())
     return;
 
-  bool save_anti_alias = anti_alias_;
+  bool save_anti_alias = antiAlias_;
 
-  anti_alias_ = false;
+  antiAlias_ = false;
 
   if      (getLineJoin() == LINE_JOIN_TYPE_MITRE)
     mitreJoinLines(p1, p2, p3);
@@ -2511,7 +2507,7 @@ joinLines(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3)
   else
     bevelJoinLines(p1, p2, p3);
 
-  anti_alias_ = save_anti_alias;
+  antiAlias_ = save_anti_alias;
 }
 
 void
@@ -2963,14 +2959,14 @@ void
 CRenderer2D::
 clear()
 {
-  pixel_renderer_->clear();
+  pixelRenderer_->clear();
 }
 
 void
 CRenderer2D::
 fill()
 {
-  pixel_renderer_->fill();
+  pixelRenderer_->fill();
 }
 
 //---------
@@ -3007,7 +3003,7 @@ drawText(const CPoint2D &point, const std::string &text)
 
   transformPointToPixel(point, p);
 
-  pixel_renderer_->drawString(p, text);
+  pixelRenderer_->drawString(p, text);
 }
 
 void
@@ -3024,7 +3020,7 @@ drawTextInRect(const CBBox2D &rect, const std::string &text)
 
   CIBBox2D irect(p1, p2);
 
-  pixel_renderer_->drawStringInRect(irect, text);
+  pixelRenderer_->drawStringInRect(irect, text);
 }
 
 void
@@ -3038,7 +3034,7 @@ fillText(const CPoint2D &point, const std::string &text)
 
   transformPointToPixel(point, p);
 
-  pixel_renderer_->drawString(p, text);
+  pixelRenderer_->drawString(p, text);
 }
 
 void
@@ -3061,14 +3057,14 @@ bool
 CRenderer2D::
 isAntiAlias() const
 {
-  return anti_alias_;
+  return antiAlias_;
 }
 
 void
 CRenderer2D::
 setAntiAlias(bool flag)
 {
-  anti_alias_ = flag;
+  antiAlias_ = flag;
 }
 
 //-------
@@ -3077,7 +3073,7 @@ void
 CRenderer2D::
 setTransform(bool flag)
 {
-  transform_flag_ = flag;
+  transformFlag_ = flag;
 }
 
 void
@@ -3112,7 +3108,7 @@ transformPointToPixel(const CPoint2D &w, CPoint2D &p) const
 {
   CPoint2D tw;
 
-  if (transform_flag_)
+  if (transformFlag_)
     transformPoint1(w, tw);
   else
     tw = w;
@@ -3140,7 +3136,7 @@ transformPixelToPoint(const CPoint2D &p, CPoint2D &w) const
 
   pixelToWindow(p, tp);
 
-  if (transform_flag_)
+  if (transformFlag_)
     untransformPoint1(tp, w);
   else
     w = tp;
@@ -3154,7 +3150,7 @@ transformPixelToPoint(const CIPoint2D &p, CPoint2D &w) const
 
   pixelToWindow(p, tp);
 
-  if (transform_flag_)
+  if (transformFlag_)
     untransformPoint1(tp, w);
   else
     w = tp;
@@ -3164,7 +3160,7 @@ void
 CRenderer2D::
 transformPoint(const CPoint2D &p1, CPoint2D &p2) const
 {
-  if (transform_flag_)
+  if (transformFlag_)
     transformPoint1(p1, p2);
   else
     p2 = p1;
@@ -3174,14 +3170,14 @@ void
 CRenderer2D::
 transformPoint1(const CPoint2D &p1, CPoint2D &p2) const
 {
-  view_matrix_.multiplyPoint(p1.x, p1.y, &p2.x, &p2.y);
+  viewMatrix_.multiplyPoint(p1.x, p1.y, &p2.x, &p2.y);
 }
 
 void
 CRenderer2D::
 untransformPoint(const CPoint2D &p1, CPoint2D &p2) const
 {
-  if (transform_flag_)
+  if (transformFlag_)
     untransformPoint1(p1, p2);
   else
     p2 = p1;
@@ -3191,7 +3187,7 @@ void
 CRenderer2D::
 untransformPoint1(const CPoint2D &p1, CPoint2D &p2) const
 {
-  view_imatrix_.multiplyPoint(p1.x, p1.y, &p2.x, &p2.y);
+  viewIMatrix_.multiplyPoint(p1.x, p1.y, &p2.x, &p2.y);
 }
 
 void
@@ -3275,21 +3271,21 @@ void
 CRenderer2D::
 windowToPixel(const CPoint2D &w, CPoint2D &p) const
 {
-  display_range_.windowToPixel(w.x, w.y, &p.x, &p.y);
+  displayRange_.windowToPixel(w.x, w.y, &p.x, &p.y);
 }
 
 void
 CRenderer2D::
 pixelToWindow(const CIPoint2D &p, CPoint2D &w) const
 {
-  display_range_.pixelToWindow(p.x, p.y, &w.x, &w.y);
+  displayRange_.pixelToWindow(p.x, p.y, &w.x, &w.y);
 }
 
 void
 CRenderer2D::
 pixelToWindow(const CPoint2D &p, CPoint2D &w) const
 {
-  display_range_.pixelToWindow(p.x, p.y, &w.x, &w.y);
+  displayRange_.pixelToWindow(p.x, p.y, &w.x, &w.y);
 }
 
 //-----------
@@ -3302,7 +3298,7 @@ drawImage(const CPoint2D &point, CImagePtr image)
 
   transformPointToPixel(point, point1);
 
-  pixel_renderer_->drawImage(point1, image);
+  pixelRenderer_->drawImage(point1, image);
 }
 
 void
@@ -3313,7 +3309,7 @@ drawAlphaImage(const CPoint2D &point, CImagePtr image)
 
   transformPointToPixel(point, point1);
 
-  pixel_renderer_->drawAlphaImage(point1, image);
+  pixelRenderer_->drawAlphaImage(point1, image);
 }
 
 void
@@ -3325,7 +3321,7 @@ drawImageInBox(const CBBox2D &bbox, CImagePtr image)
   transformPointToPixel(bbox.getMin(), p1);
   transformPointToPixel(bbox.getMax(), p2);
 
-  pixel_renderer_->drawImageInBox(CIBBox2D(p1, p2), image);
+  pixelRenderer_->drawImageInBox(CIBBox2D(p1, p2), image);
 }
 
 void
@@ -3337,7 +3333,7 @@ drawAlphaImageInBox(const CBBox2D &bbox, CImagePtr image)
   transformPointToPixel(bbox.getMin(), p1);
   transformPointToPixel(bbox.getMax(), p2);
 
-  pixel_renderer_->drawAlphaImageInBox(CIBBox2D(p1, p2), image);
+  pixelRenderer_->drawAlphaImageInBox(CIBBox2D(p1, p2), image);
 }
 
 void
@@ -3442,7 +3438,7 @@ void
 CRenderer2D::
 drawPoint(const CPoint2D &point)
 {
-  if (anti_alias_) {
+  if (antiAlias_) {
     std::vector<CPoint2D> points;
 
     points.resize(4);
@@ -3456,14 +3452,14 @@ drawPoint(const CPoint2D &point)
     points[3].x = points[0].x;
     points[3].y = points[2].y;
 
-    pixel_renderer_->fillAAPolygon(points);
+    pixelRenderer_->fillAAPolygon(points);
   }
   else {
     CIPoint2D point1;
 
     transformPointToPixel(point, point1);
 
-    pixel_renderer_->drawPoint(point1);
+    pixelRenderer_->drawPoint(point1);
   }
 }
 
@@ -3475,7 +3471,7 @@ drawSymbol(const CPoint2D &point, CSymbol2D::Type symbol)
 
   transformPointToPixel(point, point1);
 
-  pixel_renderer_->drawSymbol(point1, symbol);
+  pixelRenderer_->drawSymbol(point1, symbol);
 }
 
 //----------
@@ -3484,22 +3480,22 @@ void
 CRenderer2D::
 setFont(CFontPtr font)
 {
-  if (pixel_renderer_)
-    pixel_renderer_->setFont(font);
+  if (pixelRenderer_)
+    pixelRenderer_->setFont(font);
 }
 
 void
 CRenderer2D::
 getFont(CFontPtr &font) const
 {
-  pixel_renderer_->getFont(font);
+  pixelRenderer_->getFont(font);
 }
 
 double
 CRenderer2D::
 getCharWidth()
 {
-  int width = pixel_renderer_->getCharWidth();
+  int width = pixelRenderer_->getCharWidth();
 
   CPoint2D p;
 
@@ -3512,7 +3508,7 @@ double
 CRenderer2D::
 getCharAscent()
 {
-  int ascent = pixel_renderer_->getCharAscent();
+  int ascent = pixelRenderer_->getCharAscent();
 
   CPoint2D p1, p2;
 
@@ -3526,7 +3522,7 @@ double
 CRenderer2D::
 getCharDescent()
 {
-  int descent = pixel_renderer_->getCharDescent();
+  int descent = pixelRenderer_->getCharDescent();
 
   CPoint2D p1, p2;
 
@@ -3540,7 +3536,7 @@ double
 CRenderer2D::
 getCharHeight()
 {
-  int height = pixel_renderer_->getCharHeight();
+  int height = pixelRenderer_->getCharHeight();
 
   CPoint2D p1, p2;
 
@@ -3554,7 +3550,7 @@ double
 CRenderer2D::
 getStringWidth(const std::string &str)
 {
-  int width = pixel_renderer_->getStringWidth(str);
+  int width = pixelRenderer_->getStringWidth(str);
 
   CPoint2D p;
 
@@ -3569,10 +3565,10 @@ void
 CRenderer2D::
 initClip()
 {
-  if (! enabled_ || pixel_renderer_ == 0)
+  if (! enabled_ || ! pixelRenderer_)
     return;
 
-  pixel_renderer_->resetClip();
+  pixelRenderer_->resetClip();
 }
 
 //----------
@@ -3842,11 +3838,11 @@ CPath2D *
 CRenderer2D::
 createPath() const
 {
-  CRenderer2D *th = const_cast<CRenderer2D *>(this);
+  auto *th = const_cast<CRenderer2D *>(this);
 
-  CPath2D *path = new CPath2D;
+  auto *path = new CPath2D;
 
-  CPath2DRenderer *renderer = th->createPathRenderer();
+  auto *renderer = th->createPathRenderer();
 
   if (renderer)
     path->setRenderer(renderer);
@@ -3867,7 +3863,7 @@ CPath2DRenderer *
 CRenderer2D::
 createPathRenderer() const
 {
-  return 0;
+  return nullptr;
 }
 
 void

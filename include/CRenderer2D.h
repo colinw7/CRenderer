@@ -32,25 +32,25 @@ class CRendererRegion2D;
 
 class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
  public:
-  typedef std::vector<CPoint2D>   PointList;
-  typedef std::vector<double>     RealList;
-  typedef std::vector<CIPoint2D>  IPointList;
-  typedef std::vector<CPoint2D>   RPointList;
-  typedef std::vector<PointList>  PointListList;
-  typedef std::vector<CPath2D *>  PathStack;
-  typedef std::vector<C3Bezier2D> BezierList;
+  using PointList     = std::vector<CPoint2D>;
+  using RealList      = std::vector<double>;
+  using IPointList    = std::vector<CIPoint2D>;
+  using RPointList    = std::vector<CPoint2D>;
+  using PointListList = std::vector<PointList>;
+  using PathStack     = std::vector<CPath2D *>;
+  using BezierList    = std::vector<C3Bezier2D>;
 
  protected:
   CRenderer2D();
 
  public:
-  virtual ~CRenderer2D();
-
-  CRenderer2D(CPixelRenderer *renderer);
+  explicit CRenderer2D(CPixelRenderer *renderer);
 
   CRenderer2D(const CRenderer2D &renderer);
 
-  const CRenderer2D &operator=(const CRenderer2D &renderer);
+  virtual ~CRenderer2D();
+
+  CRenderer2D &operator=(const CRenderer2D &renderer);
 
   virtual CRenderer2D *dup() const = 0;
 
@@ -60,7 +60,7 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
   void setPixelRenderer(CPixelRenderer *renderer);
 
   bool getContentsChanged();
-  void setContentsChanged(bool flag = true);
+  void setContentsChanged(bool flag=true);
 
   uint getPixelWidth () const;
   uint getPixelHeight() const;
@@ -77,8 +77,8 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
 
   virtual void unapplyPixelOffset(CIPoint2D &point) const;
 
-  const CMatrix2D *getViewMatrix () const { return &view_matrix_ ; }
-  const CMatrix2D *getIViewMatrix() const { return &view_imatrix_; }
+  const CMatrix2D *getViewMatrix () const { return &viewMatrix_ ; }
+  const CMatrix2D *getIViewMatrix() const { return &viewIMatrix_; }
 
   virtual void setViewMatrix(const CMatrix2D &view_matrix);
   virtual void unsetViewMatrix();
@@ -221,6 +221,8 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
   //------
 
  protected:
+  void init();
+
   void initPath() const;
 
  public:
@@ -615,23 +617,24 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
   using CPath2DRenderer::untransformPoint;
 
  protected:
-  typedef std::unique_ptr<CPath2D>           PathP;
-  typedef std::unique_ptr<CRendererRegion2D> RendererRegion2DP;
+  using PathP             = std::unique_ptr<CPath2D>;
+  using RendererRegion2DP = std::unique_ptr<CRendererRegion2D>;
+  using PixelRendererP    = std::shared_ptr<CPixelRenderer>;
 
-  bool               enabled_ { false };
-  CPixelRenderer*    pixel_renderer_ { 0 };
-  CDisplayRange2D    display_range_;
-  CMatrix2D          view_matrix_;
-  CMatrix2D          view_imatrix_;
-  bool               transform_flag_ { false };
-  bool               anti_alias_ { false };
-  CPen               pen_;
-  CBrush             brush_;
-  PathP              path_;
-  PathStack          path_stack_;
-  RendererRegion2DP  region_;
-  CSymbol2D::Type    symbol_ { CSymbol2D::Type::NONE };
-  CPixelRendererPath ppath_;
+  bool                enabled_       { false };
+  PixelRendererP      pixelRenderer_;
+  CDisplayRange2D     displayRange_;
+  CMatrix2D           viewMatrix_;
+  CMatrix2D           viewIMatrix_;
+  bool                transformFlag_ { false };
+  bool                antiAlias_     { false };
+  CPen                pen_;
+  CBrush              brush_;
+  CSymbol2D::Type     symbol_        { CSymbol2D::Type::NONE };
+  PathP               path_;
+  PathStack           pathStack_;
+  RendererRegion2DP   region_;
+  CPixelRendererPath* ppath_         { nullptr };
 };
 
 #endif
