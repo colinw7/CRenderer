@@ -626,7 +626,7 @@ fillGradientPolygon(const PointList &points, CRefPtr<CGenGradient> gradient)
 
   QTransform transform;
 
-  bool flip_y = display_range_.getFlipY();
+  bool flip_y = displayRange_.getFlipY();
 
   if (! flip_y) {
     transform = getQPainter()->worldTransform();
@@ -671,7 +671,7 @@ void
 CQRenderer2D::
 drawText(const CPoint2D &point, const std::string &text)
 {
-  bool flip_y = display_range_.getFlipY();
+  bool flip_y = displayRange_.getFlipY();
 
   flip_y = true;
 
@@ -704,7 +704,7 @@ void
 CQRenderer2D::
 drawTextInRect(const CBBox2D &rect, const std::string &text)
 {
-  bool flip_y = display_range_.getFlipY();
+  bool flip_y = displayRange_.getFlipY();
 
   CQFont *qfont = getQFont();
 
@@ -1031,7 +1031,7 @@ drawImageInBox(const CBBox2D &bbox, CImagePtr image)
 {
   QImage &qimage = image.cast<CQImage>()->getQImage();
 
-  bool flip_y = display_range_.getFlipY();
+  bool flip_y = displayRange_.getFlipY();
 
   if (! flip_y) {
     QTransform transform = getQPainter()->worldTransform();
@@ -1060,7 +1060,7 @@ drawAlphaImageInBox(const CBBox2D &bbox, CImagePtr image)
 {
   QImage &qimage = image.cast<CQImage>()->getQImage();
 
-  bool flip_y = display_range_.getFlipY();
+  bool flip_y = displayRange_.getFlipY();
 
   if (! flip_y) {
     QTransform transform = getQPainter()->worldTransform();

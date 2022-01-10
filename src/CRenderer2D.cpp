@@ -110,11 +110,11 @@ operator=(const CRenderer2D &renderer)
   symbol_        = renderer.symbol_;
 
   path_   = nullptr;
-  region_ = nullptr;
+  region_ = RendererRegion2DP();
 
   pathStack_.clear();
 
-  ppath_ = nullptr;
+  ppath_ = PixelRendererPathP();
 
   return *this;
 }
@@ -123,7 +123,7 @@ void
 CRenderer2D::
 setPixelRenderer(CPixelRenderer *renderer)
 {
-  pixelRenderer_ = PixelRendererP(renderer);
+  pixelRenderer_ = renderer;
 
   resetDataRange();
 }
@@ -132,7 +132,7 @@ CPixelRenderer *
 CRenderer2D::
 getPixelRenderer() const
 {
-  return pixelRenderer_.get();
+  return pixelRenderer_;
 }
 
 bool
@@ -619,7 +619,7 @@ CRenderer2D::
 initPath() const
 {
   if (! getPath()) {
-    CRenderer2D *th = const_cast<CRenderer2D *>(this);
+    auto *th = const_cast<CRenderer2D *>(this);
 
     th->path_ = PathP(createPath());
   }
@@ -1010,7 +1010,7 @@ addPolygon(const RPointList &points)
     return;
 
   if (! ppath_)
-    ppath_ = new CPixelRendererPath;
+    ppath_ = PixelRendererPathP(new CPixelRendererPath);
 
   uint num_points = points.size();
 

@@ -617,24 +617,24 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
   using CPath2DRenderer::untransformPoint;
 
  protected:
-  using PathP             = std::unique_ptr<CPath2D>;
-  using RendererRegion2DP = std::unique_ptr<CRendererRegion2D>;
-  using PixelRendererP    = std::shared_ptr<CPixelRenderer>;
+  using PathP              = std::unique_ptr<CPath2D>;
+  using RendererRegion2DP  = std::unique_ptr<CRendererRegion2D>;
+  using PixelRendererPathP = std::unique_ptr<CPixelRendererPath>;
 
-  bool                enabled_       { false };
-  PixelRendererP      pixelRenderer_;
-  CDisplayRange2D     displayRange_;
-  CMatrix2D           viewMatrix_;
-  CMatrix2D           viewIMatrix_;
-  bool                transformFlag_ { false };
-  bool                antiAlias_     { false };
-  CPen                pen_;
-  CBrush              brush_;
-  CSymbol2D::Type     symbol_        { CSymbol2D::Type::NONE };
-  PathP               path_;
-  PathStack           pathStack_;
-  RendererRegion2DP   region_;
-  CPixelRendererPath* ppath_         { nullptr };
+  bool               enabled_       { false };
+  CPixelRenderer*    pixelRenderer_ { nullptr };
+  CDisplayRange2D    displayRange_;
+  CMatrix2D          viewMatrix_;
+  CMatrix2D          viewIMatrix_;
+  bool               transformFlag_ { false };
+  bool               antiAlias_     { false };
+  CPen               pen_;
+  CBrush             brush_;
+  CSymbol2D::Type    symbol_        { CSymbol2D::Type::NONE };
+  PathP              path_;
+  PathStack          pathStack_;
+  RendererRegion2DP  region_;
+  PixelRendererPathP ppath_;
 };
 
 #endif

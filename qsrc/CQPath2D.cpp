@@ -126,7 +126,7 @@ void
 CQPath2D::
 text(const std::string &text, CFontPtr font)
 {
-  CQFont *qfont = font.cast<CQFont>();
+  auto *qfont = font.cast<CQFont>();
 
   CPoint2D point;
 
@@ -352,4 +352,111 @@ transform(const CMatrix2D &m)
   QPainterPath path = CQUtil::toQTransform(m).map(*path_);
 
   *path_ = path;
+}
+
+void
+CQPath2D::
+visit(PathVisitor &visitor) const
+{
+  if (! path_) return;
+
+  visitor.n = path_->elementCount();
+
+  visitor.init();
+
+  for (visitor.i = 0; visitor.i < visitor.n; ++visitor.i) {
+    const auto &e = path_->elementAt(visitor.i);
+
+    if      (e.isMoveTo()) {
+      CPoint2D p(e.x, e.y);
+
+      if (visitor.i < visitor.n - 1) {
+        auto e1 = path_->elementAt(visitor.i + 1);
+
+        visitor.nextP = CPoint2D(e1.x, e1.y);
+      }
+      else
+        visitor.nextP = p;
+
+      visitor.moveTo(p);
+
+      visitor.lastP = p;
+    }
+    else if (e.isLineTo()) {
+      CPoint2D p(e.x, e.y);
+
+      if (visitor.i < visitor.n - 1) {
+        auto e1 = path_->elementAt(visitor.i + 1);
+
+        visitor.nextP = CPoint2D(e1.x, e1.y);
+      }
+      else
+        visitor.nextP = p;
+
+      visitor.lineTo(p);
+
+      visitor.lastP = p;
+    }
+    else if (e.isCurveTo()) {
+      CPoint2D p(e.x, e.y);
+
+      CPoint2D p1, p2;
+
+      QPainterPath::ElementType e1t { QPainterPath::MoveToElement };
+      QPainterPath::ElementType e2t { QPainterPath::MoveToElement };
+
+      if (visitor.i < visitor.n - 1) {
+        auto e1 = path_->elementAt(visitor.i + 1);
+
+        e1t = e1.type;
+
+        p1 = CPoint2D(e1.x, e1.y);
+      }
+
+      if (visitor.i < visitor.n - 2) {
+        auto e2 = path_->elementAt(visitor.i + 2);
+
+        e2t = e2.type;
+
+        p2 = CPoint2D(e2.x, e2.y);
+      }
+
+      if (e1t == QPainterPath::CurveToDataElement) {
+        ++visitor.i;
+
+        if (e2t == QPainterPath::CurveToDataElement) {
+          ++visitor.i;
+
+          if (visitor.i < visitor.n - 1) {
+            auto e3 = path_->elementAt(visitor.i + 1);
+
+            visitor.nextP = CPoint2D(e3.x, e3.y);
+          }
+          else
+            visitor.nextP = p;
+
+          visitor.curveTo(p, p1, p2);
+
+          visitor.lastP = p;
+        }
+        else {
+          if (visitor.i < visitor.n - 1) {
+            auto e3 = path_->elementAt(visitor.i + 1);
+
+            visitor.nextP = CPoint2D(e3.x, e3.y);
+          }
+          else
+            visitor.nextP = p;
+
+          visitor.quadTo(p, p1);
+
+          visitor.lastP = p;
+        }
+      }
+    }
+    else
+      assert(false);
+  }
+
+  visitor.term();
 }

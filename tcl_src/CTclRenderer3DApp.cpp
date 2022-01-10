@@ -17,7 +17,7 @@ class CTclRenderer3DApp : public CTclApp {
  protected:
   void addCommands();
 
-  string getTclStr();
+  std::string getTclStr();
 };
 
 int
@@ -46,7 +46,7 @@ addCommands()
   cmd_ = new CTclRenderer3DCmd(this);
 }
 
-string
+std::string
 CTclRenderer3DApp::
 getTclStr()
 {

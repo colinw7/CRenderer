@@ -8,6 +8,30 @@ class QPainterPath;
 
 class CQPath2D : public CPath2D {
  public:
+  // path visitor
+  class PathVisitor {
+   public:
+    PathVisitor() { }
+
+   ~PathVisitor() { }
+
+    virtual void init() { }
+    virtual void term() { }
+
+    virtual void moveTo (const CPoint2D &p) = 0;
+    virtual void lineTo (const CPoint2D &p) = 0;
+    virtual void quadTo (const CPoint2D &p1, const CPoint2D &p2) = 0;
+    virtual void curveTo(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3) = 0;
+
+   public:
+    int      i { -1 };
+    int      n { 0 };
+    CPoint2D lastP;
+    CPoint2D nextP;
+  };
+
+  //---
+
   CQPath2D();
 
   CQPath2D(const CQPath2D &path);
@@ -56,6 +80,8 @@ class CQPath2D : public CPath2D {
   void bbox(CBBox2D &bbox) const override;
 
   void transform(const CMatrix2D &m) override;
+
+  void visit(PathVisitor &visitor) const;
 
  private:
   using CPath2D::stroke;
