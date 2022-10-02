@@ -25,7 +25,7 @@ CSymbol2D.cpp \
 OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SRC))
 
 CPPFLAGS = \
--std=c++14 \
+-std=c++17 \
 -DCBRUSH_IMAGE \
 -I. -I$(INC_DIR) \
 -I../../CImageLib/include \
