@@ -33,7 +33,7 @@ class CPixelRendererDefFiller : public CPixelRendererFiller {
  public:
   CPixelRendererDefFiller(CRGBA &rgba) : rgba_(rgba) { }
 
-  void getColor(const CIPoint2D &, CRGBA &rgba) const {
+  void getColor(const CIPoint2D &, CRGBA &rgba) const override {
     rgba = rgba_;
   }
 };
@@ -237,9 +237,9 @@ class CPixelRenderer {
                                          CBrushPattern pattern);
 
   virtual void fillGradientPolygon(const IPointList &ipoints,
-                                   CRefPtr<CGenGradient> gradient);
+                                   std::shared_ptr<CGenGradient> gradient);
   virtual void fillGradientClippedPolygon(const IPointList &ipoints,
-                                          CRefPtr<CGenGradient> gradient);
+                                          std::shared_ptr<CGenGradient> gradient);
 
   static CImagePtr getPatternImage(CBrushPattern pattern);
 
@@ -459,11 +459,11 @@ class CPixelRendererBresenham : public CBresenham {
    renderer_(renderer), rgba_(0,0,0) {
   }
 
-  void drawPoint(int x, int y) {
+  void drawPoint(int x, int y) override {
     renderer_->drawClippedPoint(CIPoint2D(x, y));
   }
 
-  const CILineDash &getLineDash() const {
+  const CILineDash &getLineDash() const override {
     return renderer_->getLineDash();
   }
 

@@ -8,21 +8,21 @@
 #include <CMathRound.h>
 
 #ifndef ROUND
-# define ROUND(x) ((int)((x) + 0.5))
+# define ROUND(x) (int((x) + 0.5))
 #endif
 
 class GenGradientPixelFill : public CPixelRendererFiller {
  private:
-   CRefPtr<CGenGradient> gradient_;
-   int                   x1_, y1_, x2_, y2_;
+   std::shared_ptr<CGenGradient> gradient_;
+   int                           x1_, y1_, x2_, y2_;
 
  public:
-  GenGradientPixelFill(CRefPtr<CGenGradient> gradient, int x1, int y1, int x2, int y2) :
+  GenGradientPixelFill(std::shared_ptr<CGenGradient> gradient, int x1, int y1, int x2, int y2) :
    gradient_(gradient), x1_(x1), y1_(y1), x2_(x2), y2_(y2) {
     gradient_->init(1, 1);
   }
 
-  void getColor(const CIPoint2D &point, CRGBA &rgba) const {
+  void getColor(const CIPoint2D &point, CRGBA &rgba) const override {
     double xt = double(point.x - x1_)/(x2_ - x1_);
     double yt = double(point.y - y1_)/(y2_ - y1_);
 
@@ -188,8 +188,8 @@ void
 CPixelRenderer::
 fill()
 {
-  int iwidth  = getWidth ();
-  int iheight = getHeight();
+  int iwidth  = int(getWidth ());
+  int iheight = int(getHeight());
 
   for (int y = 0; y < iheight; ++y)
     drawClippedHLine(0, iwidth - 1, y);
@@ -203,8 +203,8 @@ drawPoint(const CIPoint2D &point)
 
   applyOffset(point1);
 
-  int iwidth  = getWidth ();
-  int iheight = getHeight();
+  int iwidth  = int(getWidth ());
+  int iheight = int(getHeight());
 
   if (point1.x >= 0 && point1.x < iwidth && point1.y >= 0 && point1.y < iheight)
     drawClippedPoint(point1);
@@ -214,7 +214,7 @@ void
 CPixelRenderer::
 drawSymbol(const CIPoint2D &point, CSymbol2D::Type symbol)
 {
-  int size = getSymbolSize();
+  int size = int(getSymbolSize());
 
   const auto &psymbol = CSymbol2DMgr::getSymbol(symbol);
 
@@ -229,7 +229,7 @@ drawSymbol(const CIPoint2D &point, CSymbol2D::Type symbol)
     auto p1 = p + start*size;
     auto p2 = p + end  *size;
 
-    drawLine(CIPoint2D(p1.x, p1.y), CIPoint2D(p2.x, p2.y));
+    drawLine(CIPoint2D(int(p1.x), int(p1.y)), CIPoint2D(int(p2.x), int(p2.y)));
   }
 }
 
@@ -368,8 +368,8 @@ void
 CPixelRenderer::
 drawLine1(const CIPoint2D &point1, const CIPoint2D &point2)
 {
-  int iwidth  = getWidth ();
-  int iheight = getHeight();
+  int iwidth  = int(getWidth ());
+  int iheight = int(getHeight());
 
   CBBox2D bbox(0, 0, iwidth - 1, iheight - 1);
 
@@ -381,7 +381,7 @@ drawLine1(const CIPoint2D &point1, const CIPoint2D &point2)
     auto p1 = line1.start();
     auto p2 = line1.end  ();
 
-    drawClippedLine(CIPoint2D(p1.x, p1.y), CIPoint2D(p2.x, p2.y));
+    drawClippedLine(CIPoint2D(int(p1.x), int(p1.y)), CIPoint2D(int(p2.x), int(p2.y)));
   }
 }
 
@@ -390,8 +390,8 @@ CPixelRenderer::
 drawFilledLine1(const CIPoint2D &point1, const CIPoint2D &point2,
                 const CPixelRendererFiller &filler)
 {
-  int iwidth  = getWidth ();
-  int iheight = getHeight();
+  int iwidth  = int(getWidth ());
+  int iheight = int(getHeight());
 
   CBBox2D bbox(0, 0, iwidth - 1, iheight - 1);
 
@@ -403,7 +403,7 @@ drawFilledLine1(const CIPoint2D &point1, const CIPoint2D &point2,
     auto p1 = line1.start();
     auto p2 = line1.end  ();
 
-    drawFilledClippedLine(CIPoint2D(p1.x, p1.y), CIPoint2D(p2.x, p2.y), filler);
+    drawFilledClippedLine(CIPoint2D(int(p1.x), int(p1.y)), CIPoint2D(int(p2.x), int(p2.y)), filler);
   }
 }
 
@@ -431,7 +431,7 @@ drawFilledClippedLine(const CIPoint2D &point1, const CIPoint2D &point2,
      renderer_(renderer), filler_(filler) {
     }
 
-    void drawPoint(int x, int y) {
+    void drawPoint(int x, int y) override {
       CRGBA rgba;
 
       filler_.getColor(CIPoint2D(x, y), rgba);
@@ -441,7 +441,7 @@ drawFilledClippedLine(const CIPoint2D &point1, const CIPoint2D &point2,
       renderer_->drawClippedPoint(CIPoint2D(x, y));
     }
 
-    const CILineDash &getLineDash() const {
+    const CILineDash &getLineDash() const override {
       return renderer_->getLineDash();
     }
   };
@@ -531,8 +531,8 @@ fillRectangle(const CIBBox2D &bbox)
   CIPoint2D point1(bbox.getXMin(), bbox.getYMin());
   CIPoint2D point2(bbox.getXMax(), bbox.getYMax());
 
-  int iwidth  = getWidth ();
-  int iheight = getHeight();
+  int iwidth  = int(getWidth ());
+  int iheight = int(getHeight());
 
   if (point2.x < 0 || point2.y < 0 || point1.x >= iwidth || point1.y >= iheight) return;
 
@@ -599,12 +599,10 @@ CPixelRenderer::
 drawPolygon(const IPointList &points)
 {
   if (! clip_.isEmpty()) {
-    uint num_points = points.size();
+    auto num_points = points.size();
+    if (num_points == 0) return;
 
-    if (num_points == 0)
-      return;
-
-    uint i1 = num_points - 1;
+    uint i1 = uint(num_points - 1);
     uint i2 = 0;
 
     for ( ; i2 < num_points; i1 = i2++)
@@ -618,12 +616,10 @@ void
 CPixelRenderer::
 drawClippedPolygon(const IPointList &points)
 {
-  uint num_points = points.size();
+  auto num_points = points.size();
+  if (num_points == 0) return;
 
-  if (num_points == 0)
-    return;
-
-  uint i1 = num_points - 1;
+  uint i1 = uint(num_points - 1);
   uint i2 = 0;
 
   for ( ; i2 < num_points; i1 = i2++)
@@ -635,12 +631,10 @@ CPixelRenderer::
 fillPolygon(const IPointList &points)
 {
   if (! clip_.isEmpty()) {
-    uint num_points = points.size();
+    auto num_points = points.size();
+    if (num_points == 0) return;
 
-    if (num_points == 0)
-      return;
-
-    int ymin = getHeight();
+    int ymin = int(getHeight());
     int ymax = -1;
 
     for (uint i1 = 0; i1 < num_points; ++i1) {
@@ -649,15 +643,15 @@ fillPolygon(const IPointList &points)
     }
 
     ymin = std::max(ymin, 0);
-    ymax = std::min(ymax, (int) getHeight() - 1);
+    ymax = std::min(ymax, int(getHeight() - 1));
 
     for (int yy = ymin; yy <= ymax; ++yy) {
-      int xmin = getWidth();
+      int xmin = int(getWidth());
       int xmax = -1;
 
       int xx;
 
-      for (uint i1 = num_points - 1, i2 = 0; i2 < num_points; i1 = i2++) {
+      for (uint i1 = uint(num_points - 1), i2 = 0; i2 < num_points; i1 = i2++) {
         if ((points[i1].y < yy && points[i2].y < yy) ||
             (points[i1].y > yy && points[i2].y > yy) ||
             points[i1].y == points[i2].y)
@@ -679,7 +673,7 @@ fillPolygon(const IPointList &points)
       }
 
       xmin = std::max(xmin, 0);
-      xmax = std::min(xmax, (int) getWidth() - 1);
+      xmax = std::min(xmax, int(getWidth() - 1));
 
       if (xmin > xmax)
         continue;
@@ -695,12 +689,10 @@ void
 CPixelRenderer::
 fillClippedPolygon(const IPointList &points)
 {
-  uint num_points = points.size();
+  auto num_points = points.size();
+  if (num_points == 0) return;
 
-  if (num_points == 0)
-    return;
-
-  int ymin = getHeight();
+  int ymin = int(getHeight());
   int ymax = -1;
 
   for (uint i1 = 0; i1 < num_points; ++i1) {
@@ -709,15 +701,15 @@ fillClippedPolygon(const IPointList &points)
   }
 
   ymin = std::max(ymin, 0);
-  ymax = std::min(ymax, (int) getHeight() - 1);
+  ymax = std::min(ymax, int(getHeight() - 1));
 
   for (int yy = ymin; yy <= ymax; ++yy) {
-    int xmin = getWidth();
+    int xmin = int(getWidth());
     int xmax = -1;
 
     int xx;
 
-    for (uint i1 = num_points - 1, i2 = 0; i2 < num_points; i1 = i2++) {
+    for (uint i1 = uint(num_points - 1), i2 = 0; i2 < num_points; i1 = i2++) {
       if ((points[i1].y < yy && points[i2].y < yy) ||
           (points[i1].y > yy && points[i2].y > yy) ||
           points[i1].y == points[i2].y)
@@ -739,7 +731,7 @@ fillClippedPolygon(const IPointList &points)
     }
 
     xmin = std::max(xmin, 0);
-    xmax = std::min(xmax, (int) getWidth() - 1);
+    xmax = std::min(xmax, int(getWidth() - 1));
 
     if (xmin > xmax)
       continue;
@@ -753,12 +745,10 @@ CPixelRenderer::
 fillFilledPolygon(const IPointList &points, const CPixelRendererFiller &filler)
 {
   if (! clip_.isEmpty()) {
-    uint num_points = points.size();
+    auto num_points = points.size();
+    if (num_points == 0) return;
 
-    if (num_points == 0)
-      return;
-
-    int ymin = getHeight();
+    int ymin = int(getHeight());
     int ymax = -1;
 
     for (uint i1 = 0; i1 < num_points; ++i1) {
@@ -767,15 +757,15 @@ fillFilledPolygon(const IPointList &points, const CPixelRendererFiller &filler)
     }
 
     ymin = std::max(ymin, 0);
-    ymax = std::min(ymax, (int) getHeight() - 1);
+    ymax = std::min(ymax, int(getHeight() - 1));
 
     for (int yy = ymin; yy <= ymax; ++yy) {
-      int xmin = getWidth();
+      int xmin = int(getWidth());
       int xmax = -1;
 
       int xx;
 
-      for (uint i1 = num_points - 1, i2 = 0; i2 < num_points; i1 = i2++) {
+      for (uint i1 = uint(num_points - 1), i2 = 0; i2 < num_points; i1 = i2++) {
         if ((points[i1].y < yy && points[i2].y < yy) ||
             (points[i1].y > yy && points[i2].y > yy) ||
             points[i1].y == points[i2].y)
@@ -797,7 +787,7 @@ fillFilledPolygon(const IPointList &points, const CPixelRendererFiller &filler)
       }
 
       xmin = std::max(xmin, 0);
-      xmax = std::min(xmax, (int) getWidth() - 1);
+      xmax = std::min(xmax, int(getWidth() - 1));
 
       if (xmin > xmax)
         continue;
@@ -813,12 +803,10 @@ void
 CPixelRenderer::
 fillFilledClippedPolygon(const IPointList &points, const CPixelRendererFiller &filler)
 {
-  uint num_points = points.size();
+  auto num_points = points.size();
+  if (num_points == 0) return;
 
-  if (num_points == 0)
-    return;
-
-  int ymin = getHeight();
+  int ymin = int(getHeight());
   int ymax = -1;
 
   for (uint i1 = 0; i1 < num_points; ++i1) {
@@ -827,15 +815,15 @@ fillFilledClippedPolygon(const IPointList &points, const CPixelRendererFiller &f
   }
 
   ymin = std::max(ymin, 0);
-  ymax = std::min(ymax, (int) getHeight() - 1);
+  ymax = std::min(ymax, int(getHeight() - 1));
 
   for (int yy = ymin; yy <= ymax; ++yy) {
-    int xmin = getWidth();
+    int xmin = int(getWidth());
     int xmax = -1;
 
     int xx;
 
-    for (uint i1 = num_points - 1, i2 = 0; i2 < num_points; i1 = i2++) {
+    for (uint i1 = uint(num_points - 1), i2 = 0; i2 < num_points; i1 = i2++) {
       if ((points[i1].y < yy && points[i2].y < yy) ||
           (points[i1].y > yy && points[i2].y > yy) ||
           points[i1].y == points[i2].y)
@@ -857,7 +845,7 @@ fillFilledClippedPolygon(const IPointList &points, const CPixelRendererFiller &f
     }
 
     xmin = std::max(xmin, 0);
-    xmax = std::min(xmax, (int) getWidth() - 1);
+    xmax = std::min(xmax, int(getWidth() - 1));
 
     if (xmin > xmax)
       continue;
@@ -887,12 +875,10 @@ CPixelRenderer::
 fillImagePolygon(const IPointList &points, CImagePtr image)
 {
   if (! clip_.isEmpty()) {
-    uint num_points = points.size();
+    auto num_points = points.size();
+    if (num_points == 0) return;
 
-    if (num_points == 0)
-      return;
-
-    int ymin = getHeight();
+    int ymin = int(getHeight());
     int ymax = -1;
 
     for (uint i1 = 0; i1 < num_points; ++i1) {
@@ -901,15 +887,15 @@ fillImagePolygon(const IPointList &points, CImagePtr image)
     }
 
     ymin = std::max(ymin, 0);
-    ymax = std::min(ymax, (int) getHeight() - 1);
+    ymax = std::min(ymax, int(getHeight() - 1));
 
     for (int yy = ymin; yy <= ymax; ++yy) {
-      int xmin = getWidth();
+      int xmin = int(getWidth());
       int xmax = -1;
 
       int xx;
 
-      for (uint i1 = num_points - 1, i2 = 0; i2 < num_points; i1 = i2++) {
+      for (uint i1 = uint(num_points - 1), i2 = 0; i2 < num_points; i1 = i2++) {
         if ((points[i1].y < yy && points[i2].y < yy) ||
             (points[i1].y > yy && points[i2].y > yy) ||
             points[i1].y == points[i2].y)
@@ -931,7 +917,7 @@ fillImagePolygon(const IPointList &points, CImagePtr image)
       }
 
       xmin = std::max(xmin, 0);
-      xmax = std::min(xmax, (int) getWidth() - 1);
+      xmax = std::min(xmax, int(getWidth() - 1));
 
       if (xmin > xmax)
         continue;
@@ -966,14 +952,12 @@ fillImageClippedPolygon(const IPointList &points, CImagePtr image)
   if (! image.isValid())
     return;
 
-  uint num_points = points.size();
+  auto num_points = points.size();
+  if (num_points == 0) return;
 
-  if (num_points == 0)
-    return;
-
-  int xmin = getWidth();
+  int xmin = int(getWidth());
   int xmax = -1;
-  int ymin = getHeight();
+  int ymin = int(getHeight());
   int ymax = -1;
 
   for (uint i1 = 0; i1 < num_points; ++i1) {
@@ -987,15 +971,15 @@ fillImageClippedPolygon(const IPointList &points, CImagePtr image)
   int yo = ymin;
 
   ymin = std::max(ymin, 0);
-  ymax = std::min(ymax, (int) getHeight() - 1);
+  ymax = std::min(ymax, int(getHeight() - 1));
 
   for (int yy = ymin; yy <= ymax; ++yy) {
-    xmin = getWidth();
+    xmin = int(getWidth());
     xmax = -1;
 
     int xx;
 
-    for (uint i1 = num_points - 1, i2 = 0; i2 < num_points; i1 = i2++) {
+    for (uint i1 = uint(num_points - 1), i2 = 0; i2 < num_points; i1 = i2++) {
       if ((points[i1].y < yy && points[i2].y < yy) ||
           (points[i1].y > yy && points[i2].y > yy) ||
           points[i1].y == points[i2].y)
@@ -1017,7 +1001,7 @@ fillImageClippedPolygon(const IPointList &points, CImagePtr image)
     }
 
     xmin = std::max(xmin, 0);
-    xmax = std::min(xmax, (int) getWidth() - 1);
+    xmax = std::min(xmax, int(getWidth() - 1));
 
     if (xmin > xmax)
       continue;
@@ -1033,7 +1017,7 @@ fillImageClippedPolygon(const IPointList &points, CImagePtr image)
     for (int xx1 = xmin; xx1 <= xmax; ++xx1) {
       int xi = xx1 - xo;
 
-      xi %= image->getWidth();
+      xi %= int(image->getWidth());
 
       image->getRGBAPixel(xi, yi, rgba);
 
@@ -1048,14 +1032,14 @@ fillImageClippedPolygon(const IPointList &points, CImagePtr image)
 
 void
 CPixelRenderer::
-fillGradientPolygon(const IPointList &points, CRefPtr<CGenGradient> gradient)
+fillGradientPolygon(const IPointList &points, std::shared_ptr<CGenGradient> gradient)
 {
   fillGradientClippedPolygon(points, gradient);
 }
 
 void
 CPixelRenderer::
-fillGradientClippedPolygon(const IPointList &points, CRefPtr<CGenGradient> gradient)
+fillGradientClippedPolygon(const IPointList &points, std::shared_ptr<CGenGradient> gradient)
 {
   CIPoint2D min_point, max_point;
 
@@ -1125,7 +1109,7 @@ getHorizontalImage()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) horizontal_xpm_data,
+    image = CImage::create(const_cast<const char **>(horizontal_xpm_data),
                            sizeof(horizontal_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1141,7 +1125,7 @@ getVerticalImage()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) vertical_xpm_data,
+    image = CImage::create(const_cast<const char **>(vertical_xpm_data),
                            sizeof(vertical_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1157,7 +1141,7 @@ getCrossImage()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) cross_xpm_data,
+    image = CImage::create(const_cast<const char **>(cross_xpm_data),
                            sizeof(cross_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1173,7 +1157,7 @@ getUpImage()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) up_xpm_data,
+    image = CImage::create(const_cast<const char **>(up_xpm_data),
                            sizeof(up_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1189,7 +1173,7 @@ getDownImage()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) down_xpm_data,
+    image = CImage::create(const_cast<const char **>(down_xpm_data),
                            sizeof(down_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1205,7 +1189,7 @@ getDiagonalCrossImage()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) diagonal_cross_xpm_data,
+    image = CImage::create(const_cast<const char **>(diagonal_cross_xpm_data),
                            sizeof(diagonal_cross_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1221,7 +1205,7 @@ getDotted1Image()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) dense1_xpm_data,
+    image = CImage::create(const_cast<const char **>(dense1_xpm_data),
                            sizeof(dense1_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1237,7 +1221,7 @@ getDotted2Image()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) dense2_xpm_data,
+    image = CImage::create(const_cast<const char **>(dense2_xpm_data),
                            sizeof(dense2_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1253,7 +1237,7 @@ getDotted3Image()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) dense3_xpm_data,
+    image = CImage::create(const_cast<const char **>(dense3_xpm_data),
                            sizeof(dense3_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1269,7 +1253,7 @@ getDotted4Image()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) dense4_xpm_data,
+    image = CImage::create(const_cast<const char **>(dense4_xpm_data),
                            sizeof(dense4_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1285,7 +1269,7 @@ getDotted5Image()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) dense5_xpm_data,
+    image = CImage::create(const_cast<const char **>(dense5_xpm_data),
                            sizeof(dense5_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1301,7 +1285,7 @@ getDotted6Image()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) dense6_xpm_data,
+    image = CImage::create(const_cast<const char **>(dense6_xpm_data),
                            sizeof(dense6_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1317,7 +1301,7 @@ getDotted7Image()
   static CImagePtr image;
 
   if (! image)
-    image = CImage::create((const char **) dense7_xpm_data,
+    image = CImage::create(const_cast<const char **>(dense7_xpm_data),
                            sizeof(dense7_xpm_data)/sizeof(char *),
                            CFILE_TYPE_IMAGE_XPM);
 
@@ -1405,10 +1389,8 @@ void
 CPixelRenderer::
 fillFilledAAPolygon(const std::vector<CPoint2D> &points, const CPixelRendererFiller &filler)
 {
-  uint num_points = points.size();
-
-  if (num_points == 0)
-    return;
+  auto num_points = points.size();
+  if (num_points == 0) return;
 
   // Calc bounding box
 
@@ -1420,10 +1402,10 @@ fillFilledAAPolygon(const std::vector<CPoint2D> &points, const CPixelRendererFil
     xmax = std::max(xmax, points[i1].x); ymax = std::max(ymax, points[i1].y);
   }
 
-  int pxs = std::max((int) CMathRound::RoundDown(xmin), (int) 0);
-  int pys = std::max((int) CMathRound::RoundDown(ymin), (int) 0);
-  int pxe = std::min((int) CMathRound::RoundUp  (xmax), (int) getWidth () - 1);
-  int pye = std::min((int) CMathRound::RoundUp  (ymax), (int) getHeight() - 1);
+  int pxs = std::max(int(CMathRound::RoundDown(xmin)), 0);
+  int pys = std::max(int(CMathRound::RoundDown(ymin)), 0);
+  int pxe = std::min(int(CMathRound::RoundUp  (xmax)), int(getWidth () - 1));
+  int pye = std::min(int(CMathRound::RoundUp  (ymax)), int(getHeight() - 1));
 
   int w = pxe - pxs;
   int h = pye - pys;
@@ -1851,11 +1833,11 @@ drawImage(const CIPoint2D &point, CImagePtr image)
   applyOffset(point1);
 
   if (! clip_.isEmpty()) {
-    int iwidth  = getWidth ();
-    int iheight = getHeight();
+    int iwidth  = int(getWidth ());
+    int iheight = int(getHeight());
 
-    int iwidth1  = image->getWidth ();
-    int iheight1 = image->getHeight();
+    int iwidth1  = int(image->getWidth ());
+    int iheight1 = int(image->getHeight());
 
     int x1 = point1.x;
     int x2 = std::min(point1.x + iwidth1  - 1, iwidth  - 1);
@@ -1889,11 +1871,11 @@ void
 CPixelRenderer::
 drawClippedImage(const CIPoint2D &point, CImagePtr image)
 {
-  int iwidth  = getWidth ();
-  int iheight = getHeight();
+  int iwidth  = int(getWidth ());
+  int iheight = int(getHeight());
 
-  int iwidth1  = image->getWidth ();
-  int iheight1 = image->getHeight();
+  int iwidth1  = int(image->getWidth ());
+  int iheight1 = int(image->getHeight());
 
   int x1 = point.x;
   int x2 = std::min(point.x + iwidth1  - 1, iwidth  - 1);
@@ -1942,8 +1924,8 @@ drawImageInBox(const CIBBox2D &bbox, CImagePtr image)
   applyOffset(point1);
   applyOffset(point2);
 
-  int iwidth1  = image->getWidth ();
-  int iheight1 = image->getHeight();
+  int iwidth1  = int(image->getWidth ());
+  int iheight1 = int(image->getHeight());
 
   int iwidth2  = abs(point2.x - point1.x + 1);
   int iheight2 = abs(point2.y - point1.y + 1);
@@ -1970,8 +1952,8 @@ drawScaledImage(const CIPoint2D &point, CImagePtr image, double sx, double sy)
   applyOffset(point1);
 
   if (! clip_.isEmpty()) {
-    int iwidth  = getWidth ();
-    int iheight = getHeight();
+    int iwidth  = int(getWidth ());
+    int iheight = int(getHeight());
 
     int iwidth1  = int(sx*image->getWidth ());
     int iheight1 = int(sy*image->getHeight());
@@ -1994,8 +1976,8 @@ drawScaledImage(const CIPoint2D &point, CImagePtr image, double sx, double sy)
 
       for (uint i = 0; i < num; ++i) {
         for (int x = xx1[i]; x <= xx2[i]; ++x) {
-          int ix = (x - x1)*isx;
-          int iy = (y - y1)*isy;
+          int ix = int((x - x1)*isx);
+          int iy = int((y - y1)*isy);
 
           image->getRGBAPixel(ix, iy, rgba);
 
@@ -2014,8 +1996,8 @@ void
 CPixelRenderer::
 drawClippedScaledImage(const CIPoint2D &point, CImagePtr image, double sx, double sy)
 {
-  int iwidth  = getWidth ();
-  int iheight = getHeight();
+  int iwidth  = int(getWidth ());
+  int iheight = int(getHeight());
 
   int iwidth1  = int(sx*image->getWidth ());
   int iheight1 = int(sy*image->getHeight());
@@ -2032,8 +2014,8 @@ drawClippedScaledImage(const CIPoint2D &point, CImagePtr image, double sx, doubl
 
   for (int y = y1; y <= y2; ++y) {
     for (int x = x1; x <= x2; ++x) {
-      int ix = (x - x1)*isx;
-      int iy = (y - y1)*isy;
+      int ix = int((x - x1)*isx);
+      int iy = int((y - y1)*isy);
 
       image->getRGBAPixel(ix, iy, rgba);
 
@@ -2048,8 +2030,8 @@ int
 CPixelRenderer::
 getCharWidth()
 {
-  if (font_.isValid())
-    return font_->getICharWidth();
+  if (font_)
+    return int(font_->getICharWidth());
 
   return 8;
 }
@@ -2058,10 +2040,10 @@ int
 CPixelRenderer::
 getCharWidth(char c)
 {
-  if (font_.isValid()) {
+  if (font_) {
     std::string str(&c, 1);
 
-    return font_->getIStringWidth(str);
+    return int(font_->getIStringWidth(str));
   }
 
   return 8;
@@ -2071,15 +2053,15 @@ int
 CPixelRenderer::
 getCharHeight()
 {
-  return getCharAscent() + getCharDescent();
+  return int(getCharAscent() + getCharDescent());
 }
 
 int
 CPixelRenderer::
 getCharAscent()
 {
-  if (font_.isValid())
-    return font_->getICharAscent();
+  if (font_)
+    return int(font_->getICharAscent());
 
   return 10;
 }
@@ -2088,8 +2070,8 @@ int
 CPixelRenderer::
 getCharDescent()
 {
-  if (font_.isValid())
-    return font_->getICharDescent();
+  if (font_)
+    return int(font_->getICharDescent());
 
   return 2;
 }
@@ -2098,10 +2080,10 @@ int
 CPixelRenderer::
 getStringWidth(const std::string &str)
 {
-  if (font_.isValid())
-    return font_->getIStringWidth(str);
+  if (font_)
+    return int(font_->getIStringWidth(str));
 
-  return str.size()*getCharWidth();
+  return int(str.size())*getCharWidth();
 }
 
 void
@@ -2263,12 +2245,12 @@ fillPathPolygons(IPointListList &poly_points_list, CImagePtr image, CFillType ty
 
   uint ni1 = 0;
 
-  uint num_polygons = poly_points_list.size();
+  auto num_polygons = poly_points_list.size();
 
   for (uint i = 0; i < num_polygons; ++i) {
     IPointList *points = poly_points_list[i];
 
-    uint num_points = points->size();
+    auto num_points = points->size();
 
     for (uint j = 0; j < num_points; ++j) {
       xmin.updateMin((*points)[j].x);
@@ -2288,7 +2270,7 @@ fillPathPolygons(IPointListList &poly_points_list, CImagePtr image, CFillType ty
   //---------
 
   ymin.updateMax(0);
-  ymax.updateMin(getHeight() - 1);
+  ymax.updateMin(int(getHeight() - 1));
 
   //---------
 
@@ -2300,17 +2282,17 @@ fillPathPolygons(IPointListList &poly_points_list, CImagePtr image, CFillType ty
 
     ni2 = 0;
 
-    uint num_polygons1 = poly_points_list.size();
+    auto num_polygons1 = poly_points_list.size();
 
     for (uint i = 0; i < num_polygons1; ++i) {
       IPointList *points = poly_points_list[i];
 
-      uint num_points = points->size();
+      auto num_points = points->size();
 
       if (num_points < 3)
         continue;
 
-      uint i1 = num_points - 1;
+      uint i1 = uint(num_points - 1);
       uint i2 = 0;
 
       int x1 = (*points)[i1].x;
@@ -2337,10 +2319,10 @@ fillPathPolygons(IPointListList &poly_points_list, CImagePtr image, CFillType ty
           x = CMathRound::Round((y - y1)*factor + x1);
 
           x = std::max(x, 0);
-          x = std::min(x, (int) getWidth() - 1);
+          x = std::min(x, int(getWidth() - 1));
         }
 
-        o = CMathGen::sign((long) (y2 - y1));
+        o = CMathGen::sign(long(y2 - y1));
 
         xmin1.updateMin(x);
         xmax1.updateMax(x);
@@ -2358,7 +2340,7 @@ fillPathPolygons(IPointListList &poly_points_list, CImagePtr image, CFillType ty
     }
 
     xmin1.updateMax(0);
-    xmax1.updateMin(getWidth() - 1);
+    xmax1.updateMin(int(getWidth() - 1));
 
     if (xmin1.getValue() > xmax1.getValue())
       continue;
@@ -2497,12 +2479,12 @@ fillPathPolygons(RPointListList &poly_points_list, CImagePtr image, CFillType ty
 
   uint ni = 0;
 
-  uint num_polygons = poly_points_list.size();
+  auto num_polygons = poly_points_list.size();
 
   for (uint i = 0; i < num_polygons; ++i) {
     RPointList *points = poly_points_list[i];
 
-    uint num_points = points->size();
+    auto num_points = points->size();
 
     for (uint j = 0; j < num_points; ++j) {
       xmin.updateMin((*points)[j].x);
@@ -2532,17 +2514,17 @@ fillPathPolygons(RPointListList &poly_points_list, CImagePtr image, CFillType ty
 
     ni = 0;
 
-    uint num_polygons1 = poly_points_list.size();
+    auto num_polygons1 = poly_points_list.size();
 
     for (uint i = 0; i < num_polygons1; ++i) {
       RPointList *points = poly_points_list[i];
 
-      uint num_points = points->size();
+      auto num_points = points->size();
 
       if (num_points < 3)
         continue;
 
-      uint i1 = num_points - 1;
+      uint i1 = uint(num_points - 1);
       uint i2 = 0;
 
       double x1 = (*points)[i1].x;
@@ -2569,7 +2551,7 @@ fillPathPolygons(RPointListList &poly_points_list, CImagePtr image, CFillType ty
           x = CMathRound::Round((y - y1)*factor + x1);
 
           x = std::max(x, 0.0);
-          x = std::min(x, (int) getWidth() - 1.0);
+          x = std::min(x, double(getWidth() - 1.0));
         }
 
         o = CMathGen::sign(y2 - y1);
@@ -2744,7 +2726,7 @@ fillFlatTriangle(const CIPoint2D &point1, const CIPoint2D &point2, const CIPoint
   else if (p2.y == p3.y)
     fillTriangleBot(p1, p2, p3);
   else {
-    int x4 = p1.x + ROUND((p2.y - p1.y)*(((double) (p3.x - p1.x))/(p3.y - p1.y)));
+    int x4 = p1.x + ROUND((p2.y - p1.y)*((double(p3.x - p1.x))/(p3.y - p1.y)));
 
     CIPoint2D p4(x4, p2.y);
 
@@ -3663,8 +3645,8 @@ getPixelClip(int *clip_x1, int *clip_y1, int *clip_x2, int *clip_y2)
 {
   *clip_x1 = 0;
   *clip_y1 = 0;
-  *clip_x2 = getWidth () - 1;
-  *clip_y2 = getHeight() - 1;
+  *clip_x2 = int(getWidth () - 1);
+  *clip_y2 = int(getHeight() - 1);
 }
 
 //---------------------

@@ -4,34 +4,36 @@
 #include <CPixelRenderer.h>
 
 class CImagePixelRenderer : public CPixelRenderer {
- private:
-  CImagePtr image_;
-
  public:
-  CImagePixelRenderer(int width=100, int height=100);
-  CImagePixelRenderer(CImagePtr image);
+  explicit CImagePixelRenderer(int width=100, int height=100);
+  explicit CImagePixelRenderer(CImagePtr image);
 
   virtual ~CImagePixelRenderer();
 
-  CImagePixelRenderer *dup() const;
+  CImagePixelRenderer(const CImagePixelRenderer &) = delete;
+  CImagePixelRenderer &operator=(const CImagePixelRenderer &) = delete;
 
-  virtual void setImage(CImagePtr image);
+  CImagePixelRenderer *dup() const override;
 
-  virtual CImagePtr getImage() { return image_; }
+  CImagePtr getImage() override { return image_; }
+  void setImage(CImagePtr image) override;
 
-  virtual uint getWidth() const;
-  virtual uint getHeight() const;
+  uint getWidth() const override;
+  uint getHeight() const override;
 
-  virtual void updateSize(int width, int height);
+  void updateSize(int width, int height) override;
 
-  virtual void clear();
-  virtual void fill();
+  void clear() override;
+  void fill() override;
 
-  virtual void drawClippedPoint(const CIPoint2D &point);
+  void drawClippedPoint(const CIPoint2D &point) override;
 
-  void drawClippedImage(const CIPoint2D &point, CImagePtr image);
+  void drawClippedImage(const CIPoint2D &point, CImagePtr image) override;
 
   virtual void writePNG(const std::string &filename);
+
+ private:
+  CImagePtr image_;
 };
 
 #endif

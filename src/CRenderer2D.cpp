@@ -19,11 +19,11 @@ class GenGradient2DFill : public CRenderer2DFiller {
    gradient_(gradient), x1_(x1), y1_(y1), x2_(x2), y2_(y2) {
   }
 
-  void fill(CRenderer2D *renderer) {
+  virtual void fill(CRenderer2D *renderer) {
     renderer->fillFilledRectangle(CBBox2D(x1_, y1_, x2_, y2_), *this);
   }
 
-  void getColor(const CPoint2D &point, CRGBA &rgba) const {
+  void getColor(const CPoint2D &point, CRGBA &rgba) const override {
     double xt = (point.x - x1_)/(x2_ - x1_);
     double yt = (point.y - y1_)/(y2_ - y1_);
 
@@ -236,8 +236,8 @@ void
 CRenderer2D::
 resetDataRange()
 {
-  int pwidth  = pixelRenderer_->getWidth ();
-  int pheight = pixelRenderer_->getHeight();
+  int pwidth  = int(pixelRenderer_->getWidth ());
+  int pheight = int(pixelRenderer_->getHeight());
 
   setPixelRange(0, 0, pwidth - 1, pheight - 1);
 }
@@ -424,12 +424,12 @@ getBrushTexture() const
 
 void
 CRenderer2D::
-setBrushGradient(CRefPtr<CGenGradient> gradient)
+setBrushGradient(std::shared_ptr<CGenGradient> gradient)
 {
   brush_.setGradient(gradient);
 }
 
-CRefPtr<CGenGradient>
+std::shared_ptr<CGenGradient>
 CRenderer2D::
 getBrushGradient() const
 {
@@ -563,7 +563,7 @@ void
 CRenderer2D::
 setBackground(const CRGBA &rgba)
 {
-  if (pixelRenderer_ != 0)
+  if (pixelRenderer_ != nullptr)
     pixelRenderer_->setBackground(rgba);
 }
 
@@ -571,7 +571,7 @@ void
 CRenderer2D::
 setForeground(const CRGBA &rgba)
 {
-  if (pixelRenderer_ != 0)
+  if (pixelRenderer_ != nullptr)
     pixelRenderer_->setForeground(rgba);
 }
 
@@ -621,7 +621,9 @@ initPath() const
   if (! getPath()) {
     auto *th = const_cast<CRenderer2D *>(this);
 
-    th->path_ = PathP(createPath());
+    auto *path = createPath();
+
+    th->path_ = PathP(path);
   }
 }
 
@@ -638,7 +640,9 @@ pathInit()
 
   pathStack_.push_back(path_.release());
 
-  path_ = PathP(createPath());
+  path_ = PathP();
+
+  initPath();
 
   getPath()->setFillType(fill_type);
 }
@@ -819,7 +823,7 @@ pathImageFill(CImagePtr image)
 
 void
 CRenderer2D::
-pathGradientFill(CRefPtr<CGenGradient> gradient)
+pathGradientFill(std::shared_ptr<CGenGradient> gradient)
 {
   initPath();
 
@@ -925,6 +929,13 @@ pathPrint()
   getPath()->print();
 }
 
+CPath2D *
+CRenderer2D::
+getPath() const
+{
+  return path_.get();
+}
+
 //-------------------
 
 void
@@ -970,14 +981,14 @@ getClipPolygons(uint i)
 
   const CPixelRenderer::IPointListList &ipolygon_points = pixelRenderer_->getClipPolygons(i);
 
-  uint num_ipolygon_points = ipolygon_points.size();
+  auto num_ipolygon_points = ipolygon_points.size();
 
   poly_points_list.resize(num_ipolygon_points);
 
   for (uint ip = 0; ip < num_ipolygon_points; ++ip) {
     PointList &points = poly_points_list[ip];
 
-    uint num_points = (*ipolygon_points[ip]).size();
+    auto num_points = (*ipolygon_points[ip]).size();
 
     points.resize(num_points);
 
@@ -1012,7 +1023,7 @@ addPolygon(const RPointList &points)
   if (! ppath_)
     ppath_ = PixelRendererPathP(new CPixelRendererPath);
 
-  uint num_points = points.size();
+  auto num_points = points.size();
 
   if (antiAlias_) {
     std::vector<CPoint2D> rpoints;
@@ -1199,7 +1210,7 @@ calcNumArcBeziers(const CPoint2D &, double xr, double yr, double angle1, double 
 
   //------
 
-  uint num_beziers = CMathRound::Round(angle_diff/M_PI);
+  uint num_beziers = uint(CMathRound::Round(angle_diff/M_PI));
 
   if (num_beziers <= 0)
     num_beziers = 1;
@@ -1641,7 +1652,7 @@ fillPolygon(const PointList &points)
   if (! enabled_)
     return;
 
-  uint num_points = points.size();
+  auto num_points = points.size();
 
   if (antiAlias_) {
     rpoints.resize(num_points);
@@ -1678,7 +1689,7 @@ fillFilledPolygon(const PointList &points, const CRenderer2DFiller &filler)
      renderer_(renderer), filler_(filler) {
     }
 
-    void getColor(const CIPoint2D &p, CRGBA &rgba) const {
+    void getColor(const CIPoint2D &p, CRGBA &rgba) const override {
       CPoint2D p1;
 
       renderer_->transformPixelToPoint(p, p1);
@@ -1687,7 +1698,7 @@ fillFilledPolygon(const PointList &points, const CRenderer2DFiller &filler)
     }
   };
 
-  uint num_xy = points.size();
+  auto num_xy = points.size();
 
   if (antiAlias_) {
     rpoints.resize(num_xy);
@@ -1749,9 +1760,9 @@ fillPatternPolygon(const IPointList &ipoints, CBrushPattern pattern)
 
 void
 CRenderer2D::
-fillGradientPolygon(const PointList &points, CRefPtr<CGenGradient> gradient)
+fillGradientPolygon(const PointList &points, std::shared_ptr<CGenGradient> gradient)
 {
-  uint num_points = points.size();
+  auto num_points = points.size();
 
   IPointList ipoints;
 
@@ -1765,7 +1776,7 @@ fillGradientPolygon(const PointList &points, CRefPtr<CGenGradient> gradient)
 
 void
 CRenderer2D::
-fillGradientPolygon(const IPointList &ipoints, CRefPtr<CGenGradient> gradient)
+fillGradientPolygon(const IPointList &ipoints, std::shared_ptr<CGenGradient> gradient)
 {
   pixelRenderer_->fillGradientPolygon(ipoints, gradient);
 }
@@ -1774,7 +1785,7 @@ void
 CRenderer2D::
 fillImagePolygon(const PointList &points, CImagePtr image)
 {
-  uint num_points = points.size();
+  auto num_points = points.size();
 
   IPointList ipoints;
 
@@ -1802,7 +1813,7 @@ drawPolygon(const PointList &points)
   if (! enabled_)
     return;
 
-  uint num_points = points.size();
+  auto num_points = points.size();
 
   if (num_points < 3)
     return;
@@ -1841,7 +1852,7 @@ drawArc(const CPoint2D &center, double xr, double yr, double angle1, double angl
 
   arcToBeziers(center, xr, yr, angle1, angle2, beziers);
 
-  uint num_beziers = beziers.size();
+  auto num_beziers = beziers.size();
 
   if (num_beziers == 0)
     return;
@@ -1881,7 +1892,7 @@ drawArcN(const CPoint2D &center, double xr, double yr, double angle1, double ang
 
   arcNToBeziers(center, xr, yr, angle1, angle2, beziers);
 
-  uint num_beziers = beziers.size();
+  auto num_beziers = beziers.size();
 
   if (num_beziers == 0)
     return;
@@ -1956,14 +1967,15 @@ fillPatternEllipse(const CPoint2D &center, double xr, double yr, CBrushPattern p
 
 void
 CRenderer2D::
-fillGradientCircle(const CPoint2D &center, double r, CRefPtr<CGenGradient> gradient)
+fillGradientCircle(const CPoint2D &center, double r, std::shared_ptr<CGenGradient> gradient)
 {
   fillGradientEllipse(center, r, r, gradient);
 }
 
 void
 CRenderer2D::
-fillGradientEllipse(const CPoint2D &center, double xr, double yr, CRefPtr<CGenGradient> gradient)
+fillGradientEllipse(const CPoint2D &center, double xr, double yr,
+                    std::shared_ptr<CGenGradient> gradient)
 {
   fillGradientArc(center, xr, yr, 0, 360, gradient);
 }
@@ -1982,7 +1994,7 @@ fillArc(const CPoint2D &center, double xr, double yr, double angle1, double angl
 
   arcToBeziers(center, xr, yr, angle1, angle2, beziers);
 
-  uint num_beziers = beziers.size();
+  auto num_beziers = beziers.size();
 
   //------
 
@@ -1992,7 +2004,7 @@ fillArc(const CPoint2D &center, double xr, double yr, double angle1, double angl
 
     bezierToLines(beziers[i], points, gradients);
 
-    uint num_points = points.size();
+    auto num_points = points.size();
 
     //----
 
@@ -2024,7 +2036,7 @@ fillArcN(const CPoint2D &center, double xr, double yr, double angle1, double ang
 
   arcNToBeziers(center, xr, yr, angle1, angle2, beziers);
 
-  uint num_beziers = beziers.size();
+  auto num_beziers = beziers.size();
 
   //------
 
@@ -2034,7 +2046,7 @@ fillArcN(const CPoint2D &center, double xr, double yr, double angle1, double ang
 
     bezierToLines(beziers[i], points, gradients);
 
-    uint num_points = points.size();
+    auto num_points = points.size();
 
     //----
 
@@ -2075,7 +2087,7 @@ fillPatternArc(const CPoint2D &center, double xr, double yr,
 void
 CRenderer2D::
 fillGradientArc(const CPoint2D &center, double xr, double yr,
-                double angle1, double angle2, CRefPtr<CGenGradient> gradient)
+                double angle1, double angle2, std::shared_ptr<CGenGradient> gradient)
 {
   PointList fill_points;
 
@@ -2097,7 +2109,7 @@ arcToPoints(const CPoint2D &center, double xr, double yr,
 
   arcToBeziers(center, xr, yr, angle1, angle2, beziers);
 
-  uint num_beziers = beziers.size();
+  auto num_beziers = beziers.size();
 
   //------
 
@@ -2107,7 +2119,7 @@ arcToPoints(const CPoint2D &center, double xr, double yr,
 
     bezierToLines(beziers[i], points, gradients);
 
-    uint num_points = points.size();
+    auto num_points = points.size();
 
     //----
 
@@ -2153,7 +2165,7 @@ drawBezier(C2Bezier2D &bezier)
 
   bezierToLines(bezier, points, gradients);
 
-  uint num_points = points.size();
+  auto num_points = points.size();
 
   if (num_points <= 1)
     return;
@@ -2174,7 +2186,7 @@ drawBezier(C3Bezier2D &bezier)
 
   bezierToLines(bezier, points, gradients);
 
-  uint num_points = points.size();
+  auto num_points = points.size();
 
   if (num_points <= 1)
     return;
@@ -2276,7 +2288,7 @@ image(char *image_data, int width, int height, int bits_per_sample, CMatrix2D *m
       if (color < decode_size)
         rgba.setGray(decode_array[color]);
       else
-        rgba.setGray(((double) color)/(num_colors - 1));
+        rgba.setGray(double(color)/double(num_colors - 1));
 
       setForeground(rgba);
 

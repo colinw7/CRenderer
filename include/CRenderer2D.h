@@ -162,8 +162,6 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
 
   CFillType getFillType() const;
 
-  CPath2D *getPath() const { return path_.get(); }
-
   //------
 
   // Brush
@@ -180,9 +178,9 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
 
   CImagePtr getBrushTexture() const;
 
-  void setBrushGradient(CRefPtr<CGenGradient> gradient);
+  void setBrushGradient(std::shared_ptr<CGenGradient> gradient);
 
-  CRefPtr<CGenGradient> getBrushGradient() const;
+  std::shared_ptr<CGenGradient> getBrushGradient() const;
 
   //------
 
@@ -201,22 +199,22 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
 
   //------
 
-  void clipPolygons();
-  void eoclipPolygons();
+  void clipPolygons() override;
+  void eoclipPolygons() override;
 
   uint getNumClipPolygons();
 
-  const PointListList &getClipPolygons(uint i);
+  const PointListList &getClipPolygons(uint i) override;
 
-  void initPolygons();
+  void initPolygons() override;
 
-  void addPolygon(const RPointList &points);
+  void addPolygon(const RPointList &points) override;
 
-  void fillPolygons();
-  void fillPolygons(CImagePtr image);
+  void fillPolygons() override;
+  virtual void fillPolygons(CImagePtr image);
 
-  void eofillPolygons();
-  void eofillPolygons(CImagePtr image);
+  void eofillPolygons() override;
+  virtual void eofillPolygons(CImagePtr image);
 
   //------
 
@@ -257,7 +255,7 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
 
   virtual void pathPatternFill(CBrushPattern pattern);
   virtual void pathImageFill(CImagePtr image);
-  virtual void pathGradientFill(CRefPtr<CGenGradient> gradient);
+  virtual void pathGradientFill(std::shared_ptr<CGenGradient> gradient);
 
   virtual void pathClip();
   virtual void pathEoclip();
@@ -277,11 +275,13 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
 
   virtual void pathPrint();
 
+  CPath2D *getPath() const;
+
   //------
 
   //void drawLine(const CLine2D &line);
 
-  virtual void drawLine(const CPoint2D &point1, const CPoint2D &point2);
+  void drawLine(const CPoint2D &point1, const CPoint2D &point2) override;
 
   void drawLineG2(const CPoint2D &point1, const CPoint2D &point2, double g1, double g2);
 
@@ -312,8 +312,10 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
   virtual void fillPatternPolygon(const PointList &ipoints, CBrushPattern pattern);
   virtual void fillPatternPolygon(const IPointList &ipoints, CBrushPattern pattern);
 
-  virtual void fillGradientPolygon(const PointList &ipoints, CRefPtr<CGenGradient> gradient);
-  virtual void fillGradientPolygon(const IPointList &ipoints, CRefPtr<CGenGradient> gradient);
+  virtual void fillGradientPolygon(const PointList &ipoints,
+                                   std::shared_ptr<CGenGradient> gradient);
+  virtual void fillGradientPolygon(const IPointList &ipoints,
+                                   std::shared_ptr<CGenGradient> gradient);
 
   virtual void fillImagePolygon(const PointList &ipoints, CImagePtr image);
   virtual void fillImagePolygon(const IPointList &ipoints, CImagePtr image);
@@ -336,9 +338,10 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
   void fillPatternCircle(const CPoint2D &center, double r, CBrushPattern pattern);
   void fillPatternEllipse(const CPoint2D &center, double xs, double ys, CBrushPattern pattern);
 
-  void fillGradientCircle(const CPoint2D &center, double r, CRefPtr<CGenGradient> gradient);
+  void fillGradientCircle(const CPoint2D &center, double r,
+                          std::shared_ptr<CGenGradient> gradient);
   void fillGradientEllipse(const CPoint2D &center, double xs, double ys,
-                           CRefPtr<CGenGradient> gradient);
+                           std::shared_ptr<CGenGradient> gradient);
 
   virtual void fillArc(const CPoint2D &center, double rx, double ry,
                        double angle1, double angle2);
@@ -352,16 +355,16 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
                               double angle1, double angle2, CBrushPattern pattern);
 
   virtual void fillGradientArc(const CPoint2D &center, double rx, double ry, double angle1,
-                               double angle2, CRefPtr<CGenGradient> gradient);
+                               double angle2, std::shared_ptr<CGenGradient> gradient);
 
  protected:
   void arcToPoints(const CPoint2D &center, double xr, double yr,
                    double angle1, double angle2, PointList &fill_points);
 
  public:
-  virtual void drawBezier2(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3);
-  virtual void drawBezier3(const CPoint2D &p1, const CPoint2D &p2,
-                           const CPoint2D &p3, const CPoint2D &p4);
+  void drawBezier2(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3) override;
+  void drawBezier3(const CPoint2D &p1, const CPoint2D &p2,
+                   const CPoint2D &p3, const CPoint2D &p4) override;
 
   virtual void drawBezier(C3Bezier2D &bezier);
   virtual void drawBezier(C2Bezier2D &bezier);
@@ -381,25 +384,25 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
                                    CMatrix2D *matrix, CMatrix2D *ctm_matrix);
 
  public:
-  virtual void arcToBeziers(const CPoint2D &center, double rx, double ry, double angle1,
-                            double angle2, BezierList &arc_beziers);
-  virtual void arcNToBeziers(const CPoint2D &center, double rx, double ry, double angle1,
-                             double angle2, BezierList &arc_beziers);
+  void arcToBeziers(const CPoint2D &center, double rx, double ry, double angle1,
+                    double angle2, BezierList &arc_beziers) override;
+  void arcNToBeziers(const CPoint2D &center, double rx, double ry, double angle1,
+                     double angle2, BezierList &arc_beziers) override;
 
  protected:
   uint calcNumArcBeziers(const CPoint2D &center, double rx, double ry,
                          double angle1, double angle2);
 
  public:
-  virtual void bezierToLines(const C3Bezier2D &bezier, PointList &points, RealList &gradients);
-  virtual void bezierToLines(const C2Bezier2D &bezier, PointList &points, RealList &gradients);
+  void bezierToLines(const C3Bezier2D &bezier, PointList &points, RealList &gradients) override;
+  void bezierToLines(const C2Bezier2D &bezier, PointList &points, RealList &gradients) override;
 
  protected:
   void bezierToLines1(const C3Bezier2D &bezier, uint depth, PointList &points, RealList &gradients);
   void bezierToLines1(const C2Bezier2D &bezier, uint depth, PointList &points, RealList &gradients);
 
  public:
-  virtual void joinLines(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3);
+  void joinLines(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3) override;
 
  protected:
   void mitreJoinLines(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3);
@@ -407,7 +410,7 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
   void bevelJoinLines(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3);
 
  public:
-  virtual void capLine(const CPoint2D &p1, const CPoint2D &p2);
+  void capLine(const CPoint2D &p1, const CPoint2D &p2) override;
 
  protected:
   void buttCapLine  (const CPoint2D &p1, const CPoint2D &p2);
@@ -415,10 +418,10 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
   void squareCapLine(const CPoint2D &p1, const CPoint2D &p2);
 
  public:
-  virtual void lineToPolygon(const CPoint2D &p1, const CPoint2D &p2, PointList &points);
+  void lineToPolygon(const CPoint2D &p1, const CPoint2D &p2, PointList &points) override;
 
-  virtual void lineJoinToPolygon(const CPoint2D &p1, const CPoint2D &p2,
-                                 const CPoint2D &p3, PointList &points);
+  void lineJoinToPolygon(const CPoint2D &p1, const CPoint2D &p2,
+                         const CPoint2D &p3, PointList &points) override;
 
  protected:
   void mitreLineJoinToPolygon(const CPoint2D &p1, const CPoint2D &p2,
@@ -437,24 +440,24 @@ class CRenderer2D : public CPath2DRenderer, public CPath2DFlattener {
   virtual bool isAntiAlias() const;
   virtual void setAntiAlias(bool flag);
 
-  virtual void adjustPoint(CPoint2D &p);
+  void adjustPoint(CPoint2D &p) override;
 
-  virtual void setTransform(bool flag);
+  void setTransform(bool flag) override;
 
   virtual void clear();
   virtual void fill();
 
   virtual void textBounds(const std::string &text, CBBox2D &box);
 
-  virtual void drawText(const CPoint2D &point, const std::string &text);
+  void drawText(const CPoint2D &point, const std::string &text) override;
 
   virtual void fillText(const CPoint2D &point, const std::string &text);
 
   virtual void drawTextInRect(const CBBox2D &rect, const std::string &text);
 
-  virtual void setTextSize(double x_size, double y_size);
+  void setTextSize(double x_size, double y_size) override;
 
-  virtual void getTextLimits(const std::string &str, double *text_x, double *text_y);
+  void getTextLimits(const std::string &str, double *text_x, double *text_y) override;
 
  protected:
   void getTransformedLineWidth(double *xw, double *yw) const;

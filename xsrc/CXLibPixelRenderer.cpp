@@ -5,7 +5,7 @@ CXLibPixelRenderer::
 CXLibPixelRenderer(CXWindow *window) :
  CPixelRenderer(), window_(window)
 {
-  window_size_ = CISize2D(window_->getWidth(), window_->getHeight());
+  window_size_ = CISize2D(int(window_->getWidth()), int(window_->getHeight()));
 }
 
 CXLibPixelRenderer *
@@ -28,8 +28,8 @@ void
 CXLibPixelRenderer::
 updateSize(int, int)
 {
-  int width  = window_->getWidth();
-  int height = window_->getHeight();
+  int width  = int(window_->getWidth());
+  int height = int(window_->getHeight());
 
   window_size_ = CISize2D(width, height);
 }
@@ -225,8 +225,8 @@ getClip(int *xmin, int *ymin, int *xmax, int *ymax)
 {
   *xmin = 0;
   *ymin = 0;
-  *xmax = getWidth();
-  *ymax = getHeight();
+  *xmax = int(getWidth());
+  *ymax = int(getHeight());
 }
 
 int
@@ -237,8 +237,8 @@ getCharWidth()
 
   getFont(font);
 
-  if (font.isValid())
-    return font->getICharWidth();
+  if (font)
+    return int(font->getICharWidth());
   else
     return 8;
 }
@@ -251,8 +251,8 @@ getCharAscent()
 
   getFont(font);
 
-  if (font.isValid())
-    return font->getICharAscent();
+  if (font)
+    return int(font->getICharAscent());
   else
     return 10;
 }
@@ -265,8 +265,8 @@ getCharDescent()
 
   getFont(font);
 
-  if (font.isValid())
-    return font->getICharDescent();
+  if (font)
+    return int(font->getICharDescent());
   else
     return 2;
 }
@@ -279,8 +279,8 @@ getCharHeight()
 
   getFont(font);
 
-  if (font.isValid())
-    return font->getICharHeight();
+  if (font)
+    return int(font->getICharHeight());
   else
     return 12;
 }
@@ -293,10 +293,10 @@ getStringWidth(const std::string &str)
 
   getFont(font);
 
-  if (font.isValid())
-    return font->getIStringWidth(str);
+  if (font)
+    return int(font->getIStringWidth(str));
   else
-    return str.size()*getCharWidth();
+    return int(str.size())*int(getCharWidth());
 }
 
 void

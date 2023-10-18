@@ -94,17 +94,18 @@ class CPath2DRendererStroker : public CPath2DStroker {
 
   CPath2DFlattener *flattener() const { return flattener_; }
 
-  void adjustPoint(CPoint2D &p1);
+  void adjustPoint(CPoint2D &p1) override;
 
-  void capLine(const CPoint2D &p1, const CPoint2D &p2);
+  void capLine(const CPoint2D &p1, const CPoint2D &p2) override;
 
-  void joinLines(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3);
+  void joinLines(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3) override;
 
-  void drawLine(const CPoint2D &p1, const CPoint2D &p2);
+  void drawLine(const CPoint2D &p1, const CPoint2D &p2) override;
 
-  void drawBezier2(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3);
+  void drawBezier2(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3) override;
 
-  void drawBezier3(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3, const CPoint2D &p4);
+  void drawBezier3(const CPoint2D &p1, const CPoint2D &p2,
+                   const CPoint2D &p3, const CPoint2D &p4) override;
 
  private:
   CPath2DRenderer*  renderer_  { nullptr };
@@ -142,13 +143,14 @@ class CPath2DRendererFiller : public CPath2DFiller {
 
   CPath2DRenderer *renderer() const { return renderer_; }
 
-  void addLine(const CPoint2D &p1, const CPoint2D &p2);
+  void addLine(const CPoint2D &p1, const CPoint2D &p2) override;
 
-  void addBezier2(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3);
+  void addBezier2(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3) override;
 
-  void addBezier3(const CPoint2D &p1, const CPoint2D &p2, const CPoint2D &p3, const CPoint2D &p4);
+  void addBezier3(const CPoint2D &p1, const CPoint2D &p2,
+                  const CPoint2D &p3, const CPoint2D &p4) override;
 
-  void fill(CFillType type);
+  void fill(CFillType type) override;
 
  private:
   CPath2DRenderer *renderer_ { nullptr };
@@ -236,7 +238,7 @@ class CPath2D {
 
   virtual void fillImage(CImagePtr image);
   virtual void fillImage(CImagePtr image, CPath2DRenderer *renderer);
-  virtual void fillGradient(CRefPtr<CGenGradient> gradient);
+  virtual void fillGradient(std::shared_ptr<CGenGradient> gradient);
 
   virtual void reverse();
 

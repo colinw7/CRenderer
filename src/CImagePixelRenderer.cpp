@@ -29,7 +29,7 @@ CImagePixelRenderer *
 CImagePixelRenderer::
 dup() const
 {
-  return new CImagePixelRenderer(getWidth(), getHeight());
+  return new CImagePixelRenderer(int(getWidth()), int(getHeight()));
 }
 
 void
@@ -57,7 +57,7 @@ void
 CImagePixelRenderer::
 updateSize(int width, int height)
 {
-  if (width  != (int) image_->getWidth () || height != (int) image_->getHeight())
+  if (width  != int(image_->getWidth()) || height != int(image_->getHeight()))
     image_->setDataSize(width, height);
 }
 
