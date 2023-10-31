@@ -2,31 +2,27 @@
 #include <CQImage.h>
 #include <CQFont.h>
 #include <CQUtil.h>
+#include <CQUtilRGBA.h>
+#include <CQUtilGradient.h>
 #include <CQPath2D.h>
 #include <CQImageRenderer2D.h>
 #include <CLinearGradient.h>
 #include <CRadialGradient.h>
 
 #include <QPainter>
-
-// note: this implementation does not disable this overload for array types
-template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args&&... args)
-{
-  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
+#include <QPainterPath>
 
 CQRenderer2D::
 CQRenderer2D(QPainter *painter) :
  CRenderer2D(0), painter_(painter)
 {
   if (! painter_) {
-    painterP_ = make_unique<QPainter>();
+    painterP_ = std::make_unique<QPainter>();
     painter_  = painterP_.get();
   }
 
-  pen_   = make_unique<QPen  >();
-  brush_ = make_unique<QBrush>();
+  pen_   = std::make_unique<QPen  >();
+  brush_ = std::make_unique<QBrush>();
 
   brush_->setStyle(Qt::SolidPattern);
 
@@ -67,7 +63,7 @@ startDoubleBuffer(bool do_clear)
     pixmapWidth_  = width;
     pixmapHeight_ = height;
 
-    pixmap_ = make_unique<QPixmap>(pixmapWidth_, pixmapHeight_);
+    pixmap_ = std::make_unique<QPixmap>(pixmapWidth_, pixmapHeight_);
 
     pixmap_->fill(Qt::black);
   }
@@ -184,7 +180,7 @@ setQTransform()
   int dw = (pw - side)/2;
   int dh = (ph - side)/2;
 
-  getQPainter()->setWorldMatrix(QMatrix());
+  getQPainter()->setWorldTransform(QTransform());
 
   getQPainter()->translate(dw, side + dh);
   getQPainter()->scale(side/size, -side/size);
@@ -355,9 +351,11 @@ getQPath() const
 {
   initPath();
 
-  CQPath2D *path = dynamic_cast<CQPath2D *>(getPath());
+  auto *path = getPath();
 
-  return path;
+  auto *qpath = dynamic_cast<CQPath2D *>(path);
+
+  return qpath;
 }
 
 void
@@ -608,17 +606,17 @@ fillImagePolygon(const PointList &points, CImagePtr image)
 
 void
 CQRenderer2D::
-fillGradientPolygon(const PointList &points, CRefPtr<CGenGradient> gradient)
+fillGradientPolygon(const PointList &points, std::shared_ptr<CGenGradient> gradient)
 {
   CLinearGradient *lg;
   CRadialGradient *rg;
 
-  if      ((lg = dynamic_cast<CLinearGradient*>(gradient.getPtr())) != 0) {
+  if      ((lg = dynamic_cast<CLinearGradient*>(gradient.get())) != 0) {
     QLinearGradient qlg = CQUtil::toQGradient(lg);
 
     getQPainter()->setBrush(QBrush(qlg));
   }
-  else if ((rg = dynamic_cast<CRadialGradient*>(gradient.getPtr())) != 0) {
+  else if ((rg = dynamic_cast<CRadialGradient*>(gradient.get())) != 0) {
     QRadialGradient qrg = CQUtil::toQGradient(rg);
 
     getQPainter()->setBrush(QBrush(qrg));
@@ -817,17 +815,17 @@ fillImageArc(const CPoint2D &center, double xr, double yr,
 void
 CQRenderer2D::
 fillGradientArc(const CPoint2D &center, double xr, double yr,
-                double angle1, double angle2, CRefPtr<CGenGradient> gradient)
+                double angle1, double angle2, std::shared_ptr<CGenGradient> gradient)
 {
   CLinearGradient *lg;
   CRadialGradient *rg;
 
-  if      ((lg = dynamic_cast<CLinearGradient*>(gradient.getPtr())) != 0) {
+  if      ((lg = dynamic_cast<CLinearGradient*>(gradient.get())) != 0) {
     QLinearGradient qlg = CQUtil::toQGradient(lg);
 
     getQPainter()->setBrush(QBrush(qlg));
   }
-  else if ((rg = dynamic_cast<CRadialGradient*>(gradient.getPtr())) != 0) {
+  else if ((rg = dynamic_cast<CRadialGradient*>(gradient.get())) != 0) {
     QRadialGradient qrg = CQUtil::toQGradient(rg);
 
     getQPainter()->setBrush(QBrush(qrg));
@@ -1141,5 +1139,5 @@ getQFont() const
 
   getFont(pfont);
 
-  return pfont.cast<CQFont>();
+  return dynamic_cast<CQFont *>(pfont.get());
 }

@@ -81,14 +81,16 @@ class CQRenderer2D : public CRenderer2D {
 
   void fillPolygon(const PointList &points) override;
   void fillImagePolygon(const PointList &points, CImagePtr image) override;
-  void fillGradientPolygon(const PointList &points, CRefPtr<CGenGradient> gradient) override;
+  void fillGradientPolygon(const PointList &points,
+                           std::shared_ptr<CGenGradient> gradient) override;
 
   void fillArc(const CPoint2D &center, double xr, double yr,
                double angle1, double angle2) override;
   void fillImageArc(const CPoint2D &center, double xr, double yr,
                     double angle1, double angle2, CImagePtr image) override;
   void fillGradientArc(const CPoint2D &center, double xr, double yr,
-                       double angle1, double angle2, CRefPtr<CGenGradient> gradient) override;
+                       double angle1, double angle2,
+                       std::shared_ptr<CGenGradient> gradient) override;
 
   void drawText(const CPoint2D &point, const std::string &text) override;
   void fillText(const CPoint2D &point, const std::string &text) override;

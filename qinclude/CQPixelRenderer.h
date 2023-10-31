@@ -30,63 +30,60 @@ class CQPixelRenderer : public CPixelRenderer {
   QPen   *getQPen  () const { return pen_  .get(); }
   QBrush *getQBrush() const { return brush_.get(); }
 
-  virtual uint getWidth () const = 0;
-  virtual uint getHeight() const = 0;
+  uint getWidth () const override = 0;
+  uint getHeight() const override = 0;
 
-  virtual void updateSize(int width, int height) = 0;
+  void updateSize(int width, int height) override = 0;
 
-  virtual void beginDraw();
-  virtual void endDraw();
+  void beginDraw() override;
+  void endDraw() override;
 
-  virtual void startDoubleBuffer(bool clear=true);
-  virtual void endDoubleBuffer  (bool copy=true);
-  virtual void copyDoubleBuffer ();
+  void startDoubleBuffer(bool clear=true) override;
+  void endDoubleBuffer  (bool copy=true) override;
+  void copyDoubleBuffer () override;
 
-  virtual void setForeground(const CRGBA &fg);
-  virtual void setBackground(const CRGBA &bg);
+  void setForeground(const CRGBA &fg) override;
+  void setBackground(const CRGBA &bg) override;
 
-  virtual void setLineDash(const CILineDash &line_dash);
-  virtual void setLineCap(CLineCapType cap);
-  virtual void setLineJoin(CLineJoinType join);
+  void setLineDash(const CILineDash &line_dash) override;
+  void setLineCap(CLineCapType cap) override;
+  void setLineJoin(CLineJoinType join) override;
 
-  virtual void clear();
-  virtual void fill();
+  void clear() override;
+  void fill() override;
 
-  virtual void drawClippedPoint(const CIPoint2D &point);
+  void drawClippedPoint(const CIPoint2D &point) override;
 
-  virtual void drawClippedChar(const CIPoint2D &point, char c);
+  void drawClippedChar(const CIPoint2D &point, char c) override;
 
-  virtual void drawClippedString(const CIPoint2D &point,
-                                 const std::string &str);
+  void drawClippedString(const CIPoint2D &point, const std::string &str) override;
 
-  virtual void drawStringInRect(const CIBBox2D &bbox, const std::string &str);
+  void drawStringInRect(const CIBBox2D &bbox, const std::string &str) override;
 
   void drawScaledStringInRect(const CIBBox2D &bbox, const std::string &str);
 
-  virtual void drawClippedLine(const CIPoint2D &point1,
-                               const CIPoint2D &point2);
+  void drawClippedLine(const CIPoint2D &point1, const CIPoint2D &point2) override;
 
-  virtual void drawClippedRectangle(const CIBBox2D &bbox);
+  void drawClippedRectangle(const CIBBox2D &bbox) override;
 
-  virtual void fillClippedRectangle(const CIBBox2D &bbox);
+  void fillClippedRectangle(const CIBBox2D &bbox) override;
 
-  virtual void fillClippedPolygon(const IPointList &points);
+  void fillClippedPolygon(const IPointList &points) override;
 
-  virtual void fillImageClippedPolygon(const IPointList &points,
-                                       CImagePtr image);
+  void fillImageClippedPolygon(const IPointList &points, CImagePtr image) override;
 
-  virtual void fillGradientClippedPolygon(const IPointList &points,
-                                          CRefPtr<CGenGradient> gradient);
+  void fillGradientClippedPolygon(const IPointList &points,
+                                  std::shared_ptr<CGenGradient> gradient) override;
 
-  virtual void drawClippedArc(const CIPoint2D &center, int xr, int yr,
-                              double a1, double a2);
+  void drawClippedArc(const CIPoint2D &center, int xr, int yr,
+                      double a1, double a2) override;
 
-  virtual void fillClippedArc(const CIPoint2D &center, int xr, int yr,
-                              double a1, double a2);
+  void fillClippedArc(const CIPoint2D &center, int xr, int yr,
+                      double a1, double a2) override;
 
-  virtual void drawClippedImage(const CIPoint2D &point, CImagePtr image);
+  void drawClippedImage(const CIPoint2D &point, CImagePtr image) override;
 
-  virtual void drawClippedAlphaImage(const CIPoint2D &point, CImagePtr image);
+  void drawClippedAlphaImage(const CIPoint2D &point, CImagePtr image) override;
 
   virtual void drawQImage(const CIPoint2D &point, QImage &image);
 
@@ -94,20 +91,19 @@ class CQPixelRenderer : public CPixelRenderer {
 
   virtual void strokePath(QPainterPath *path);
 
-  virtual void fillClippedTriangle(const CIPoint2D &point1,
-                                   const CIPoint2D &point2,
-                                   const CIPoint2D &point3);
+  void fillClippedTriangle(const CIPoint2D &point1, const CIPoint2D &point2,
+                           const CIPoint2D &point3) override;
 
-  virtual void drawClippedPolygon(const IPointList &points);
+  void drawClippedPolygon(const IPointList &points) override;
 
-  virtual void flush();
+  void flush() override;
 
-  virtual int getCharWidth();
-  virtual int getCharAscent();
-  virtual int getCharDescent();
-  virtual int getStringWidth(const std::string &str);
+  int getCharWidth() override;
+  int getCharAscent() override;
+  int getCharDescent() override;
+  int getStringWidth(const std::string &str) override;
 
-  virtual bool mmToPixel(double mm, double *pixel);
+  bool mmToPixel(double mm, double *pixel) override;
 
   virtual CQFont *getQFont() const;
 
@@ -119,8 +115,8 @@ class CQPixelRenderer : public CPixelRenderer {
   std::unique_ptr<QPen>     pen_;
   std::unique_ptr<QBrush>   brush_;
   std::unique_ptr<QPixmap>  pixmap_;
-  int                       pixmap_width_;
-  int                       pixmap_height_;
+  uint                      pixmap_width_ { 0 };
+  uint                      pixmap_height_ { 0 };
   QPainter*                 rep_painter_ { nullptr };
   QColor                    qfg_;
   QColor                    qbg_;

@@ -2,6 +2,8 @@
 #include <CQImage.h>
 #include <CQFont.h>
 #include <CQUtil.h>
+#include <CQUtilRGBA.h>
+#include <CQUtilGradient.h>
 #include <CLinearGradient.h>
 #include <CRadialGradient.h>
 
@@ -11,6 +13,7 @@
 #include <QPen>
 #include <QBrush>
 #include <QDesktopWidget>
+#include <QScreen>
 
 CQPixelRenderer::
 CQPixelRenderer() :
@@ -72,8 +75,8 @@ void
 CQPixelRenderer::
 startDoubleBuffer(bool do_clear)
 {
-  int width  = getWidth ();
-  int height = getHeight();
+  uint width  = getWidth ();
+  uint height = getHeight();
 
   if (width != pixmap_width_ || height != pixmap_height_) {
     pixmap_width_  = width;
@@ -143,11 +146,11 @@ setLineDash(const CILineDash &line_dash)
 
     pen_->setDashOffset(line_dash.getOffset());
 
-    for (int i = 0; i < line_dash.getNumLengths(); ++i)
+    for (int i = 0; i < int(line_dash.getNumLengths()); ++i)
       dashes << line_dash.getLength(i);
 
     if (line_dash.getNumLengths() & 1)
-      dashes << line_dash.getLength(line_dash.getNumLengths() - 1);
+      dashes << line_dash.getLength(int(line_dash.getNumLengths() - 1));
 
     pen_->setDashPattern(dashes);
   }
@@ -201,9 +204,9 @@ clear()
   brush.setStyle(Qt::SolidPattern);
 
   if (pixmap_)
-    getQPainter()->fillRect(0, 0, pixmap_width_, pixmap_height_, brush);
+    getQPainter()->fillRect(0, 0, int(pixmap_width_), int(pixmap_height_), brush);
   else
-    getQPainter()->fillRect(0, 0, getWidth(), getHeight(), brush);
+    getQPainter()->fillRect(0, 0, int(getWidth()), int(getHeight()), brush);
 }
 
 void
@@ -216,9 +219,9 @@ fill()
   brush.setStyle(Qt::SolidPattern);
 
   if (pixmap_)
-    getQPainter()->fillRect(0, 0, pixmap_width_, pixmap_height_, brush);
+    getQPainter()->fillRect(0, 0, int(pixmap_width_), int(pixmap_height_), brush);
   else
-    getQPainter()->fillRect(0, 0, getWidth(), getHeight(), brush);
+    getQPainter()->fillRect(0, 0, int(getWidth()), int(getHeight()), brush);
 }
 
 void
@@ -445,7 +448,7 @@ drawClippedPolygon(const IPointList &points)
 
   QPainterPath path;
 
-  uint num_points = points.size();
+  uint num_points = uint(points.size());
 
   path.moveTo(points[0].x, points[0].y);
 
@@ -468,7 +471,7 @@ fillClippedPolygon(const IPointList &points)
 
   QPainterPath path;
 
-  uint num_points = points.size();
+  uint num_points = uint(points.size());
 
   if (num_points < 1) return;
 
@@ -497,7 +500,7 @@ fillImageClippedPolygon(const IPointList &points, CImagePtr image)
 
   QPainterPath path;
 
-  uint num_points = points.size();
+  uint num_points = uint(points.size());
 
   if (num_points < 1) return;
 
@@ -516,17 +519,17 @@ fillImageClippedPolygon(const IPointList &points, CImagePtr image)
 void
 CQPixelRenderer::
 fillGradientClippedPolygon(const IPointList &points,
-                           CRefPtr<CGenGradient> gradient)
+                           std::shared_ptr<CGenGradient> gradient)
 {
   CLinearGradient *lg;
   CRadialGradient *rg;
 
-  if      ((lg = dynamic_cast<CLinearGradient*>(gradient.getPtr())) != 0) {
+  if      ((lg = dynamic_cast<CLinearGradient*>(gradient.get())) != nullptr) {
     auto qlg = CQUtil::toQGradient(lg);
 
     getQPainter()->setBrush(QBrush(qlg));
   }
-  else if ((rg = dynamic_cast<CRadialGradient*>(gradient.getPtr())) != 0) {
+  else if ((rg = dynamic_cast<CRadialGradient*>(gradient.get())) != nullptr) {
     auto qrg = CQUtil::toQGradient(rg);
 
     getQPainter()->setBrush(QBrush(qrg));
@@ -534,7 +537,7 @@ fillGradientClippedPolygon(const IPointList &points,
 
   QPainterPath path;
 
-  uint num_points = points.size();
+  uint num_points = uint(points.size());
 
   if (num_points < 1) return;
 
@@ -619,8 +622,8 @@ getClip(int *xmin, int *ymin, int *xmax, int *ymax)
 {
   *xmin = 0;
   *ymin = 0;
-  *xmax = getWidth () - 1;
-  *ymax = getHeight() - 1;
+  *xmax = int(getWidth () - 1);
+  *ymax = int(getHeight() - 1);
 }
 
 void
@@ -665,7 +668,7 @@ getCharWidth()
 {
   QFontMetricsF fm(getQFont()->getQFont());
 
-  return fm.width('X');
+  return int(fm.horizontalAdvance('X'));
 }
 
 int
@@ -674,7 +677,7 @@ getCharAscent()
 {
   QFontMetricsF fm(getQFont()->getQFont());
 
-  return fm.ascent();
+  return int(fm.ascent());
 }
 
 int
@@ -683,7 +686,7 @@ getCharDescent()
 {
   QFontMetricsF fm(getQFont()->getQFont());
 
-  return fm.descent();
+  return int(fm.descent());
 }
 
 int
@@ -692,16 +695,22 @@ getStringWidth(const std::string &str)
 {
   QFontMetricsF fm(getQFont()->getQFont());
 
-  return fm.width(QString(str.c_str()));
+  return int(fm.horizontalAdvance(QString(str.c_str())));
 }
 
 bool
 CQPixelRenderer::
 mmToPixel(double mm, double *pixel)
 {
+#if 0
   auto *w = QApplication::desktop()->screen(0);
 
   int dpi = (w->logicalDpiX() + w->logicalDpiY())/2;
+#else
+  auto *screen = QApplication::primaryScreen();
+
+  int dpi = int((screen->logicalDotsPerInchX() + screen->logicalDotsPerInchY())/2);
+#endif
 
   double dpmm = dpi/25.4;
 
@@ -735,5 +744,5 @@ getQFont() const
 
   getFont(pfont);
 
-  return pfont.cast<CQFont>();
+  return dynamic_cast<CQFont *>(pfont.get());
 }

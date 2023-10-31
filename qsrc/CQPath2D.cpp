@@ -1,6 +1,8 @@
 #include <CQPath2D.h>
 #include <CQFont.h>
 #include <CQUtil.h>
+#include <CQUtilGradient.h>
+#include <CQUtilGeom.h>
 #include <CQImage.h>
 #include <CLineList2D.h>
 #include <CLinearGradient.h>
@@ -126,7 +128,7 @@ void
 CQPath2D::
 text(const std::string &text, CFontPtr font)
 {
-  auto *qfont = font.cast<CQFont>();
+  auto *qfont = dynamic_cast<CQFont *>(font.get());
 
   CPoint2D point;
 
@@ -297,19 +299,19 @@ fillImage(QPainter *painter, CImagePtr image)
 
 void
 CQPath2D::
-fillGradient(QPainter *painter, CRefPtr<CGenGradient> gradient)
+fillGradient(QPainter *painter, std::shared_ptr<CGenGradient> gradient)
 {
   QBrush brush;
 
   CLinearGradient *lg;
   CRadialGradient *rg;
 
-  if      ((lg = dynamic_cast<CLinearGradient*>(gradient.getPtr())) != NULL) {
+  if      ((lg = dynamic_cast<CLinearGradient*>(gradient.get())) != NULL) {
     QLinearGradient qlg = CQUtil::toQGradient(lg);
 
     brush = QBrush(qlg);
   }
-  else if ((rg = dynamic_cast<CRadialGradient*>(gradient.getPtr())) != NULL) {
+  else if ((rg = dynamic_cast<CRadialGradient*>(gradient.get())) != NULL) {
     QRadialGradient qrg = CQUtil::toQGradient(rg);
 
     brush = QBrush(qrg);

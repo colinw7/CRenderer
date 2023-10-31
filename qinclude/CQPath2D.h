@@ -13,7 +13,7 @@ class CQPath2D : public CPath2D {
    public:
     PathVisitor() { }
 
-   ~PathVisitor() { }
+    virtual ~PathVisitor() { }
 
     virtual void init() { }
     virtual void term() { }
@@ -73,7 +73,7 @@ class CQPath2D : public CPath2D {
 
   void fill(QPainter *painter);
   void fillImage(QPainter *painter, CImagePtr image);
-  void fillGradient(QPainter *painter, CRefPtr<CGenGradient> gradient);
+  void fillGradient(QPainter *painter, std::shared_ptr<CGenGradient> gradient);
 
   bool getCurrentPoint(CPoint2D &point) override;
 
